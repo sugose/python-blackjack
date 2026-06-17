@@ -23,11 +23,16 @@ class Card:
     suit: str
     visible: bool = True
 
+    def __post_init__(self) -> None:
+        """Validate rank and suit at construction time."""
+        if self.rank not in _FACE_VALUE:
+            raise ValueError(f"Invalid card rank: {self.rank!r}")
+        if self.suit not in SUITS:
+            raise ValueError(f"Invalid card suit: {self.suit!r}")
+
     @property
     def value(self) -> int:
         """Numeric value of the card (Ace = 11 by default; Hand handles the 1/11 choice)."""
-        if self.rank not in _FACE_VALUE:
-            raise ValueError(f"Invalid card rank: {self.rank!r}")
         return _FACE_VALUE[self.rank]
 
     def __repr__(self) -> str:

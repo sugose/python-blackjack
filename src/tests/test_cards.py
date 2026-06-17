@@ -31,9 +31,12 @@ class TestCard:
         assert "Spades" in repr(card)
 
     def test_invalid_rank_raises(self):
-        card = Card(rank="Joker", suit="Hearts")
         with pytest.raises(ValueError, match="Invalid card rank"):
-            _ = card.value
+            Card(rank="Joker", suit="Hearts")
+
+    def test_invalid_suit_raises(self):
+        with pytest.raises(ValueError, match="Invalid card suit"):
+            Card(rank="Ace", suit="Coins")
 
 
 class TestDeck:

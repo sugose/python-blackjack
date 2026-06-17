@@ -1,5 +1,7 @@
 """Tests for deal_initial()."""
 
+import pytest
+
 from src.cards import Deck
 from src.deal import deal_initial
 from src.hand import Hand
@@ -42,6 +44,27 @@ class TestDealInitial:
         _, dealer_hand = deal_initial(self._shuffled_deck())
         visible = [c for c in dealer_hand.cards if c.visible]
         assert len(visible) == 1
+
+    def test_deal_initial_raises_on_short_deck(self):
+        deck = Deck()
+        deck.shuffle(seed=1)
+        for _ in range(50):
+            deck.deal()
+        assert len(deck) == 2
+        with pytest.raises(ValueError, match="need at least 4"):
+            deal_initial(deck)
+
+    def test_deal_initial_does_not_mutate_deck_on_short_deck(self):
+        deck = Deck()
+        deck.shuffle(seed=1)
+        for _ in range(50):
+            deck.deal()
+        assert len(deck) == 2
+        try:
+            deal_initial(deck)
+        except ValueError:
+            pass
+        assert len(deck) == 2
 
     def test_no_shared_cards_between_hands(self):
         deck = self._shuffled_deck()
