@@ -142,3 +142,65 @@ Player strategy is pluggable — a callable that takes a hand and returns `"hit"
 
 - Deck must have at least 4 cards before dealing — already enforced by `deal_initial()`
 - Wallet cannot go below 0 — raise `ValueError` if bet exceeds wallet balance
+
+---
+
+## 7. PBI-1.3 — Game Session Loop
+
+### Overview
+
+A session loops over multiple hands using a single shared deck, applying a cut-card policy to trigger reshuffles, and terminates either when the player runs out of funds or when the maximum number of hands is reached.
+
+### Session Flow
+
+1. Log `[OPEN]` with player name, max hands, starting wallet
+2. Create and shuffle deck (seeded for reproducibility), log `[SHUFFLE]`
+3. For each hand 1..max_hands:
+   a. Log `[HAND]` with hand number and current wallet
+   b. Call `play_hand(player, deck)` — deck is passed in (not created internally)
+   c. If wallet == 0: log `[LEAVE]` (no funds) + `[CLOSE]` and return
+   d. If `len(deck) <= cut_card`: log `[CUT]`, reshuffle, log `[SHUFFLE]`
+4. After max_hands: log `[LEAVE]` (max hands reached) + `[CLOSE]`
+
+### Refactors to `play_hand()`
+
+- Signature changes to `play_hand(player: Player, deck: Deck) -> None` — deck is passed in by the session
+- `seed` parameter removed; shuffling is the caller's responsibility
+- `DECK` event removed from `play_hand()` — replaced by `SHUFFLE` in `play_session()`
+- `TABLE` event renamed to `LEAVE`
+- New `PAYOUT` event logged at every payout point
+
+### New Events
+
+| Event | Example message |
+|---|---|
+| Session opened | `[OPEN] Session started — player: Alice, max hands: 10, starting wallet: 100 UoM` |
+| Deck shuffled | `[SHUFFLE] Shuffled 52-card deck` |
+| Hand started | `[HAND] Hand 1 of 10 — wallet: 100 UoM` |
+| Cut card reached | `[CUT] Cut card reached — reshuffling after this hand` |
+| Payout | `[PAYOUT] Player receives 2.5 UoM — blackjack 3:2` |
+| Payout | `[PAYOUT] Player receives 2 UoM — win` |
+| Payout | `[PAYOUT] Player receives 1 UoM — push` |
+| Player leaves | `[LEAVE] Player leaves — no funds` |
+| Player leaves | `[LEAVE] Player leaves — max hands reached` |
+| Session closed | `[CLOSE] Session closed — hands played: 10, final wallet: 95 UoM, reason: max hands reached` |
+
+### `play_session()` Signature
+
+```python
+def play_session(
+    player: Player,
+    max_hands: int = 10,
+    cut_card: int = 39,
+    seed: int | None = None,
+) -> None:
+```
+
+### Validation
+
+- `max_hands < 1` → `ValueError`
+- `cut_card < 1 or cut_card >= 52` → `ValueError`
+
+### Updated `main.py`
+
+`main()` calls `play_session(player)` instead of `play_hand(player, deck)`.

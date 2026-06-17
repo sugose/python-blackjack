@@ -1,4 +1,4 @@
-"""Game engine — orchestrates a single blackjack hand end-to-end."""
+"""Game engine — orchestrates a single blackjack hand or a full session."""
 
 from src.cards import Deck
 from src.deal import deal_initial
@@ -8,22 +8,18 @@ from src.player import Player
 
 
 def _log_wallet(player: Player) -> None:
-    """Log wallet balance and table departure if wallet reaches zero."""
+    """Log wallet balance and player departure if wallet reaches zero."""
     log_event("WALLET", f"Player wallet: {player.wallet:g} UoM")
     if player.wallet == 0.0:
-        log_event("TABLE", "Player leaves — wallet reached 0 UoM")
+        log_event("LEAVE", "Player leaves — wallet reached 0 UoM")
 
 
-def play_hand(player: Player, seed: int | None = None) -> None:
-    """Play one complete hand of blackjack for the given player."""
+def play_hand(player: Player, deck: Deck) -> None:
+    """Play one complete hand of blackjack for the given player using the provided deck."""
     dealer = Dealer()
 
     player.place_bet()
     log_event("BET", f"Player bets {player.bet:g} UoM — wallet: {player.wallet:g} UoM")
-
-    deck = Deck()
-    deck.shuffle(seed=seed)
-    log_event("DECK", f"Shuffled {len(deck)}-card deck")
 
     player_hand, dealer_hand = deal_initial(deck)
 
@@ -41,9 +37,12 @@ def play_hand(player: Player, seed: int | None = None) -> None:
             log_event("REVEAL", f"Dealer reveals: {revealed} — hand value: {dealer_hand.value}")
             log_event("OUTCOME", "Push — both have blackjack")
             player.receive_payout(player.bet)
+            log_event("PAYOUT", f"Player receives {player.bet:g} UoM — push")
         else:
             log_event("OUTCOME", "Player blackjack — pays 3:2")
-            player.receive_payout(player.bet + player.bet * 1.5)
+            payout = player.bet + player.bet * 1.5
+            player.receive_payout(payout)
+            log_event("PAYOUT", f"Player receives {payout:g} UoM — blackjack 3:2")
         _log_wallet(player)
         return
 
@@ -85,7 +84,9 @@ def play_hand(player: Player, seed: int | None = None) -> None:
     if dealer_hand.is_bust:
         log_event("BUST", f"Dealer busts with {dealer_hand.value}")
         log_event("OUTCOME", "Player wins — dealer busts")
-        player.receive_payout(player.bet * 2)
+        payout = player.bet * 2
+        player.receive_payout(payout)
+        log_event("PAYOUT", f"Player receives {payout:g} UoM — win")
         _log_wallet(player)
         return
 
@@ -94,11 +95,63 @@ def play_hand(player: Player, seed: int | None = None) -> None:
 
     if pv > dv:
         log_event("OUTCOME", f"Player wins — player {pv} beats dealer {dv}")
-        player.receive_payout(player.bet * 2)
+        payout = player.bet * 2
+        player.receive_payout(payout)
+        log_event("PAYOUT", f"Player receives {payout:g} UoM — win")
     elif dv > pv:
         log_event("OUTCOME", f"Dealer wins — dealer {dv} beats player {pv}")
     else:
         log_event("OUTCOME", f"Push — both have {pv}")
         player.receive_payout(player.bet)
+        log_event("PAYOUT", f"Player receives {player.bet:g} UoM — push")
 
     _log_wallet(player)
+
+
+def play_session(
+    player: Player,
+    max_hands: int = 10,
+    cut_card: int = 39,
+    seed: int | None = None,
+) -> None:
+    """Play a session of multiple blackjack hands for the given player."""
+    if max_hands < 1:
+        raise ValueError(f"max_hands must be at least 1, got {max_hands}")
+    if cut_card < 1 or cut_card >= 52:
+        raise ValueError(f"cut_card must be between 1 and 51, got {cut_card}")
+
+    log_event(
+        "OPEN",
+        f"Session started — player: {player.name}, max hands: {max_hands}, "
+        f"starting wallet: {player.wallet:g} UoM",
+    )
+
+    deck = Deck()
+    deck.shuffle(seed=seed)
+    log_event("SHUFFLE", f"Shuffled {len(deck)}-card deck")
+
+    for hand_number in range(1, max_hands + 1):
+        log_event("HAND", f"Hand {hand_number} of {max_hands} — wallet: {player.wallet:g} UoM")
+        play_hand(player, deck)
+
+        if player.wallet == 0.0:
+            log_event("LEAVE", "Player leaves — no funds")
+            log_event(
+                "CLOSE",
+                f"Session closed — hands played: {hand_number}, final wallet: 0 UoM, "
+                "reason: no funds",
+            )
+            return
+
+        if len(deck) <= cut_card:
+            log_event("CUT", "Cut card reached — reshuffling after this hand")
+            deck = Deck()
+            deck.shuffle(seed=seed + hand_number if seed is not None else None)
+            log_event("SHUFFLE", f"Shuffled {len(deck)}-card deck")
+
+    log_event("LEAVE", "Player leaves — max hands reached")
+    log_event(
+        "CLOSE",
+        f"Session closed — hands played: {max_hands}, final wallet: {player.wallet:g} UoM, "
+        "reason: max hands reached",
+    )

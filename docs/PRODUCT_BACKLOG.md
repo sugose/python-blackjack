@@ -14,7 +14,8 @@
 | ID | Description | Status |
 |---|---|---|
 | PBI-1.1 | Implement Card, Deck, Hand, and deal_initial — 52-card deck, seeded shuffle, O(1) deal, opening hand with dealer hole card, full validation at construction | ✅ Done |
-| PBI-1.2 | Play out a single hand end-to-end — player and dealer turns, betting, payout, wallet, logging | 🔲 Not started |
+| PBI-1.2 | Play out a single hand end-to-end — player and dealer turns, betting, payout, wallet, logging | ✅ Done |
+| PBI-1.3 | Game session loop — multi-hand session with shared deck, cut-card reshuffle policy, session open/close logging, wallet termination | 🔄 In Progress |
 
 ---
 
