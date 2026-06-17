@@ -29,10 +29,10 @@ def play_hand(player: Player, seed: int | None = None) -> None:
 
     c1 = player_hand.cards[0]
     c2 = player_hand.cards[1]
-    log_event("DEAL", f"Player dealt {c1} — hand value: {c1.value}")
+    log_event("DEAL", f"Player dealt {c1} — card value: {c1.value}")
     log_event("DEAL", f"Player dealt {c2} — hand value: {player_hand.value}")
     dc1 = dealer_hand.cards[0]
-    log_event("DEAL", f"Dealer shows {dc1} — hand value: {dc1.value}")
+    log_event("DEAL", f"Dealer shows {dc1} — card value: {dc1.value}")
     log_event("DEAL", "Dealer has 1 hidden card")
 
     if player_hand.is_blackjack:

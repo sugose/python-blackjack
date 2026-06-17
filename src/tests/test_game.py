@@ -226,3 +226,23 @@ def test_table_logged_on_dealer_blackjack_exit_when_wallet_zero(
         play_hand(p, seed=9)
     assert p.wallet == 0.0
     assert "[TABLE] Player leaves — wallet reached 0 UoM" in caplog.text
+
+
+def test_deal_log_first_player_card_says_card_value(caplog: pytest.LogCaptureFixture) -> None:
+    """First player DEAL log uses 'card value' not 'hand value'."""
+    p = Player(name="Alice", strategy=_stand_strategy)
+    with caplog.at_level(logging.INFO, logger="blackjack"):
+        play_hand(p, seed=2)
+    assert "card value" in caplog.text.split("[DEAL]")[1]
+
+
+def test_deal_log_dealer_upcard_says_card_value(caplog: pytest.LogCaptureFixture) -> None:
+    """Dealer upcard DEAL log uses 'card value' not 'hand value'."""
+    p = Player(name="Alice", strategy=_stand_strategy)
+    with caplog.at_level(logging.INFO, logger="blackjack"):
+        play_hand(p, seed=2)
+    dealer_deal_log = [
+        line for line in caplog.text.split("\n") if "[DEAL]" in line and "Dealer shows" in line
+    ]
+    assert len(dealer_deal_log) == 1
+    assert "card value" in dealer_deal_log[0]
