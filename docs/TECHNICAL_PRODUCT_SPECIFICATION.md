@@ -73,3 +73,72 @@ Deals the opening hand of a round.
 - Shuffling algorithm: standard random.shuffle for now; may need seeding strategy for reproducible simulations
 - Multiple decks (shoe): not in scope yet
 - Splitting, doubling down, insurance: not in scope yet
+
+---
+
+## 6. PBI-1.2 — Single Hand Engine
+
+### Game Flow
+
+1. Player wallet initialised at 100 UoM
+2. Bet of 1 UoM placed and deducted from wallet
+3. Deck created (52 cards), shuffled, logged with deck size
+4. Opening hand dealt — player 2 visible cards, dealer 1 visible + 1 hidden — each card logged with resulting hand value
+5. Player turn — hit on 16 or under, stand on 17+ — each event logged with card and hand value
+6. Dealer reveals hole card — logged with resulting hand value
+7. Dealer turn — hit on 16 or under, stand on 17+ — each event logged with card and hand value
+8. Outcome determined and logged with reason
+9. Wallet updated and logged
+10. If wallet reaches 0, player leaves the table — logged
+11. Exit
+
+### Payout Rules
+
+| Outcome | Payout |
+|---|---|
+| Player blackjack | 3:2 (1.5 UoM profit on 1 UoM bet) |
+| Player wins (non-blackjack) | 1:1 (1 UoM profit) |
+| Push | Bet returned (no change) |
+| Dealer wins | Bet lost (−1 UoM) |
+
+### New Modules
+
+| Module | Responsibility |
+|---|---|
+| `src/player.py` | Player — wallet, bet, strategy (pluggable behaviour) |
+| `src/dealer.py` | Dealer — strategy (deterministic: hit ≤16, stand ≥17), hole card reveal |
+| `src/game.py` | Game engine — orchestrates a single hand end-to-end |
+| `src/logger.py` | Structured event logger — all card, bet, wallet, and outcome events |
+
+### Logged Events
+
+| Event | Example message |
+|---|---|
+| Deck shuffled | `[DECK] Shuffled 52-card deck` |
+| Bet placed | `[BET] Player bets 1 UoM — wallet: 99 UoM` |
+| Card dealt | `[DEAL] Player dealt 7 of Hearts — hand value: 7` |
+| Card dealt | `[DEAL] Player dealt King of Spades — hand value: 17` |
+| Dealer visible | `[DEAL] Dealer shows Ace of Diamonds — hand value: 11` |
+| Dealer hidden | `[DEAL] Dealer has 1 hidden card` |
+| Player hits | `[HIT] Player hits: 5 of Clubs — hand value: 15` |
+| Player stands | `[STAND] Player stands on 19` |
+| Player busts | `[BUST] Player busts with 23` |
+| Hole card revealed | `[REVEAL] Dealer reveals: King of Hearts — hand value: 17` |
+| Dealer hits | `[HIT] Dealer hits: 3 of Diamonds — hand value: 14` |
+| Dealer stands | `[STAND] Dealer stands on 18` |
+| Dealer busts | `[BUST] Dealer busts with 24` |
+| Outcome | `[OUTCOME] Player wins — player 20 beats dealer 17` |
+| Outcome | `[OUTCOME] Dealer wins — dealer 19 beats player 16` |
+| Outcome | `[OUTCOME] Push — both have 18` |
+| Outcome | `[OUTCOME] Player blackjack — pays 3:2` |
+| Wallet updated | `[WALLET] Player wallet: 101 UoM` |
+| Player leaves | `[TABLE] Player leaves — wallet reached 0 UoM` |
+
+### Strategy Interface
+
+Player strategy is pluggable — a callable that takes a hand and returns `"hit"` or `"stand"`. For PBI-1.2, player strategy mirrors dealer strategy: hit on 16 or under, stand on 17+.
+
+### Error Handling
+
+- Deck must have at least 4 cards before dealing — already enforced by `deal_initial()`
+- Wallet cannot go below 0 — raise `ValueError` if bet exceeds wallet balance
