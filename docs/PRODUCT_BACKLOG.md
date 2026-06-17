@@ -22,4 +22,4 @@
 
 | ID | Description |
 |---|---|
-| — | Add ideas here that are not yet scheduled |
+| ICE-1 | Card counting strategy — pluggable card behaviour (hit/stand based on running count) and pluggable bet behaviour (bet size based on running count). Requires extending the strategy interface to take deck state as input. |
