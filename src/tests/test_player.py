@@ -7,18 +7,6 @@ from src.hand import Hand
 from src.player import Player
 
 
-def _make_hand(value: int) -> Hand:
-    """Return a Hand whose value equals `value` using 2s and a filler."""
-    twos = value // 2
-    cards = [Card("2", "Hearts")] * twos
-    if value % 2:
-        cards.append(Card("Ace", "Spades"))
-        for _ in range(twos):
-            cards.append(Card("2", "Hearts"))
-        cards = [Card("Ace", "Spades")] + [Card("2", "Hearts")] * (value - 11)
-    return Hand(cards)
-
-
 def _simple_strategy(hand: Hand) -> str:
     return "stand"
 

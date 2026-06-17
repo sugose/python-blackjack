@@ -1,5 +1,7 @@
 """Entry point — play one hand of blackjack with the default strategy."""
 
+import logging
+
 from src.game import play_hand
 from src.hand import Hand
 from src.player import Player
@@ -12,6 +14,7 @@ def default_strategy(hand: Hand) -> str:
 
 def main() -> None:
     """Create a player and play one hand."""
+    logging.basicConfig(level=logging.INFO, format="%(message)s")
     player = Player(name="Player", strategy=default_strategy)
     play_hand(player)
 

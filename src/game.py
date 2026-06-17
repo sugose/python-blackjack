@@ -13,7 +13,7 @@ def play_hand(player: Player, seed: int | None = None) -> None:
     dealer = Dealer()
 
     player.place_bet()
-    log_event("BET", f"Player bets {player.bet:.0f} UoM — wallet: {player.wallet:.0f} UoM")
+    log_event("BET", f"Player bets {player.bet:g} UoM — wallet: {player.wallet:g} UoM")
 
     deck = Deck()
     deck.shuffle(seed=seed)
@@ -38,7 +38,7 @@ def play_hand(player: Player, seed: int | None = None) -> None:
         else:
             log_event("OUTCOME", "Player blackjack — pays 3:2")
             player.receive_payout(player.bet + player.bet * 1.5)
-        log_event("WALLET", f"Player wallet: {player.wallet:.0f} UoM")
+        log_event("WALLET", f"Player wallet: {player.wallet:g} UoM")
         if player.wallet == 0.0:
             log_event("TABLE", "Player leaves — wallet reached 0 UoM")
         return
@@ -56,7 +56,7 @@ def play_hand(player: Player, seed: int | None = None) -> None:
 
     if player_hand.is_bust:
         log_event("BUST", f"Player busts with {player_hand.value}")
-        log_event("WALLET", f"Player wallet: {player.wallet:.0f} UoM")
+        log_event("WALLET", f"Player wallet: {player.wallet:g} UoM")
         if player.wallet == 0.0:
             log_event("TABLE", "Player leaves — wallet reached 0 UoM")
         return
@@ -77,7 +77,7 @@ def play_hand(player: Player, seed: int | None = None) -> None:
         log_event("BUST", f"Dealer busts with {dealer_hand.value}")
         log_event("OUTCOME", "Player wins — dealer busts")
         player.receive_payout(player.bet * 2)
-        log_event("WALLET", f"Player wallet: {player.wallet:.0f} UoM")
+        log_event("WALLET", f"Player wallet: {player.wallet:g} UoM")
         if player.wallet == 0.0:
             log_event("TABLE", "Player leaves — wallet reached 0 UoM")
         return
@@ -94,6 +94,6 @@ def play_hand(player: Player, seed: int | None = None) -> None:
         log_event("OUTCOME", f"Push — both have {pv}")
         player.receive_payout(player.bet)
 
-    log_event("WALLET", f"Player wallet: {player.wallet:.0f} UoM")
+    log_event("WALLET", f"Player wallet: {player.wallet:g} UoM")
     if player.wallet == 0.0:
         log_event("TABLE", "Player leaves — wallet reached 0 UoM")
