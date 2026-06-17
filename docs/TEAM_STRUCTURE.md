@@ -17,18 +17,26 @@
 
 **A — Feature PR (Crog → main)**
 1. Crog opens PR from `feature/<name>` to `main`.
-2. Crog runs `bash tools/pr_dump.sh <PR-number>` and reports to Clead.
-3. Copi reviews via GitHub native integration.
-4. Clead reviews the pr_dump output in Claude chat.
-5. Adam merges once CI is green and Clead approves.
+2. Crog requests Copi review: `gh pr edit <PR-number> --add-reviewer copilot`
+3. Crog waits for Copi review to complete.
+4. Crog runs `bash tools/pr_dump.sh <PR-number>` and reports to Clead with the full output.
+5. Clead reviews in Claude chat.
+6. Adam merges once CI is green and Clead approves.
 
 **B — Fix PR (Crog → main)**
-Same as A, using branch `fix/<name>`.
+1. Crog opens PR from `fix/<name>` to `main`.
+2. Crog requests Copi review: `gh pr edit <PR-number> --add-reviewer copilot`
+3. Crog waits for Copi review to complete.
+4. Crog runs `bash tools/pr_dump.sh <PR-number>` and reports to Clead with the full output.
+5. Clead reviews in Claude chat.
+6. Adam merges once CI is green and Clead approves.
 
 **C — Spec/Docs PR (Clead → main)**
 1. Clead produces updated doc content.
 2. Crog writes the file to disk, commits, and opens a PR.
-3. Adam reviews and merges directly — no code review required for docs-only PRs.
+3. Skip Copi — docs-only PR.
+4. Crog runs `bash tools/pr_dump.sh <PR-number>` immediately and reports to Clead.
+5. Adam reviews and merges directly.
 
 ---
 
@@ -60,7 +68,7 @@ Every PR review from Clead covers all five of these points:
 
 1. Adam picks the next PBI from `docs/PRODUCT_BACKLOG.md`.
 2. Adam pastes the Crog task prompt into Claude Code.
-3. Crog implements, opens a PR, runs `pr_dump.sh`, reports back.
+3. Crog implements, opens a PR, requests Copi review (code PRs only), waits for Copi to complete, runs `pr_dump.sh`, and reports back.
 4. Clead reviews in Claude chat.
 5. Adam merges on Clead's approval.
 6. Adam updates `CHANGELOG.md` and moves to the next PBI.
