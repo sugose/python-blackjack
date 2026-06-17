@@ -13,7 +13,7 @@ class Player:
     name: str
     strategy: Callable[[Hand], str]
     wallet: float = field(default=100.0)
-    bet: float = field(default=1.0)
+    bet: float = field(default=1.0, init=False)
 
     def place_bet(self) -> None:
         """Deduct the fixed bet from the wallet. Raises ValueError if funds are insufficient."""

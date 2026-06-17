@@ -45,6 +45,12 @@ def test_receive_payout_adds_to_wallet() -> None:
     assert p.wallet == 101.5
 
 
+def test_player_bet_cannot_be_set_at_construction() -> None:
+    """bet is fixed at 1.0 UoM and cannot be overridden at construction time."""
+    with pytest.raises(TypeError):
+        Player(name="Alice", strategy=_simple_strategy, bet=5.0)
+
+
 def test_strategy_called_with_hand() -> None:
     """Player.strategy is the callable passed at construction."""
     calls: list[Hand] = []
