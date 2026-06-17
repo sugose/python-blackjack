@@ -3,9 +3,15 @@
 from src.cards import Deck
 from src.deal import deal_initial
 from src.dealer import Dealer
-from src.hand import Hand
 from src.logger import log_event
 from src.player import Player
+
+
+def _log_wallet(player: Player) -> None:
+    """Log wallet balance and table departure if wallet reaches zero."""
+    log_event("WALLET", f"Player wallet: {player.wallet:g} UoM")
+    if player.wallet == 0.0:
+        log_event("TABLE", "Player leaves — wallet reached 0 UoM")
 
 
 def play_hand(player: Player, seed: int | None = None) -> None:
@@ -23,10 +29,10 @@ def play_hand(player: Player, seed: int | None = None) -> None:
 
     c1 = player_hand.cards[0]
     c2 = player_hand.cards[1]
-    log_event("DEAL", f"Player dealt {c1} — hand value: {Hand([c1]).value}")
+    log_event("DEAL", f"Player dealt {c1} — hand value: {c1.value}")
     log_event("DEAL", f"Player dealt {c2} — hand value: {player_hand.value}")
     dc1 = dealer_hand.cards[0]
-    log_event("DEAL", f"Dealer shows {dc1} — hand value: {Hand([dc1]).value}")
+    log_event("DEAL", f"Dealer shows {dc1} — hand value: {dc1.value}")
     log_event("DEAL", "Dealer has 1 hidden card")
 
     if player_hand.is_blackjack:
@@ -38,18 +44,14 @@ def play_hand(player: Player, seed: int | None = None) -> None:
         else:
             log_event("OUTCOME", "Player blackjack — pays 3:2")
             player.receive_payout(player.bet + player.bet * 1.5)
-        log_event("WALLET", f"Player wallet: {player.wallet:g} UoM")
-        if player.wallet == 0.0:
-            log_event("TABLE", "Player leaves — wallet reached 0 UoM")
+        _log_wallet(player)
         return
 
     if dealer_hand.is_blackjack:
         revealed = dealer.reveal_hole_card(dealer_hand)
         log_event("REVEAL", f"Dealer reveals: {revealed} — hand value: {dealer_hand.value}")
         log_event("OUTCOME", "Dealer blackjack — player loses")
-        log_event("WALLET", f"Player wallet: {player.wallet:g} UoM")
-        if player.wallet == 0.0:
-            log_event("TABLE", "Player leaves — wallet reached 0 UoM")
+        _log_wallet(player)
         return
 
     while not player_hand.is_bust:
@@ -65,9 +67,7 @@ def play_hand(player: Player, seed: int | None = None) -> None:
 
     if player_hand.is_bust:
         log_event("BUST", f"Player busts with {player_hand.value}")
-        log_event("WALLET", f"Player wallet: {player.wallet:g} UoM")
-        if player.wallet == 0.0:
-            log_event("TABLE", "Player leaves — wallet reached 0 UoM")
+        _log_wallet(player)
         return
 
     revealed = dealer.reveal_hole_card(dealer_hand)
@@ -86,9 +86,7 @@ def play_hand(player: Player, seed: int | None = None) -> None:
         log_event("BUST", f"Dealer busts with {dealer_hand.value}")
         log_event("OUTCOME", "Player wins — dealer busts")
         player.receive_payout(player.bet * 2)
-        log_event("WALLET", f"Player wallet: {player.wallet:g} UoM")
-        if player.wallet == 0.0:
-            log_event("TABLE", "Player leaves — wallet reached 0 UoM")
+        _log_wallet(player)
         return
 
     pv = player_hand.value
@@ -103,6 +101,4 @@ def play_hand(player: Player, seed: int | None = None) -> None:
         log_event("OUTCOME", f"Push — both have {pv}")
         player.receive_payout(player.bet)
 
-    log_event("WALLET", f"Player wallet: {player.wallet:g} UoM")
-    if player.wallet == 0.0:
-        log_event("TABLE", "Player leaves — wallet reached 0 UoM")
+    _log_wallet(player)

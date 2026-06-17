@@ -3,6 +3,7 @@
 Seed reference (stand strategy unless noted):
   seed=0  → dealer bust          (player wins +1 UoM)
   seed=2  → dealer wins          (player loses -1 UoM)
+  seed=9  → dealer blackjack only (player loses -1 UoM)
   seed=19 → push                 (wallet unchanged)
   seed=49 → player blackjack only (pays 3:2, +1.5 UoM)
   seed=498 → both blackjack      (push, wallet unchanged)
@@ -162,3 +163,66 @@ def test_play_hand_logs_reveal(caplog: pytest.LogCaptureFixture) -> None:
     with caplog.at_level(logging.INFO, logger="blackjack"):
         play_hand(p, seed=2)
     assert "[REVEAL]" in caplog.text
+
+
+# --- WALLET / TABLE logging across all exit paths ---
+
+
+def test_wallet_logged_on_player_blackjack_exit(caplog: pytest.LogCaptureFixture) -> None:
+    """WALLET is logged on the player-blackjack exit path."""
+    p = Player(name="Alice", strategy=_stand_strategy)
+    with caplog.at_level(logging.INFO, logger="blackjack"):
+        play_hand(p, seed=49)
+    assert "[WALLET] Player wallet: 101.5 UoM" in caplog.text
+
+
+def test_wallet_logged_on_both_blackjack_exit(caplog: pytest.LogCaptureFixture) -> None:
+    """WALLET is logged on the both-blackjack push exit path."""
+    p = Player(name="Alice", strategy=_stand_strategy)
+    with caplog.at_level(logging.INFO, logger="blackjack"):
+        play_hand(p, seed=498)
+    assert "[WALLET] Player wallet: 100 UoM" in caplog.text
+
+
+def test_wallet_logged_on_dealer_blackjack_exit(caplog: pytest.LogCaptureFixture) -> None:
+    """WALLET is logged on the dealer-blackjack exit path."""
+    p = Player(name="Alice", strategy=_stand_strategy)
+    with caplog.at_level(logging.INFO, logger="blackjack"):
+        play_hand(p, seed=9)
+    assert "[WALLET] Player wallet: 99 UoM" in caplog.text
+
+
+def test_wallet_logged_on_player_bust_exit(caplog: pytest.LogCaptureFixture) -> None:
+    """WALLET is logged on the player-bust exit path."""
+    p = Player(name="Alice", strategy=_hit_strategy)
+    with caplog.at_level(logging.INFO, logger="blackjack"):
+        play_hand(p, seed=2)
+    assert "[WALLET] Player wallet: 99 UoM" in caplog.text
+
+
+def test_wallet_logged_on_dealer_bust_exit(caplog: pytest.LogCaptureFixture) -> None:
+    """WALLET is logged on the dealer-bust exit path."""
+    p = Player(name="Alice", strategy=_stand_strategy)
+    with caplog.at_level(logging.INFO, logger="blackjack"):
+        play_hand(p, seed=0)
+    assert "[WALLET] Player wallet: 101 UoM" in caplog.text
+
+
+def test_wallet_logged_on_final_outcome_exit(caplog: pytest.LogCaptureFixture) -> None:
+    """WALLET is logged on the final-outcome (dealer wins) exit path."""
+    p = Player(name="Alice", strategy=_stand_strategy)
+    with caplog.at_level(logging.INFO, logger="blackjack"):
+        play_hand(p, seed=2)
+    assert "[WALLET] Player wallet: 99 UoM" in caplog.text
+
+
+def test_table_logged_on_dealer_blackjack_exit_when_wallet_zero(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """TABLE is logged on dealer-blackjack exit when wallet reaches 0."""
+    p = Player(name="Alice", strategy=_stand_strategy)
+    p.wallet = 1.0
+    with caplog.at_level(logging.INFO, logger="blackjack"):
+        play_hand(p, seed=9)
+    assert p.wallet == 0.0
+    assert "[TABLE] Player leaves — wallet reached 0 UoM" in caplog.text
