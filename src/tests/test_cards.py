@@ -30,6 +30,11 @@ class TestCard:
         assert "Ace" in repr(card)
         assert "Spades" in repr(card)
 
+    def test_invalid_rank_raises(self):
+        card = Card(rank="Joker", suit="Hearts")
+        with pytest.raises(ValueError, match="Invalid card rank"):
+            _ = card.value
+
 
 class TestDeck:
     def test_deck_has_52_cards(self):
@@ -67,11 +72,11 @@ class TestDeck:
     def test_shuffle_with_seed_is_reproducible(self):
         deck1 = Deck()
         deck1.shuffle(seed=42)
-        order1 = [(deck1.deal().rank, deck1.deal().suit) for _ in range(5)]
+        order1 = [deck1.deal() for _ in range(5)]
 
         deck2 = Deck()
         deck2.shuffle(seed=42)
-        order2 = [(deck2.deal().rank, deck2.deal().suit) for _ in range(5)]
+        order2 = [deck2.deal() for _ in range(5)]
 
         assert order1 == order2
 
@@ -84,5 +89,5 @@ class TestDeck:
         deck = Deck()
         for _ in range(52):
             deck.deal()
-        with pytest.raises(Exception, match="[Ee]mpty"):
+        with pytest.raises(ValueError, match="[Ee]mpty"):
             deck.deal()

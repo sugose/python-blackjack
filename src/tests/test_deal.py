@@ -46,6 +46,6 @@ class TestDealInitial:
     def test_no_shared_cards_between_hands(self):
         deck = self._shuffled_deck()
         player_hand, dealer_hand = deal_initial(deck)
-        player_ids = {id(c) for c in player_hand.cards}
-        dealer_ids = {id(c) for c in dealer_hand.cards}
-        assert player_ids.isdisjoint(dealer_ids)
+        player_pairs = {(c.rank, c.suit) for c in player_hand.cards}
+        dealer_pairs = {(c.rank, c.suit) for c in dealer_hand.cards}
+        assert player_pairs.isdisjoint(dealer_pairs)

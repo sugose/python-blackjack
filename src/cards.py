@@ -26,6 +26,8 @@ class Card:
     @property
     def value(self) -> int:
         """Numeric value of the card (Ace = 11 by default; Hand handles the 1/11 choice)."""
+        if self.rank not in _FACE_VALUE:
+            raise ValueError(f"Invalid card rank: {self.rank!r}")
         return _FACE_VALUE[self.rank]
 
     def __repr__(self) -> str:
@@ -37,7 +39,9 @@ class Deck:
     """A standard 52-card deck that can be shuffled and dealt from."""
 
     def __init__(self) -> None:
-        self._cards: list[Card] = [Card(rank=r, suit=s) for s in SUITS for r in RANKS]
+        self._cards: list[Card] = [
+            Card(rank=r, suit=s) for s in reversed(SUITS) for r in reversed(RANKS)
+        ]
 
     def __len__(self) -> int:
         return len(self._cards)
@@ -51,4 +55,4 @@ class Deck:
         """Remove and return the top card from the deck."""
         if not self._cards:
             raise ValueError("Cannot deal from an empty deck.")
-        return self._cards.pop(0)
+        return self._cards.pop()
