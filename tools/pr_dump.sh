@@ -1,11 +1,19 @@
 #!/usr/bin/env bash
-# Usage: bash tools/pr_dump.sh <PR-number>
+# Usage: bash tools/pr_dump.sh <PR-number> [--no-src]
 # Dumps PR metadata, review comments (including inline), changed files, full diff, and full source context.
+# Use --no-src for docs/tooling PRs to skip the source context dump.
 
 set -euo pipefail
 
-PR="${1:?Usage: bash tools/pr_dump.sh <PR-number>}"
+PR="${1:?Usage: bash tools/pr_dump.sh <PR-number> [--no-src]}"
 REPO=$(gh repo view --json nameWithOwner -q .nameWithOwner)
+
+NO_SRC=false
+for arg in "$@"; do
+  if [ "$arg" = "--no-src" ]; then
+    NO_SRC=true
+  fi
+done
 
 echo "=== PR #${PR} — METADATA ==="
 gh pr view "$PR" --json title,author,headRefName,baseRefName,state --template \
@@ -35,12 +43,14 @@ echo "=== PR #${PR} — FULL DIFF ==="
 gh pr diff "$PR"
 echo ""
 
-echo "=== FULL SOURCE CONTEXT ==="
-while IFS= read -r file; do
-  [[ "$file" == *.py || "$file" == *.ts || "$file" == *.js ]] || continue
-  HASH=$(gh api "repos/${REPO}/pulls/${PR}" -q .head.sha 2>/dev/null || echo "unknown")
-  echo ""
-  echo "=== FILE: ${file} | GIT VERSION: ${HASH} ==="
-  gh api "repos/${REPO}/contents/${file}?ref=${HASH}" -q '.content' 2>/dev/null \
-    | base64 --decode 2>/dev/null || echo "(could not fetch file)"
-done < <(gh pr diff "$PR" --name-only)
+if [ "$NO_SRC" = false ]; then
+  echo "=== FULL SOURCE CONTEXT ==="
+  while IFS= read -r file; do
+    [[ "$file" == *.py || "$file" == *.ts || "$file" == *.js ]] || continue
+    HASH=$(gh api "repos/${REPO}/pulls/${PR}" -q .head.sha 2>/dev/null || echo "unknown")
+    echo ""
+    echo "=== FILE: ${file} | GIT VERSION: ${HASH} ==="
+    gh api "repos/${REPO}/contents/${file}?ref=${HASH}" -q '.content' 2>/dev/null \
+      | base64 --decode 2>/dev/null || echo "(could not fetch file)"
+  done < <(gh pr diff "$PR" --name-only)
+fi

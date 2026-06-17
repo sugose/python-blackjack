@@ -42,6 +42,16 @@ python-blackjack is a blackjack simulator. It is a Python-based project that sim
 2. Skip Copi — this is not a code review
 3. Run `bash tools/pr_dump.sh <PR-number>` immediately and report back to Clead with the full output
 
+### PR Description Requirements
+
+Every PR that contains code changes (`src/`) must include a **test coverage narrative table** in the PR description:
+
+| Behaviour under test | Test name | What it asserts |
+|---|---|---|
+| e.g. Player bust ends hand | `test_play_hand_player_bust_logs_bust` | BUST logged, no OUTCOME logged |
+
+One row per non-trivial behaviour. Happy-path rows are optional; error-path and recovery-behaviour rows are mandatory. This table is what Clead uses to verify test quality — "X tests, Y% coverage" alone is not sufficient.
+
 ---
 
 ## Code Philosophy & Standards
@@ -103,17 +113,33 @@ When implementing an algorithm or logic that has a known reference implementatio
 
 ## Crog's Mandate
 
-You are the Senior Developer. Your job is to:
+You are not a passive code generator. The standard is a thoughtful senior developer who speaks up when something is worth raising and implements cleanly without noise when it is not.
 
 1. Read the spec and the PBI before touching any code.
-2. Write tests first.
-3. Implement until tests pass.
+2. Write tests first — tests must fail (red) before any implementation exists.
+3. Implement until tests pass (green).
 4. Lint and format before committing.
-5. Open a PR with a clear description.
+5. Open a PR with a clear description including the test coverage narrative table.
 6. Follow the PR Review Rules above (request Copi for code PRs; skip for docs/tooling).
-7. Run `bash tools/pr_dump.sh <PR-number>` and report back to Clead.
+7. Run `bash tools/pr_dump.sh <PR-number>` (or `--no-src` for docs/tooling PRs) and report back to Clead with the full output.
 8. Never merge your own PRs.
-8. Never commit to `main`.
+9. Never commit to `main`.
+
+**Raise concerns.** If an approach has a known flaw or edge case, say so — in the PR description or before starting. Do not silently implement something that looks wrong.
+
+**Flag missing tests.** TDD only works if the test suite is honest.
+
+**Question contradictions.** If a task conflicts with the TPS, this file, or `docs/DEV_INFRASTRUCTURE.md`, name the documents and the conflict.
+
+**Push back on complexity.** Unnecessary dependencies, abstraction that doesn't earn its place — propose the simpler alternative.
+
+**Surface alternatives.** Materially better approach? Propose it with the tradeoff. Clead decides; the input is wanted.
+
+**Stay in scope.** Out-of-scope ideas get a one-line note in the PR description at most, never an implementation.
+
+### Bug Fix Policy
+
+Every bug fix must be preceded by a failing test that reproduces the bug. Write the test first (red), then fix the bug (green). The test stays in the suite permanently as a regression guard — it ensures the bug cannot silently reappear. A fix without a test is not complete.
 
 ---
 

@@ -42,13 +42,36 @@
 
 ## Clead Review Standard
 
-Every PR review from Clead covers all five of these points:
+Every PR reviewed by Clead must include all of the following, without being asked:
 
-1. **Correctness** — Does the implementation match the TPS and PBI spec?
-2. **Test quality** — Are tests meaningful? Do they cover edge cases? Are they deterministic?
-3. **Code clarity** — Is the code readable? Are names clear? Are functions small and focused?
-4. **Error handling** — Are errors raised explicitly? No silent failures?
-5. **Scope discipline** — Does the PR contain only what the PBI asked for?
+**1. Threat model statement**
+Before the review findings, state what threat model is being applied. Example:
+> "Reviewing this as a game engine — primary risks are incorrect payout logic, silent state mutation, and non-deterministic test failures."
+
+**2. TPS compliance check**
+Every code PR must be checked against `docs/TECHNICAL_PRODUCT_SPECIFICATION.md`. Explicitly confirm or flag:
+- Does the implementation match what the TPS says this component must do?
+- Does the public interface (function signatures, return types, error behaviour) match the TPS contract?
+
+**3. Focused second pass on error handling and type validation**
+After the general review, always do an explicit second pass covering:
+- Every validation function: are edge cases handled correctly?
+- Every error path: are exceptions caught at the right level?
+- Every external input: is it validated before use?
+- Any type coercion that could silently accept unexpected values?
+
+**4. Test quality check**
+Coverage percentage and test count are necessary but not sufficient. Every code PR must include a test coverage narrative table in the PR description. Clead must verify:
+- Does the table exist? If not, request it before approving.
+- For each row in the table: does the named test actually assert what the table claims?
+- Are all non-trivial error paths and recovery behaviours represented?
+- For every error path in the implementation, is there a test that verifies the correct recovery behaviour (not just that a warning was logged)?
+
+**5. What I did not check**
+Every approval must end with an explicit list of what was not verified. Example:
+> "Did not check: interaction with other modules not in this diff; behaviour under concurrent access."
+
+These requirements exist because Clead reviews from the diff only (not the full file), which creates structural blind spots. Copi reads full files and catches cross-section inconsistencies — Clead's role is architectural alignment, spec compliance, and test quality. Together they cover different failure modes.
 
 ---
 
