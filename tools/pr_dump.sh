@@ -1,72 +1,46 @@
 #!/usr/bin/env bash
-# pr_dump.sh — bundle a Pull Request into a single text file for Clead's review.
-#
-# Sibling of dump.sh: where dump.sh gives Clead the whole repo for session
-# catch-up, pr_dump.sh gives Clead one PR for code review. Upload the output
-# file to the Clead chat session.
-#
-# Usage (from project root, Git Bash):
-#   bash tools/pr_dump.sh <PR-number>
-#
-# Output: reviews/pr_<N>_review.txt  (reviews/ is gitignored working space)
-#
-# Requirements: gh CLI installed and authenticated (gh auth status).
+# Usage: bash tools/pr_dump.sh <PR-number>
+# Dumps PR metadata, review comments (including inline), changed files, full diff, and full source context.
 
 set -euo pipefail
 
-if [ $# -lt 1 ] || [ $# -gt 2 ]; then
-    echo "Usage: bash tools/pr_dump.sh <PR-number> [--no-src]" >&2
-    exit 1
-fi
+PR="${1:?Usage: bash tools/pr_dump.sh <PR-number>}"
+REPO=$(gh repo view --json nameWithOwner -q .nameWithOwner)
 
-NO_SRC=false
-for arg in "$@"; do
-  if [ "$arg" = "--no-src" ]; then
-    NO_SRC=true
-  fi
-done
+echo "=== PR #${PR} — METADATA ==="
+gh pr view "$PR" --json title,author,headRefName,baseRefName,state --template \
+  '{{.title}}{{"\n"}}Author: {{.author.login}}{{"\n"}}Branch: {{.headRefName}} -> {{.baseRefName}}{{"\n"}}State:  {{.state}}{{"\n"}}'
 
-PR="$1"
-mkdir -p reviews
-OUT="reviews/pr_${PR}_review.txt"
+echo "CI:     $(gh pr checks "$PR" 2>/dev/null | awk '{print $1"="$2}' | tr '\n' ' ')"
+echo ""
+echo "--- Description ---"
+gh pr view "$PR" --json body -q .body
+echo ""
 
-{
-    echo "=== PR #${PR} — METADATA ==="
-    # Title, author, branches, state, CI status, description
-    gh pr view "${PR}" --json title,author,headRefName,baseRefName,state,statusCheckRollup,body \
-        --template '{{.title}}
-Author: {{.author.login}}
-Branch: {{.headRefName}} -> {{.baseRefName}}
-State:  {{.state}}
-CI:     {{range .statusCheckRollup}}{{.name}}={{.conclusion}} {{end}}
+echo "=== PR #${PR} — REVIEW COMMENTS (top-level) ==="
+gh api "repos/${REPO}/pulls/${PR}/reviews" --paginate \
+  --jq '.[] | "author:\t\(.user.login)\nstatus:\t\(.state | ascii_downcase)\n--\n\(.body)\n--"'
+echo ""
 
---- Description ---
-{{.body}}
-'
+echo "=== PR #${PR} — INLINE COMMENTS ==="
+gh api "repos/${REPO}/pulls/${PR}/comments" --paginate \
+  --jq '.[] | "author:\t\(.user.login)\nfile:\t\(.path)\nline:\t\(.line // .original_line)\n--\n\(.body)\n--"'
+echo ""
 
-    echo ""
-    echo "=== PR #${PR} — EXISTING REVIEW COMMENTS ==="
-    gh pr view "${PR}" --comments || echo "(none or unavailable)"
+echo "=== PR #${PR} — CHANGED FILES ==="
+gh pr diff "$PR" --name-only
+echo ""
 
-    echo ""
-    echo "=== PR #${PR} — CHANGED FILES ==="
-    gh pr diff "${PR}" --name-only
+echo "=== PR #${PR} — FULL DIFF ==="
+gh pr diff "$PR"
+echo ""
 
-    echo ""
-    echo "=== PR #${PR} — FULL DIFF ==="
-    gh pr diff "${PR}"
-
-    if [ "$NO_SRC" = false ]; then
-      echo ""
-      echo "=== FULL SOURCE CONTEXT ==="
-      echo ""
-      git ls-files src/ | while read file; do
-        git_version=$(git log -1 --format="%H" -- "$file")
-        echo "=== FILE: $file | GIT VERSION: $git_version ==="
-        cat "$file"
-        echo ""
-      done
-    fi
-} > "${OUT}"
-
-echo "Wrote ${OUT} — upload this file to the Clead session for review."
+echo "=== FULL SOURCE CONTEXT ==="
+while IFS= read -r file; do
+  [[ "$file" == *.py || "$file" == *.ts || "$file" == *.js ]] || continue
+  HASH=$(gh api "repos/${REPO}/pulls/${PR}" -q .head.sha 2>/dev/null || echo "unknown")
+  echo ""
+  echo "=== FILE: ${file} | GIT VERSION: ${HASH} ==="
+  gh api "repos/${REPO}/contents/${file}?ref=${HASH}" -q '.content' 2>/dev/null \
+    | base64 --decode 2>/dev/null || echo "(could not fetch file)"
+done < <(gh pr diff "$PR" --name-only)

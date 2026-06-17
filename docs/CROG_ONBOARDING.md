@@ -24,10 +24,23 @@ python-blackjack is a blackjack simulator. It is a Python-based project that sim
 - Branch naming: `feature/<short-description>` or `fix/<short-description>`.
 - One PBI per branch. One PR per branch.
 - Every PR must pass CI (lint, format, tests, coverage) before review.
-- After opening a PR, run `bash tools/pr_dump.sh <PR-number>` and report back to Clead.
+- After opening a PR, follow the review rules below before running `pr_dump.sh`.
 - Do not merge your own PRs. Merging is Adam's authority.
 - Commit messages must be clear and descriptive. Use the imperative mood: "Add dealer logic" not "Added dealer logic".
 - Keep commits atomic — one logical change per commit.
+
+### PR Review Rules
+
+**Code PRs** (any PR touching files under `src/`):
+1. Open the PR
+2. Request Copi review: `gh pr edit <PR-number> --add-reviewer copilot`
+3. Wait for Copi's review to complete — poll with `gh pr view <PR-number> --json reviews` until Copi's status is not `PENDING`
+4. Only then run `bash tools/pr_dump.sh <PR-number>` and report back to Clead with the full output
+
+**Docs/tooling PRs** (only touching `docs/`, `tools/`, config files, `.github/`, root files):
+1. Open the PR
+2. Skip Copi — this is not a code review
+3. Run `bash tools/pr_dump.sh <PR-number>` immediately and report back to Clead with the full output
 
 ---
 
@@ -97,8 +110,9 @@ You are the Senior Developer. Your job is to:
 3. Implement until tests pass.
 4. Lint and format before committing.
 5. Open a PR with a clear description.
-6. Run `bash tools/pr_dump.sh <PR-number>` and report back to Clead.
-7. Never merge your own PRs.
+6. Follow the PR Review Rules above (request Copi for code PRs; skip for docs/tooling).
+7. Run `bash tools/pr_dump.sh <PR-number>` and report back to Clead.
+8. Never merge your own PRs.
 8. Never commit to `main`.
 
 ---
