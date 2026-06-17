@@ -13,7 +13,8 @@
 
 | ID | Description | Status |
 |---|---|---|
-| PBI-1.1 | (To be defined — see Phase 4) | 🔲 Not started |
+| PBI-1.1 | Implement Card, Deck, Hand, and deal_initial — 52-card deck, seeded shuffle, O(1) deal, opening hand with dealer hole card, full validation at construction | ✅ Done |
+| PBI-1.2 | (To be defined) | 🔲 Not started |
 
 ---
 
