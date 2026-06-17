@@ -146,6 +146,16 @@ def test_play_hand_deterministic_same_seed(caplog: pytest.LogCaptureFixture) -> 
     assert log1 == log2
 
 
+def test_play_hand_dealer_blackjack_only_player_loses(caplog: pytest.LogCaptureFixture) -> None:
+    """Dealer blackjack (player does not have blackjack) — player loses bet, wallet: 99."""
+    p = Player(name="Alice", strategy=_stand_strategy)
+    with caplog.at_level(logging.INFO, logger="blackjack"):
+        play_hand(p, seed=9)
+    assert "[REVEAL]" in caplog.text
+    assert "[OUTCOME] Dealer blackjack — player loses" in caplog.text
+    assert p.wallet == 99.0
+
+
 def test_play_hand_logs_reveal(caplog: pytest.LogCaptureFixture) -> None:
     """play_hand logs REVEAL event for dealer hole card (non-blackjack hand)."""
     p = Player(name="Alice", strategy=_stand_strategy)

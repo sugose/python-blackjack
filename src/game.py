@@ -43,6 +43,15 @@ def play_hand(player: Player, seed: int | None = None) -> None:
             log_event("TABLE", "Player leaves — wallet reached 0 UoM")
         return
 
+    if dealer_hand.is_blackjack:
+        revealed = dealer.reveal_hole_card(dealer_hand)
+        log_event("REVEAL", f"Dealer reveals: {revealed} — hand value: {dealer_hand.value}")
+        log_event("OUTCOME", "Dealer blackjack — player loses")
+        log_event("WALLET", f"Player wallet: {player.wallet:g} UoM")
+        if player.wallet == 0.0:
+            log_event("TABLE", "Player leaves — wallet reached 0 UoM")
+        return
+
     while not player_hand.is_bust:
         action = player.strategy(player_hand)
         if action not in ("hit", "stand"):
