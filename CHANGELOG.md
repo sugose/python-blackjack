@@ -8,4 +8,4 @@ All notable changes to python-blackjack are documented here.
 
 ### Added
 - Initial project setup
-- [PBI-1.1 description — fill in after first PBI is complete]
+- PBI-1.1: Implement Card, Deck, Hand, and deal_initial (52-card deck, seeded shuffle, O(1) deal, opening hand with dealer hole card, full validation at construction)
