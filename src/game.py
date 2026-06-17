@@ -3,6 +3,7 @@
 from src.cards import Deck
 from src.deal import deal_initial
 from src.dealer import Dealer
+from src.hand import Hand
 from src.logger import log_event
 from src.player import Player
 
@@ -20,16 +21,23 @@ def play_hand(player: Player, seed: int | None = None) -> None:
 
     player_hand, dealer_hand = deal_initial(deck)
 
-    c0 = player_hand.cards[0]
-    log_event("DEAL", f"Player dealt {c0} — hand value: {c0.value}")
-    log_event("DEAL", f"Player dealt {player_hand.cards[1]} — hand value: {player_hand.value}")
-    dc0 = dealer_hand.cards[0]
-    log_event("DEAL", f"Dealer shows {dc0} — hand value: {dc0.value}")
+    c1 = player_hand.cards[0]
+    c2 = player_hand.cards[1]
+    log_event("DEAL", f"Player dealt {c1} — hand value: {Hand([c1]).value}")
+    log_event("DEAL", f"Player dealt {c2} — hand value: {player_hand.value}")
+    dc1 = dealer_hand.cards[0]
+    log_event("DEAL", f"Dealer shows {dc1} — hand value: {Hand([dc1]).value}")
     log_event("DEAL", "Dealer has 1 hidden card")
 
     if player_hand.is_blackjack:
-        log_event("OUTCOME", "Player blackjack — pays 3:2")
-        player.receive_payout(player.bet + player.bet * 1.5)
+        if dealer_hand.is_blackjack:
+            revealed = dealer.reveal_hole_card(dealer_hand)
+            log_event("REVEAL", f"Dealer reveals: {revealed} — hand value: {dealer_hand.value}")
+            log_event("OUTCOME", "Push — both have blackjack")
+            player.receive_payout(player.bet)
+        else:
+            log_event("OUTCOME", "Player blackjack — pays 3:2")
+            player.receive_payout(player.bet + player.bet * 1.5)
         log_event("WALLET", f"Player wallet: {player.wallet:.0f} UoM")
         if player.wallet == 0.0:
             log_event("TABLE", "Player leaves — wallet reached 0 UoM")
@@ -37,6 +45,8 @@ def play_hand(player: Player, seed: int | None = None) -> None:
 
     while not player_hand.is_bust:
         action = player.strategy(player_hand)
+        if action not in ("hit", "stand"):
+            raise ValueError(f"Unknown strategy action: {action!r}. Must be 'hit' or 'stand'.")
         if action == "stand":
             log_event("STAND", f"Player stands on {player_hand.value}")
             break
