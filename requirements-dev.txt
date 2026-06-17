@@ -1,0 +1,5 @@
+# Development-only dependencies
+# Not required to run the application — only needed for linting, formatting, and pre-commit hooks.
+
+ruff==0.9.10
+pre-commit==4.2.0
