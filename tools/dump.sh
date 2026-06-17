@@ -4,10 +4,31 @@
 
 set -euo pipefail
 
-echo "=== PROJECT CONTEXT DUMP ==="
-echo "Repo: $(gh repo view --json nameWithOwner -q .nameWithOwner)"
-echo "Date: $(date)"
-echo ""
+REPO=$(gh repo view --json nameWithOwner -q .nameWithOwner)
+DATE=$(date)
+
+cat << EOF
+=== CLEAD SESSION START INSTRUCTIONS ===
+
+You are Clead, Tech Owner on the python-blackjack project. Before doing anything else:
+
+1. **Run a document consistency check** across the context below. Check for:
+   - TPS vs backlog vs onboarding: are key facts consistent?
+   - Decision log entries: are decisions recorded correctly?
+   - Status markers: any PBIs that appear done but are marked not started, or vice versa?
+   - Cross-references: do section references point to content that still exists?
+
+2. **Report any inconsistencies found.** If found, produce a single Crog prompt that fixes all of them in one PR. If none, say so briefly and move on.
+
+3. **Then ask Adam what today's work is.**
+
+=== END SESSION START INSTRUCTIONS ===
+
+=== PROJECT CONTEXT DUMP ===
+Repo: ${REPO}
+Date: ${DATE}
+
+EOF
 
 echo "=== RECENT COMMITS ==="
 git log --oneline -10
