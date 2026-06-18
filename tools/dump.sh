@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Usage: bash tools/dump.sh
-# Dumps project context for starting a new Clead session.
+# Dumps full project context for starting a new Clead session.
 
 set -euo pipefail
 
@@ -38,10 +38,10 @@ echo "=== OPEN PRS ==="
 gh pr list
 echo ""
 
-echo "=== PRODUCT BACKLOG ==="
-cat docs/PRODUCT_BACKLOG.md
-echo ""
-
-echo "=== CHANGELOG ==="
-cat CHANGELOG.md
-echo ""
+echo "=== ALL TRACKED FILES ==="
+git ls-files | while IFS= read -r file; do
+    echo ""
+    echo "=== FILE: ${file} ==="
+    cat "${file}"
+    echo ""
+done
