@@ -158,9 +158,9 @@ Introduces a `GameEvent` dataclass and `emit_event()` function that replace the 
 class GameEvent:
     eventType: str       # e.g. "BET", "DEAL", "OUTCOME"
     sessionId: str       # UUID of the current session
-    data: dict           # free-form payload; must include "message" for HRF
+    data: dict           # free-form payload; "message" used for HRF when present (else falls back)
     handId: str | None   # UUID of the current hand (omitted for session-level events)
-    actor: str | None    # player or dealer name (omitted for session-level events)
+    actor: str | None    # player or dealer name (may be set; omitted from HRF when handId is None)
     eventId: str         # UUID auto-generated per event
     timestamp: str       # ISO-8601 UTC, seconds precision, auto-generated
 ```

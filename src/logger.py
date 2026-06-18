@@ -39,7 +39,7 @@ def _hrf(event: GameEvent) -> str:
     if message is None:
         try:
             message = json.dumps(event.data)
-        except TypeError:
+        except (TypeError, ValueError):
             message = repr(event.data)
     return " | ".join(parts) + f" — {message}"
 
