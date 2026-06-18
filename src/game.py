@@ -528,7 +528,7 @@ def play_session(
                     sessionId=session_id,
                     data={
                         "handsPlayed": hand_number,
-                        "finalWallet": 0,
+                        "finalWallet": player.wallet,
                         "reason": "no funds",
                         "message": (
                             f"Session closed — hands played: {hand_number}, "

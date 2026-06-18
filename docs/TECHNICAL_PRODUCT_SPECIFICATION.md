@@ -149,6 +149,8 @@ Player strategy is pluggable — a callable that takes a hand and returns `"hit"
 
 ### Overview
 
+Note: The "Logged Events" table above reflects the legacy (pre-PBI-1.3) flat logger; from PBI-1.3 onward, the structured JSONL/HRF events supersede DECK/TABLE with session-level SHUFFLE/LEAVE/CLOSE.
+
 Introduces a `GameEvent` dataclass and `emit_event()` function that replace the flat `log_event()` helper. Every game event carries a structured payload — emitted as a JSONL record to a per-session file and as a human-readable one-liner (HRF) to stdout via the `blackjack` logger.
 
 ### `GameEvent` Dataclass
@@ -269,4 +271,4 @@ def play_session(
 
 ### Updated `main.py`
 
-`main()` calls `play_session(player)` instead of `play_hand(player, deck)`.
+`main()` calls `play_session(player)` instead of `play_hand(player)`.
