@@ -142,3 +142,133 @@ Player strategy is pluggable — a callable that takes a hand and returns `"hit"
 
 - Deck must have at least 4 cards before dealing — already enforced by `deal_initial()`
 - Wallet cannot go below 0 — raise `ValueError` if bet exceeds wallet balance
+
+---
+
+## 7. PBI-1.3 — Structured Logger
+
+### Overview
+
+Note: The "Logged Events" table above reflects the legacy (pre-PBI-1.3) flat logger; from PBI-1.3 onward, the structured JSONL/HRF events supersede DECK/TABLE with session-level SHUFFLE/LEAVE/CLOSE.
+
+Introduces a `GameEvent` dataclass and `emit_event()` function that replace the flat `log_event()` helper. Every game event carries a structured payload — emitted as a JSONL record to a per-session file and as a human-readable one-liner (HRF) to stdout via the `blackjack` logger.
+
+### `GameEvent` Dataclass
+
+```python
+@dataclass
+class GameEvent:
+    eventType: str       # e.g. "BET", "DEAL", "OUTCOME"
+    sessionId: str       # UUID of the current session
+    data: dict           # free-form payload; "message" used for HRF when present (else falls back)
+    handId: str | None   # UUID of the current hand (omitted for session-level events)
+    actor: str | None    # player or dealer name (may be set; omitted from HRF when handId is None)
+    eventId: str         # UUID auto-generated per event
+    timestamp: str       # ISO-8601 UTC, seconds precision, auto-generated
+```
+
+### `emit_event()` Behaviour
+
+- Appends a JSON object to the `session_file` path (creates parent dirs as needed).
+- JSON object includes all non-None fields: `eventId`, `eventType`, `timestamp`, `sessionId`, `data`, and optionally `handId`, `actor`.
+- `handId` and `actor` are **omitted** from JSON when `None`.
+- On JSONL write failure, emits a `warnings.warn` and continues — never crashes the game.
+- Emits HRF to stdout via `logging.getLogger("blackjack").info(...)`.
+
+### HRF Format
+
+```
+[EVENTTYPE] | sess:XXXXXXXX | hand:YYYYYYYY | evt:ZZZZZZZZ | actor:NAME — message
+```
+
+- `sess:`, `hand:`, `evt:` use the **last 8 characters** of the respective UUIDs.
+- `hand:` and `actor:` segments are **omitted** for session-level events.
+- `message` is taken from `event.data["message"]`; if absent, falls back to `json.dumps(event.data)`.
+
+### `play_hand()` Signature Change
+
+```python
+def play_hand(player: Player, session_id: str, session_file: Path, deck: Deck) -> None:
+```
+
+- `session_id` and `session_file` passed in by the caller.
+- `deck` passed in pre-shuffled.
+- `seed` parameter removed.
+- A `handId` UUID is generated at the top of `play_hand()` and attached to all hand-level events.
+- All `log_event()` calls replaced by `emit_event(GameEvent(...), session_file)`.
+
+### `play_hand_standalone()` Wrapper
+
+Temporary wrapper for running a single hand; kept for backward compatibility and tests:
+
+```python
+def play_hand_standalone(player: Player, seed: int | None = None) -> None:
+```
+
+Generates its own `session_id` and `session_file`, creates and shuffles the deck, then delegates to `play_hand()`.
+
+### Module Location
+
+`src/logger.py`
+
+---
+
+## 8. PBI-1.4 — Game Session Loop
+
+### Overview
+
+A session loops over multiple hands using a single shared deck, applying a cut-card policy to trigger reshuffles, and terminates either when the player runs out of funds or when the maximum number of hands is reached.
+
+### Session Flow
+
+1. Log `[OPEN]` with player name, max hands, starting wallet
+2. Create and shuffle deck (seeded for reproducibility), log `[SHUFFLE]`
+3. For each hand 1..max_hands:
+   a. Log `[HAND]` with hand number and current wallet
+   b. Call `play_hand(player, session_id, session_file, deck)` — deck is passed in (not created internally)
+   c. If wallet == 0: log `[LEAVE]` (no funds) + `[CLOSE]` and return
+   d. If `len(deck) <= max(cut_card, 4)`: log `[CUT]`, reshuffle, log `[SHUFFLE]`
+4. After max_hands: log `[LEAVE]` (max hands reached) + `[CLOSE]`
+
+### Refactors to `play_hand()`
+
+- Signature: `play_hand(player: Player, session_id: str, session_file: Path, deck: Deck) -> None` — session context and deck are passed in by the caller
+- `seed` parameter removed; shuffling is the caller's responsibility
+- `DECK` event removed from `play_hand()` — replaced by `SHUFFLE` in `play_session()`
+- `TABLE` event removed; `play_hand()` emits `WalletEmpty` on zero wallet; `play_session()` emits `LEAVE`
+- New `PAYOUT` event logged at every payout point
+
+### New Events
+
+| Event | Example message |
+|---|---|
+| Session opened | `[OPEN] Session started — player: Alice, max hands: 10, starting wallet: 100 UoM` |
+| Deck shuffled | `[SHUFFLE] Shuffled 52-card deck` |
+| Hand started | `[HAND] Hand 1 of 10 — wallet: 100 UoM` |
+| Cut card reached | `[CUT] Cut card reached — reshuffling after this hand` |
+| Payout | `[PAYOUT] Player receives 2.5 UoM — blackjack 3:2` |
+| Payout | `[PAYOUT] Player receives 2 UoM — win` |
+| Payout | `[PAYOUT] Player receives 1 UoM — push` |
+| Player leaves | `[LEAVE] Player leaves — no funds` (actor: player name) |
+| Player leaves | `[LEAVE] Player leaves — max hands reached` (actor: player name) |
+| Session closed | `[CLOSE] Session closed — hands played: 10, final wallet: 95 UoM, reason: max hands reached` |
+
+### `play_session()` Signature
+
+```python
+def play_session(
+    player: Player,
+    max_hands: int = 10,
+    cut_card: int = 39,
+    seed: int | None = None,
+) -> None:
+```
+
+### Validation
+
+- `max_hands < 1` → `ValueError`
+- `cut_card < 1 or cut_card >= 52` → `ValueError`
+
+### Updated `main.py`
+
+`main()` calls `play_session(player)` instead of `play_hand(player)`.
