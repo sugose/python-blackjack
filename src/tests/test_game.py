@@ -71,7 +71,7 @@ def test_play_hand_logs_deal_events(tmp_path: Path, caplog: pytest.LogCaptureFix
     sid, sf, deck = _ctx(tmp_path)
     with caplog.at_level(logging.INFO, logger="blackjack"):
         play_hand(p, sid, sf, deck)
-    assert "[DEAL]" in caplog.text
+    assert "[CardDealt]" in caplog.text
 
 
 def test_play_hand_logs_outcome(tmp_path: Path, caplog: pytest.LogCaptureFixture) -> None:
@@ -80,7 +80,7 @@ def test_play_hand_logs_outcome(tmp_path: Path, caplog: pytest.LogCaptureFixture
     sid, sf, deck = _ctx(tmp_path)
     with caplog.at_level(logging.INFO, logger="blackjack"):
         play_hand(p, sid, sf, deck)
-    assert "[OUTCOME]" in caplog.text
+    assert "[HandResolved]" in caplog.text
 
 
 def test_play_hand_logs_wallet(tmp_path: Path, caplog: pytest.LogCaptureFixture) -> None:
@@ -89,7 +89,7 @@ def test_play_hand_logs_wallet(tmp_path: Path, caplog: pytest.LogCaptureFixture)
     sid, sf, deck = _ctx(tmp_path)
     with caplog.at_level(logging.INFO, logger="blackjack"):
         play_hand(p, sid, sf, deck)
-    assert "[WALLET]" in caplog.text
+    assert "[WalletUpdated]" in caplog.text
 
 
 def test_play_hand_player_bust_logs_bust(tmp_path: Path, caplog: pytest.LogCaptureFixture) -> None:
@@ -98,9 +98,9 @@ def test_play_hand_player_bust_logs_bust(tmp_path: Path, caplog: pytest.LogCaptu
     sid, sf, deck = _ctx(tmp_path)
     with caplog.at_level(logging.INFO, logger="blackjack"):
         play_hand(p, sid, sf, deck)
-    assert "[BUST]" in caplog.text
+    assert "[HandBust]" in caplog.text
     assert "Player busts" in caplog.text
-    assert "[OUTCOME]" not in caplog.text
+    assert "[HandResolved]" not in caplog.text
 
 
 def test_play_hand_wallet_zero_logs_wallet_empty_not_leave(
@@ -125,7 +125,7 @@ def test_play_hand_player_blackjack_only_pays_3_to_2(
     sid, sf, deck = _ctx(tmp_path, seed=49)
     with caplog.at_level(logging.INFO, logger="blackjack"):
         play_hand(p, sid, sf, deck)
-    assert "[OUTCOME]" in caplog.text
+    assert "[HandResolved]" in caplog.text
     assert "Player blackjack — pays 3:2" in caplog.text
     assert p.wallet == 101.5
 
@@ -136,7 +136,7 @@ def test_play_hand_both_blackjack_is_push(tmp_path: Path, caplog: pytest.LogCapt
     sid, sf, deck = _ctx(tmp_path, seed=498)
     with caplog.at_level(logging.INFO, logger="blackjack"):
         play_hand(p, sid, sf, deck)
-    assert "[OUTCOME]" in caplog.text
+    assert "[HandResolved]" in caplog.text
     assert "Push — both have blackjack" in caplog.text
     assert p.wallet == 100.0
 
@@ -159,7 +159,7 @@ def test_play_hand_dealer_bust_player_wins(
     sid, sf, deck = _ctx(tmp_path, seed=0)
     with caplog.at_level(logging.INFO, logger="blackjack"):
         play_hand(p, sid, sf, deck)
-    assert "[BUST]" in caplog.text
+    assert "[HandBust]" in caplog.text
     assert "Dealer busts" in caplog.text
     assert p.wallet == 101.0
 
@@ -201,7 +201,7 @@ def test_play_hand_dealer_blackjack_only_player_loses(
     sid, sf, deck = _ctx(tmp_path, seed=9)
     with caplog.at_level(logging.INFO, logger="blackjack"):
         play_hand(p, sid, sf, deck)
-    assert "[REVEAL]" in caplog.text
+    assert "[HoleCardRevealed]" in caplog.text
     assert "Dealer blackjack — player loses" in caplog.text
     assert p.wallet == 99.0
 
@@ -212,7 +212,7 @@ def test_play_hand_logs_reveal(tmp_path: Path, caplog: pytest.LogCaptureFixture)
     sid, sf, deck = _ctx(tmp_path)
     with caplog.at_level(logging.INFO, logger="blackjack"):
         play_hand(p, sid, sf, deck)
-    assert "[REVEAL]" in caplog.text
+    assert "[HoleCardRevealed]" in caplog.text
 
 
 # --- WALLET / LEAVE logging across all exit paths ---
@@ -226,7 +226,7 @@ def test_wallet_logged_on_player_blackjack_exit(
     sid, sf, deck = _ctx(tmp_path, seed=49)
     with caplog.at_level(logging.INFO, logger="blackjack"):
         play_hand(p, sid, sf, deck)
-    assert "[WALLET]" in caplog.text
+    assert "[WalletUpdated]" in caplog.text
     assert "Player wallet: 101.5 UoM" in caplog.text
 
 
@@ -238,7 +238,7 @@ def test_wallet_logged_on_both_blackjack_exit(
     sid, sf, deck = _ctx(tmp_path, seed=498)
     with caplog.at_level(logging.INFO, logger="blackjack"):
         play_hand(p, sid, sf, deck)
-    assert "[WALLET]" in caplog.text
+    assert "[WalletUpdated]" in caplog.text
     assert "Player wallet: 100 UoM" in caplog.text
 
 
@@ -250,7 +250,7 @@ def test_wallet_logged_on_dealer_blackjack_exit(
     sid, sf, deck = _ctx(tmp_path, seed=9)
     with caplog.at_level(logging.INFO, logger="blackjack"):
         play_hand(p, sid, sf, deck)
-    assert "[WALLET]" in caplog.text
+    assert "[WalletUpdated]" in caplog.text
     assert "Player wallet: 99 UoM" in caplog.text
 
 
@@ -262,7 +262,7 @@ def test_wallet_logged_on_player_bust_exit(
     sid, sf, deck = _ctx(tmp_path)
     with caplog.at_level(logging.INFO, logger="blackjack"):
         play_hand(p, sid, sf, deck)
-    assert "[WALLET]" in caplog.text
+    assert "[WalletUpdated]" in caplog.text
     assert "Player wallet: 99 UoM" in caplog.text
 
 
@@ -274,7 +274,7 @@ def test_wallet_logged_on_dealer_bust_exit(
     sid, sf, deck = _ctx(tmp_path, seed=0)
     with caplog.at_level(logging.INFO, logger="blackjack"):
         play_hand(p, sid, sf, deck)
-    assert "[WALLET]" in caplog.text
+    assert "[WalletUpdated]" in caplog.text
     assert "Player wallet: 101 UoM" in caplog.text
 
 
@@ -286,7 +286,7 @@ def test_wallet_logged_on_final_outcome_exit(
     sid, sf, deck = _ctx(tmp_path)
     with caplog.at_level(logging.INFO, logger="blackjack"):
         play_hand(p, sid, sf, deck)
-    assert "[WALLET]" in caplog.text
+    assert "[WalletUpdated]" in caplog.text
     assert "Player wallet: 99 UoM" in caplog.text
 
 
@@ -312,7 +312,7 @@ def test_deal_log_first_player_card_says_card_value(
     sid, sf, deck = _ctx(tmp_path)
     with caplog.at_level(logging.INFO, logger="blackjack"):
         play_hand(p, sid, sf, deck)
-    deal_lines = [line for line in caplog.text.splitlines() if "[DEAL]" in line]
+    deal_lines = [line for line in caplog.text.splitlines() if "[CardDealt]" in line]
     assert any("card value" in line for line in deal_lines[:2])
 
 
@@ -325,7 +325,9 @@ def test_deal_log_dealer_upcard_says_card_value(
     with caplog.at_level(logging.INFO, logger="blackjack"):
         play_hand(p, sid, sf, deck)
     dealer_deal_lines = [
-        line for line in caplog.text.splitlines() if "[DEAL]" in line and "Dealer shows" in line
+        line
+        for line in caplog.text.splitlines()
+        if "[CardDealt]" in line and "Dealer shows" in line
     ]
     assert len(dealer_deal_lines) == 1
     assert "card value" in dealer_deal_lines[0]
@@ -344,7 +346,7 @@ def test_play_hand_payout_logged_on_blackjack(
     sid, sf, deck = _ctx(tmp_path, seed=49)
     with caplog.at_level(logging.INFO, logger="blackjack"):
         play_hand(p, sid, sf, deck)
-    assert "[PAYOUT]" in caplog.text
+    assert "[PayoutMade]" in caplog.text
     assert "Player receives 2.5 UoM — blackjack 3:2" in caplog.text
 
 
@@ -354,7 +356,7 @@ def test_play_hand_payout_logged_on_win(tmp_path: Path, caplog: pytest.LogCaptur
     sid, sf, deck = _ctx(tmp_path, seed=0)
     with caplog.at_level(logging.INFO, logger="blackjack"):
         play_hand(p, sid, sf, deck)
-    assert "[PAYOUT]" in caplog.text
+    assert "[PayoutMade]" in caplog.text
     assert "Player receives 2 UoM — win" in caplog.text
 
 
@@ -364,7 +366,7 @@ def test_play_hand_payout_logged_on_push(tmp_path: Path, caplog: pytest.LogCaptu
     sid, sf, deck = _ctx(tmp_path, seed=19)
     with caplog.at_level(logging.INFO, logger="blackjack"):
         play_hand(p, sid, sf, deck)
-    assert "[PAYOUT]" in caplog.text
+    assert "[PayoutMade]" in caplog.text
     assert "Player receives 1 UoM — push" in caplog.text
 
 
@@ -376,7 +378,7 @@ def test_play_hand_no_payout_on_dealer_wins(
     sid, sf, deck = _ctx(tmp_path)
     with caplog.at_level(logging.INFO, logger="blackjack"):
         play_hand(p, sid, sf, deck)
-    assert "[PAYOUT]" not in caplog.text
+    assert "[PayoutMade]" not in caplog.text
 
 
 def test_play_hand_no_payout_on_player_bust(
@@ -387,7 +389,7 @@ def test_play_hand_no_payout_on_player_bust(
     sid, sf, deck = _ctx(tmp_path)
     with caplog.at_level(logging.INFO, logger="blackjack"):
         play_hand(p, sid, sf, deck)
-    assert "[PAYOUT]" not in caplog.text
+    assert "[PayoutMade]" not in caplog.text
 
 
 # ---------------------------------------------------------------------------
@@ -409,7 +411,7 @@ def test_play_hand_new_signature_jsonl_contains_bet_event(tmp_path: Path) -> Non
     sid, sf, deck = _ctx(tmp_path)
     play_hand(p, sid, sf, deck)
     events = [json.loads(line) for line in sf.read_text(encoding="utf-8").splitlines()]
-    bet_events = [e for e in events if e["eventType"] == "BET"]
+    bet_events = [e for e in events if e["eventType"] == "BetPlaced"]
     assert len(bet_events) == 1
     assert bet_events[0]["actor"] == "Alice"
 
@@ -469,7 +471,7 @@ def test_play_session_logs_open(
     p = Player(name="Alice", strategy=_stand_strategy)
     with caplog.at_level(logging.INFO, logger="blackjack"):
         play_session(p, max_hands=1, seed=2)
-    assert "[OPEN]" in caplog.text
+    assert "[SessionOpened]" in caplog.text
     assert "Session started — player: Alice, max hands: 1, starting wallet: 100 UoM" in caplog.text
 
 
@@ -481,7 +483,7 @@ def test_play_session_logs_shuffle_at_start(
     p = Player(name="Alice", strategy=_stand_strategy)
     with caplog.at_level(logging.INFO, logger="blackjack"):
         play_session(p, max_hands=1, seed=2)
-    assert "[SHUFFLE]" in caplog.text
+    assert "[ShoeShuffled]" in caplog.text
     assert "Shuffled 52-card deck" in caplog.text
 
 
@@ -505,7 +507,7 @@ def test_play_session_terminates_on_max_hands(
     p = Player(name="Alice", strategy=_stand_strategy)
     with caplog.at_level(logging.INFO, logger="blackjack"):
         play_session(p, max_hands=2, seed=2)
-    assert "[LEAVE]" in caplog.text
+    assert "[PlayerLeft]" in caplog.text
     assert "Player leaves — max hands reached" in caplog.text
     assert "reason: max hands reached" in caplog.text
 
@@ -519,7 +521,7 @@ def test_play_session_terminates_on_wallet_zero(
     p.wallet = 1.0
     with caplog.at_level(logging.INFO, logger="blackjack"):
         play_session(p, max_hands=10, seed=2)
-    assert "[LEAVE]" in caplog.text
+    assert "[PlayerLeft]" in caplog.text
     assert "Player leaves — no funds" in caplog.text
     assert "reason: no funds" in caplog.text
 
@@ -535,7 +537,7 @@ def test_play_session_wallet_zero_emits_wallet_empty_not_leave_from_hand(
         play_session(p, max_hands=10, seed=2)
     assert "[WalletEmpty]" in caplog.text
     # LEAVE fires exactly once — from play_session(), not from _emit_wallet()
-    assert caplog.text.count("[LEAVE]") == 1
+    assert caplog.text.count("[PlayerLeft]") == 1
     assert "Player leaves — no funds" in caplog.text
 
 
@@ -547,7 +549,7 @@ def test_play_session_logs_close_with_summary(
     p = Player(name="Alice", strategy=_stand_strategy)
     with caplog.at_level(logging.INFO, logger="blackjack"):
         play_session(p, max_hands=1, seed=2)
-    assert "[CLOSE]" in caplog.text
+    assert "[SessionClosed]" in caplog.text
     assert "Session closed — hands played: 1" in caplog.text
 
 
@@ -560,7 +562,7 @@ def test_play_session_logs_cut_and_reshuffle(
     with caplog.at_level(logging.INFO, logger="blackjack"):
         # cut_card=51: deck drops below 51 after any hand (52 - 4+ dealt cards)
         play_session(p, max_hands=2, cut_card=51, seed=2)
-    assert "[CUT]" in caplog.text
+    assert "[CutCardReached]" in caplog.text
     assert "Cut card reached — reshuffling after this hand" in caplog.text
     assert caplog.text.count("Shuffled 52-card deck") >= 2
 
@@ -594,7 +596,7 @@ def test_play_session_payout_logged_on_win(
     p = Player(name="Alice", strategy=_stand_strategy)
     with caplog.at_level(logging.INFO, logger="blackjack"):
         play_session(p, max_hands=1, seed=0)
-    assert "[PAYOUT]" in caplog.text
+    assert "[PayoutMade]" in caplog.text
     assert "Player receives 2 UoM — win" in caplog.text
 
 
@@ -606,7 +608,7 @@ def test_play_session_payout_logged_on_blackjack(
     p = Player(name="Alice", strategy=_stand_strategy)
     with caplog.at_level(logging.INFO, logger="blackjack"):
         play_session(p, max_hands=1, seed=49)
-    assert "[PAYOUT]" in caplog.text
+    assert "[PayoutMade]" in caplog.text
     assert "Player receives 2.5 UoM — blackjack 3:2" in caplog.text
 
 
@@ -618,7 +620,7 @@ def test_play_session_payout_logged_on_push(
     p = Player(name="Alice", strategy=_stand_strategy)
     with caplog.at_level(logging.INFO, logger="blackjack"):
         play_session(p, max_hands=1, seed=19)
-    assert "[PAYOUT]" in caplog.text
+    assert "[PayoutMade]" in caplog.text
     assert "Player receives 1 UoM — push" in caplog.text
 
 

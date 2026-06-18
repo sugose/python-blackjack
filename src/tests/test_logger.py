@@ -17,7 +17,7 @@ ACTOR = "Alice"
 
 def _make_session_event() -> GameEvent:
     return GameEvent(
-        eventType="OPEN",
+        eventType="SessionOpened",
         sessionId=SESSION_ID,
         data={"message": "Session started"},
     )
@@ -25,7 +25,7 @@ def _make_session_event() -> GameEvent:
 
 def _make_hand_event() -> GameEvent:
     return GameEvent(
-        eventType="BET",
+        eventType="BetPlaced",
         sessionId=SESSION_ID,
         handId=HAND_ID,
         actor=ACTOR,
@@ -97,7 +97,7 @@ def test_emit_event_hrf_format_hand_level(tmp_path: Path, caplog: pytest.LogCapt
     session_file = tmp_path / "test.jsonl"
     with caplog.at_level(logging.INFO, logger="blackjack"):
         emit_event(_make_hand_event(), session_file)
-    assert "[BET]" in caplog.text
+    assert "[BetPlaced]" in caplog.text
     assert f"sess:{SESSION_ID[-8:]}" in caplog.text
     assert f"hand:{HAND_ID[-8:]}" in caplog.text
     assert "evt:" in caplog.text
@@ -112,7 +112,7 @@ def test_emit_event_hrf_format_session_level(
     session_file = tmp_path / "test.jsonl"
     with caplog.at_level(logging.INFO, logger="blackjack"):
         emit_event(_make_session_event(), session_file)
-    assert "[OPEN]" in caplog.text
+    assert "[SessionOpened]" in caplog.text
     assert f"sess:{SESSION_ID[-8:]}" in caplog.text
     assert "hand:" not in caplog.text
     assert "actor:" not in caplog.text
@@ -151,7 +151,7 @@ def test_hrf_session_level_event_with_actor_omits_actor_from_hrf(
     """Session-level event (handId=None) with actor set must NOT include actor: in HRF."""
     session_file = tmp_path / "test.jsonl"
     event = GameEvent(
-        eventType="LEAVE",
+        eventType="PlayerLeft",
         sessionId=SESSION_ID,
         actor=ACTOR,  # actor is set, but handId is None — should be omitted from HRF
         data={"message": "Player leaves — no funds"},
@@ -159,5 +159,5 @@ def test_hrf_session_level_event_with_actor_omits_actor_from_hrf(
     assert event.handId is None
     with caplog.at_level(logging.INFO, logger="blackjack"):
         emit_event(event, session_file)
-    assert "[LEAVE]" in caplog.text
+    assert "[PlayerLeft]" in caplog.text
     assert "actor:" not in caplog.text
