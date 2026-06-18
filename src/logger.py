@@ -6,6 +6,7 @@ import warnings
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
 from uuid import uuid4
 
 _logger = logging.getLogger("blackjack")
@@ -17,7 +18,7 @@ class GameEvent:
 
     eventType: str
     sessionId: str
-    data: dict
+    data: dict[str, Any]
     handId: str | None = None
     actor: str | None = None
     eventId: str = field(default_factory=lambda: str(uuid4()))

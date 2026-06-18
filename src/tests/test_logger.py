@@ -80,14 +80,16 @@ def test_emit_event_json_includes_hand_id_when_provided(tmp_path: Path) -> None:
     """handId is present in JSON when provided."""
     session_file = tmp_path / "test.jsonl"
     emit_event(_make_hand_event(), session_file)
-    assert json.loads(session_file.read_text(encoding="utf-8").strip())["handId"] == HAND_ID
+    parsed = json.loads(session_file.read_text(encoding="utf-8").strip())
+    assert parsed["handId"] == HAND_ID
 
 
 def test_emit_event_json_includes_actor_when_provided(tmp_path: Path) -> None:
     """actor is present in JSON when provided."""
     session_file = tmp_path / "test.jsonl"
     emit_event(_make_hand_event(), session_file)
-    assert json.loads(session_file.read_text(encoding="utf-8").strip())["actor"] == ACTOR
+    parsed = json.loads(session_file.read_text(encoding="utf-8").strip())
+    assert parsed["actor"] == ACTOR
 
 
 def test_emit_event_hrf_format_hand_level(tmp_path: Path, caplog: pytest.LogCaptureFixture) -> None:
