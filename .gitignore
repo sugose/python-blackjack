@@ -6,5 +6,6 @@ __pycache__/
 .DS_Store
 Thumbs.db
 tools/dumps/*
+logs/
 reviews/
 Saved Games/desktop.ini
