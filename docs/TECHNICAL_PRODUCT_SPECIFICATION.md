@@ -230,7 +230,7 @@ A session loops over multiple hands using a single shared deck, applying a cut-c
 
 ### Refactors to `play_hand()`
 
-- Signature changes to `play_hand(player: Player, deck: Deck) -> None` — deck is passed in by the session
+- Signature: `play_hand(player: Player, session_id: str, session_file: Path, deck: Deck) -> None` — session context and deck are passed in by the caller
 - `seed` parameter removed; shuffling is the caller's responsibility
 - `DECK` event removed from `play_hand()` — replaced by `SHUFFLE` in `play_session()`
 - `TABLE` event renamed to `LEAVE`
@@ -247,8 +247,8 @@ A session loops over multiple hands using a single shared deck, applying a cut-c
 | Payout | `[PAYOUT] Player receives 2.5 UoM — blackjack 3:2` |
 | Payout | `[PAYOUT] Player receives 2 UoM — win` |
 | Payout | `[PAYOUT] Player receives 1 UoM — push` |
-| Player leaves | `[LEAVE] Player leaves — no funds` |
-| Player leaves | `[LEAVE] Player leaves — max hands reached` |
+| Player leaves | `[LEAVE] Player leaves — no funds` (actor: player name) |
+| Player leaves | `[LEAVE] Player leaves — max hands reached` (actor: player name) |
 | Session closed | `[CLOSE] Session closed — hands played: 10, final wallet: 95 UoM, reason: max hands reached` |
 
 ### `play_session()` Signature

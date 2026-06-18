@@ -103,17 +103,17 @@ def test_play_hand_player_bust_logs_bust(tmp_path: Path, caplog: pytest.LogCaptu
     assert "[OUTCOME]" not in caplog.text
 
 
-def test_play_hand_wallet_zero_logs_leave_not_table(
+def test_play_hand_wallet_zero_logs_wallet_empty_not_leave(
     tmp_path: Path, caplog: pytest.LogCaptureFixture
 ) -> None:
-    """play_hand logs [LEAVE] (not [TABLE]) when wallet reaches 0 after a loss."""
+    """play_hand logs [WalletEmpty] not [LEAVE] when wallet reaches 0 — LEAVE belongs to session."""
     p = Player(name="Alice", strategy=_stand_strategy)
     p.wallet = 1.0
     sid, sf, deck = _ctx(tmp_path)
     with caplog.at_level(logging.INFO, logger="blackjack"):
         play_hand(p, sid, sf, deck)
     assert p.wallet == 0.0
-    assert "[LEAVE]" in caplog.text
+    assert "[WalletEmpty]" in caplog.text
     assert "[TABLE]" not in caplog.text
 
 
@@ -290,18 +290,18 @@ def test_wallet_logged_on_final_outcome_exit(
     assert "Player wallet: 99 UoM" in caplog.text
 
 
-def test_leave_logged_on_dealer_blackjack_exit_when_wallet_zero(
+def test_wallet_empty_logged_on_dealer_blackjack_exit_when_wallet_zero(
     tmp_path: Path, caplog: pytest.LogCaptureFixture
 ) -> None:
-    """LEAVE is logged on dealer-blackjack exit when wallet reaches 0."""
+    """WalletEmpty is logged on dealer-blackjack exit when wallet reaches 0."""
     p = Player(name="Alice", strategy=_stand_strategy)
     p.wallet = 1.0
     sid, sf, deck = _ctx(tmp_path, seed=9)
     with caplog.at_level(logging.INFO, logger="blackjack"):
         play_hand(p, sid, sf, deck)
     assert p.wallet == 0.0
-    assert "[LEAVE]" in caplog.text
-    assert "Player leaves — wallet reached 0 UoM" in caplog.text
+    assert "[WalletEmpty]" in caplog.text
+    assert "wallet reached 0 UoM" in caplog.text
 
 
 def test_deal_log_first_player_card_says_card_value(
@@ -522,6 +522,21 @@ def test_play_session_terminates_on_wallet_zero(
     assert "[LEAVE]" in caplog.text
     assert "Player leaves — no funds" in caplog.text
     assert "reason: no funds" in caplog.text
+
+
+def test_play_session_wallet_zero_emits_wallet_empty_not_leave_from_hand(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
+) -> None:
+    """play_hand emits WalletEmpty (not LEAVE) on zero wallet; session emits exactly one LEAVE."""
+    monkeypatch.chdir(tmp_path)
+    p = Player(name="Alice", strategy=_stand_strategy)
+    p.wallet = 1.0
+    with caplog.at_level(logging.INFO, logger="blackjack"):
+        play_session(p, max_hands=10, seed=2)
+    assert "[WalletEmpty]" in caplog.text
+    # LEAVE fires exactly once — from play_session(), not from _emit_wallet()
+    assert caplog.text.count("[LEAVE]") == 1
+    assert "Player leaves — no funds" in caplog.text
 
 
 def test_play_session_logs_close_with_summary(
