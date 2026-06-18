@@ -35,7 +35,12 @@ def _hrf(event: GameEvent) -> str:
     parts.append(f"evt:{event.eventId[-8:]}")
     if event.actor:
         parts.append(f"actor:{event.actor}")
-    message = event.data.get("message", json.dumps(event.data))
+    message = event.data.get("message")
+    if message is None:
+        try:
+            message = json.dumps(event.data)
+        except TypeError:
+            message = repr(event.data)
     return " | ".join(parts) + f" — {message}"
 
 

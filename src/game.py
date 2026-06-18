@@ -11,7 +11,7 @@ from src.player import Player
 
 
 def _emit_wallet(player: Player, session_id: str, hand_id: str, session_file: Path) -> None:
-    """Emit WALLET event and LEAVE event if wallet reaches zero."""
+    """Emit WALLET event and WalletEmpty event if wallet reaches zero."""
     emit_event(
         GameEvent(
             eventType="WALLET",
@@ -28,12 +28,12 @@ def _emit_wallet(player: Player, session_id: str, hand_id: str, session_file: Pa
     if player.wallet == 0.0:
         emit_event(
             GameEvent(
-                eventType="LEAVE",
+                eventType="WalletEmpty",
                 sessionId=session_id,
+                handId=hand_id,
                 actor=player.name,
                 data={
-                    "reason": "no funds",
-                    "message": "Player leaves — wallet reached 0 UoM",
+                    "message": "Player wallet reached 0 UoM",
                 },
             ),
             session_file,
