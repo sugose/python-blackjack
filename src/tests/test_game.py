@@ -407,7 +407,7 @@ def test_play_hand_new_signature_writes_jsonl_file(tmp_path: Path) -> None:
 
 
 def test_play_hand_new_signature_jsonl_contains_bet_event(tmp_path: Path) -> None:
-    """play_hand writes a BET event to the JSONL file."""
+    """play_hand writes a BetPlaced event to the JSONL file."""
     p = Player(name="Alice", strategy=_stand_strategy)
     sid, sf, deck = _ctx(tmp_path)
     play_hand(p, sid, sf, deck)
@@ -468,7 +468,7 @@ def test_play_hand_standalone_session_file_matches_naming_pattern(
     play_hand_standalone(p, seed=2)
     jsonl_files = list((tmp_path / "logs").glob("*.jsonl"))
     assert len(jsonl_files) == 1
-    assert re.match(r"blackjack-\d{8}T\d{6}-[0-9a-f]{8}\.jsonl", jsonl_files[0].name)
+    assert re.fullmatch(r"blackjack-\d{8}T\d{6}-[0-9a-f]{8}\.jsonl", jsonl_files[0].name)
 
 
 # ---------------------------------------------------------------------------
@@ -479,7 +479,7 @@ def test_play_hand_standalone_session_file_matches_naming_pattern(
 def test_play_session_logs_open(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
 ) -> None:
-    """[OPEN] logged at session start with player name, max hands, starting wallet."""
+    """[SessionOpened] logged at session start with player name, max hands, starting wallet."""
     monkeypatch.chdir(tmp_path)
     p = Player(name="Alice", strategy=_stand_strategy)
     with caplog.at_level(logging.INFO, logger="blackjack"):
