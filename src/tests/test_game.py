@@ -48,7 +48,7 @@ def _ctx(tmp_path: Path, seed: int = 2) -> tuple[str, Path, Deck]:
 
 
 def test_play_hand_deducts_bet_at_start(tmp_path: Path, caplog: pytest.LogCaptureFixture) -> None:
-    """play_hand logs BET event and deducts 1 UoM."""
+    """play_hand logs BetPlaced event and deducts 1 UoM."""
     p = Player(name="Alice", strategy=_stand_strategy)
     sid, sf, deck = _ctx(tmp_path)
     with caplog.at_level(logging.INFO, logger="blackjack"):
@@ -67,7 +67,7 @@ def test_play_hand_logs_deck_shuffle(tmp_path: Path, caplog: pytest.LogCaptureFi
 
 
 def test_play_hand_logs_deal_events(tmp_path: Path, caplog: pytest.LogCaptureFixture) -> None:
-    """play_hand logs DEAL events for initial cards."""
+    """play_hand logs CardDealt events for initial cards."""
     p = Player(name="Alice", strategy=_stand_strategy)
     sid, sf, deck = _ctx(tmp_path)
     with caplog.at_level(logging.INFO, logger="blackjack"):
@@ -76,7 +76,7 @@ def test_play_hand_logs_deal_events(tmp_path: Path, caplog: pytest.LogCaptureFix
 
 
 def test_play_hand_logs_outcome(tmp_path: Path, caplog: pytest.LogCaptureFixture) -> None:
-    """play_hand logs an OUTCOME event."""
+    """play_hand logs a HandResolved event."""
     p = Player(name="Alice", strategy=_stand_strategy)
     sid, sf, deck = _ctx(tmp_path)
     with caplog.at_level(logging.INFO, logger="blackjack"):
@@ -85,7 +85,7 @@ def test_play_hand_logs_outcome(tmp_path: Path, caplog: pytest.LogCaptureFixture
 
 
 def test_play_hand_logs_wallet(tmp_path: Path, caplog: pytest.LogCaptureFixture) -> None:
-    """play_hand logs WALLET event."""
+    """play_hand logs WalletUpdated event."""
     p = Player(name="Alice", strategy=_stand_strategy)
     sid, sf, deck = _ctx(tmp_path)
     with caplog.at_level(logging.INFO, logger="blackjack"):
@@ -94,7 +94,7 @@ def test_play_hand_logs_wallet(tmp_path: Path, caplog: pytest.LogCaptureFixture)
 
 
 def test_play_hand_player_bust_logs_bust(tmp_path: Path, caplog: pytest.LogCaptureFixture) -> None:
-    """play_hand logs BUST when player always hits until bust."""
+    """play_hand logs HandBust when player always hits until bust."""
     p = Player(name="Alice", strategy=_hit_strategy)
     sid, sf, deck = _ctx(tmp_path)
     with caplog.at_level(logging.INFO, logger="blackjack"):
@@ -107,7 +107,10 @@ def test_play_hand_player_bust_logs_bust(tmp_path: Path, caplog: pytest.LogCaptu
 def test_play_hand_wallet_zero_logs_wallet_empty_not_leave(
     tmp_path: Path, caplog: pytest.LogCaptureFixture
 ) -> None:
-    """play_hand logs [WalletEmpty] not [LEAVE] when wallet reaches 0 — LEAVE belongs to session."""
+    """play_hand logs [WalletEmpty] not [PlayerLeft] when wallet reaches 0.
+
+    [PlayerLeft] belongs to the session layer, not play_hand.
+    """
     p = Player(name="Alice", strategy=_stand_strategy)
     p.wallet = 1.0
     sid, sf, deck = _ctx(tmp_path)
@@ -208,7 +211,7 @@ def test_play_hand_dealer_blackjack_only_player_loses(
 
 
 def test_play_hand_logs_reveal(tmp_path: Path, caplog: pytest.LogCaptureFixture) -> None:
-    """play_hand logs REVEAL event for dealer hole card (non-blackjack hand)."""
+    """play_hand logs HoleCardRevealed event for dealer hole card (non-blackjack hand)."""
     p = Player(name="Alice", strategy=_stand_strategy)
     sid, sf, deck = _ctx(tmp_path)
     with caplog.at_level(logging.INFO, logger="blackjack"):
@@ -216,13 +219,13 @@ def test_play_hand_logs_reveal(tmp_path: Path, caplog: pytest.LogCaptureFixture)
     assert "[HoleCardRevealed]" in caplog.text
 
 
-# --- WALLET / LEAVE logging across all exit paths ---
+# --- WalletUpdated / PlayerLeft logging across all exit paths ---
 
 
 def test_wallet_logged_on_player_blackjack_exit(
     tmp_path: Path, caplog: pytest.LogCaptureFixture
 ) -> None:
-    """WALLET is logged on the player-blackjack exit path."""
+    """WalletUpdated is logged on the player-blackjack exit path."""
     p = Player(name="Alice", strategy=_stand_strategy)
     sid, sf, deck = _ctx(tmp_path, seed=49)
     with caplog.at_level(logging.INFO, logger="blackjack"):
@@ -234,7 +237,7 @@ def test_wallet_logged_on_player_blackjack_exit(
 def test_wallet_logged_on_both_blackjack_exit(
     tmp_path: Path, caplog: pytest.LogCaptureFixture
 ) -> None:
-    """WALLET is logged on the both-blackjack push exit path."""
+    """WalletUpdated is logged on the both-blackjack push exit path."""
     p = Player(name="Alice", strategy=_stand_strategy)
     sid, sf, deck = _ctx(tmp_path, seed=498)
     with caplog.at_level(logging.INFO, logger="blackjack"):
@@ -246,7 +249,7 @@ def test_wallet_logged_on_both_blackjack_exit(
 def test_wallet_logged_on_dealer_blackjack_exit(
     tmp_path: Path, caplog: pytest.LogCaptureFixture
 ) -> None:
-    """WALLET is logged on the dealer-blackjack exit path."""
+    """WalletUpdated is logged on the dealer-blackjack exit path."""
     p = Player(name="Alice", strategy=_stand_strategy)
     sid, sf, deck = _ctx(tmp_path, seed=9)
     with caplog.at_level(logging.INFO, logger="blackjack"):
@@ -258,7 +261,7 @@ def test_wallet_logged_on_dealer_blackjack_exit(
 def test_wallet_logged_on_player_bust_exit(
     tmp_path: Path, caplog: pytest.LogCaptureFixture
 ) -> None:
-    """WALLET is logged on the player-bust exit path."""
+    """WalletUpdated is logged on the player-bust exit path."""
     p = Player(name="Alice", strategy=_hit_strategy)
     sid, sf, deck = _ctx(tmp_path)
     with caplog.at_level(logging.INFO, logger="blackjack"):
@@ -270,7 +273,7 @@ def test_wallet_logged_on_player_bust_exit(
 def test_wallet_logged_on_dealer_bust_exit(
     tmp_path: Path, caplog: pytest.LogCaptureFixture
 ) -> None:
-    """WALLET is logged on the dealer-bust exit path."""
+    """WalletUpdated is logged on the dealer-bust exit path."""
     p = Player(name="Alice", strategy=_stand_strategy)
     sid, sf, deck = _ctx(tmp_path, seed=0)
     with caplog.at_level(logging.INFO, logger="blackjack"):
@@ -282,7 +285,7 @@ def test_wallet_logged_on_dealer_bust_exit(
 def test_wallet_logged_on_final_outcome_exit(
     tmp_path: Path, caplog: pytest.LogCaptureFixture
 ) -> None:
-    """WALLET is logged on the final-outcome (dealer wins) exit path."""
+    """WalletUpdated is logged on the final-outcome (dealer wins) exit path."""
     p = Player(name="Alice", strategy=_stand_strategy)
     sid, sf, deck = _ctx(tmp_path)
     with caplog.at_level(logging.INFO, logger="blackjack"):
@@ -308,7 +311,7 @@ def test_wallet_empty_logged_on_dealer_blackjack_exit_when_wallet_zero(
 def test_deal_log_first_player_card_says_card_value(
     tmp_path: Path, caplog: pytest.LogCaptureFixture
 ) -> None:
-    """First player DEAL log uses 'card value' not 'hand value'."""
+    """First player CardDealt log uses 'card value' not 'hand value'."""
     p = Player(name="Alice", strategy=_stand_strategy)
     sid, sf, deck = _ctx(tmp_path)
     with caplog.at_level(logging.INFO, logger="blackjack"):
@@ -320,7 +323,7 @@ def test_deal_log_first_player_card_says_card_value(
 def test_deal_log_dealer_upcard_says_card_value(
     tmp_path: Path, caplog: pytest.LogCaptureFixture
 ) -> None:
-    """Dealer upcard DEAL log uses 'card value' not 'hand value'."""
+    """Dealer upcard CardDealt log uses 'card value' not 'hand value'."""
     p = Player(name="Alice", strategy=_stand_strategy)
     sid, sf, deck = _ctx(tmp_path)
     with caplog.at_level(logging.INFO, logger="blackjack"):
@@ -335,14 +338,14 @@ def test_deal_log_dealer_upcard_says_card_value(
 
 
 # ---------------------------------------------------------------------------
-# play_hand() — PAYOUT events
+# play_hand() — PayoutMade events
 # ---------------------------------------------------------------------------
 
 
 def test_play_hand_payout_logged_on_blackjack(
     tmp_path: Path, caplog: pytest.LogCaptureFixture
 ) -> None:
-    """[PAYOUT] logged with blackjack 3:2 message when player hits blackjack."""
+    """[PayoutMade] logged with blackjack 3:2 message when player hits blackjack."""
     p = Player(name="Alice", strategy=_stand_strategy)
     sid, sf, deck = _ctx(tmp_path, seed=49)
     with caplog.at_level(logging.INFO, logger="blackjack"):
@@ -352,7 +355,7 @@ def test_play_hand_payout_logged_on_blackjack(
 
 
 def test_play_hand_payout_logged_on_win(tmp_path: Path, caplog: pytest.LogCaptureFixture) -> None:
-    """[PAYOUT] logged with win message when player wins 1:1."""
+    """[PayoutMade] logged with win message when player wins 1:1."""
     p = Player(name="Alice", strategy=_stand_strategy)
     sid, sf, deck = _ctx(tmp_path, seed=0)
     with caplog.at_level(logging.INFO, logger="blackjack"):
@@ -362,7 +365,7 @@ def test_play_hand_payout_logged_on_win(tmp_path: Path, caplog: pytest.LogCaptur
 
 
 def test_play_hand_payout_logged_on_push(tmp_path: Path, caplog: pytest.LogCaptureFixture) -> None:
-    """[PAYOUT] logged with push message on a push."""
+    """[PayoutMade] logged with push message on a push."""
     p = Player(name="Alice", strategy=_stand_strategy)
     sid, sf, deck = _ctx(tmp_path, seed=19)
     with caplog.at_level(logging.INFO, logger="blackjack"):
@@ -374,7 +377,7 @@ def test_play_hand_payout_logged_on_push(tmp_path: Path, caplog: pytest.LogCaptu
 def test_play_hand_no_payout_on_dealer_wins(
     tmp_path: Path, caplog: pytest.LogCaptureFixture
 ) -> None:
-    """[PAYOUT] not logged when dealer wins (player loses bet)."""
+    """[PayoutMade] not logged when dealer wins (player loses bet)."""
     p = Player(name="Alice", strategy=_stand_strategy)
     sid, sf, deck = _ctx(tmp_path)
     with caplog.at_level(logging.INFO, logger="blackjack"):
@@ -385,7 +388,7 @@ def test_play_hand_no_payout_on_dealer_wins(
 def test_play_hand_no_payout_on_player_bust(
     tmp_path: Path, caplog: pytest.LogCaptureFixture
 ) -> None:
-    """[PAYOUT] not logged when player busts."""
+    """[PayoutMade] not logged when player busts."""
     p = Player(name="Alice", strategy=_hit_strategy)
     sid, sf, deck = _ctx(tmp_path)
     with caplog.at_level(logging.INFO, logger="blackjack"):
@@ -491,7 +494,7 @@ def test_play_session_logs_open(
 def test_play_session_logs_shuffle_at_start(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
 ) -> None:
-    """[SHUFFLE] logged at session start after deck creation."""
+    """[ShoeShuffled] logged at session start after deck creation."""
     monkeypatch.chdir(tmp_path)
     p = Player(name="Alice", strategy=_stand_strategy)
     with caplog.at_level(logging.INFO, logger="blackjack"):
@@ -503,7 +506,7 @@ def test_play_session_logs_shuffle_at_start(
 def test_play_session_logs_hand_each_hand(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
 ) -> None:
-    """[HAND] logged at start of each hand with hand number and wallet."""
+    """[HandStarted] logged at start of each hand with hand number and wallet."""
     monkeypatch.chdir(tmp_path)
     p = Player(name="Alice", strategy=_stand_strategy)
     with caplog.at_level(logging.INFO, logger="blackjack"):
@@ -515,7 +518,7 @@ def test_play_session_logs_hand_each_hand(
 def test_play_session_terminates_on_max_hands(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
 ) -> None:
-    """Session ends after max_hands — [LEAVE] and [CLOSE] logged with reason."""
+    """Session ends after max_hands — [PlayerLeft] and [SessionClosed] logged with reason."""
     monkeypatch.chdir(tmp_path)
     p = Player(name="Alice", strategy=_stand_strategy)
     with caplog.at_level(logging.INFO, logger="blackjack"):
@@ -528,7 +531,7 @@ def test_play_session_terminates_on_max_hands(
 def test_play_session_terminates_on_wallet_zero(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
 ) -> None:
-    """Session ends when wallet reaches 0 — [LEAVE] and [CLOSE] logged with reason."""
+    """Session ends when wallet reaches 0 — [PlayerLeft] and [SessionClosed] logged with reason."""
     monkeypatch.chdir(tmp_path)
     p = Player(name="Alice", strategy=_stand_strategy)
     p.wallet = 1.0
@@ -542,7 +545,10 @@ def test_play_session_terminates_on_wallet_zero(
 def test_play_session_wallet_zero_emits_wallet_empty_not_leave_from_hand(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
 ) -> None:
-    """play_hand emits WalletEmpty (not LEAVE) on zero wallet; session emits exactly one LEAVE."""
+    """play_hand emits WalletEmpty (not PlayerLeft) on zero wallet.
+
+    Session emits exactly one PlayerLeft — the boundary between play_hand and play_session.
+    """
     monkeypatch.chdir(tmp_path)
     p = Player(name="Alice", strategy=_stand_strategy)
     p.wallet = 1.0
@@ -557,7 +563,7 @@ def test_play_session_wallet_zero_emits_wallet_empty_not_leave_from_hand(
 def test_play_session_logs_close_with_summary(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
 ) -> None:
-    """[CLOSE] contains hands played, final wallet, and reason."""
+    """[SessionClosed] contains hands played, final wallet, and reason."""
     monkeypatch.chdir(tmp_path)
     p = Player(name="Alice", strategy=_stand_strategy)
     with caplog.at_level(logging.INFO, logger="blackjack"):
@@ -569,7 +575,7 @@ def test_play_session_logs_close_with_summary(
 def test_play_session_logs_cut_and_reshuffle(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
 ) -> None:
-    """[CUT] and second [SHUFFLE] logged when deck falls to or below cut_card threshold."""
+    """[CutCardReached] and second [ShoeShuffled] logged when deck falls below cut_card."""
     monkeypatch.chdir(tmp_path)
     p = Player(name="Alice", strategy=_stand_strategy)
     with caplog.at_level(logging.INFO, logger="blackjack"):
@@ -604,7 +610,7 @@ def test_play_session_raises_on_invalid_cut_card_high() -> None:
 def test_play_session_payout_logged_on_win(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
 ) -> None:
-    """[PAYOUT] logged when player wins a hand during session."""
+    """[PayoutMade] logged when player wins a hand during session."""
     monkeypatch.chdir(tmp_path)
     p = Player(name="Alice", strategy=_stand_strategy)
     with caplog.at_level(logging.INFO, logger="blackjack"):
@@ -616,7 +622,7 @@ def test_play_session_payout_logged_on_win(
 def test_play_session_payout_logged_on_blackjack(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
 ) -> None:
-    """[PAYOUT] logged when player hits blackjack during session."""
+    """[PayoutMade] logged when player hits blackjack during session."""
     monkeypatch.chdir(tmp_path)
     p = Player(name="Alice", strategy=_stand_strategy)
     with caplog.at_level(logging.INFO, logger="blackjack"):
@@ -628,7 +634,7 @@ def test_play_session_payout_logged_on_blackjack(
 def test_play_session_payout_logged_on_push(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
 ) -> None:
-    """[PAYOUT] logged on push during session."""
+    """[PayoutMade] logged on push during session."""
     monkeypatch.chdir(tmp_path)
     p = Player(name="Alice", strategy=_stand_strategy)
     with caplog.at_level(logging.INFO, logger="blackjack"):
