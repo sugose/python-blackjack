@@ -620,3 +620,14 @@ def test_play_session_payout_logged_on_push(
         play_session(p, max_hands=1, seed=19)
     assert "[PAYOUT]" in caplog.text
     assert "Player receives 1 UoM — push" in caplog.text
+
+
+def test_play_session_low_cut_card_does_not_crash(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Session with cut_card=1 completes without error even when deck runs very low."""
+    monkeypatch.chdir(tmp_path)
+    p = Player(name="Alice", strategy=_stand_strategy)
+    # With cut_card=1, the reshuffle guard (max(cut_card, 4)) must prevent
+    # deal_initial() from being called with fewer than 4 cards.
+    play_session(p, max_hands=20, cut_card=1, seed=0)

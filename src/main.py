@@ -1,8 +1,8 @@
-"""Entry point — play a session of blackjack with the default strategy."""
+"""Entry point — play one hand of blackjack with the default strategy."""
 
 import logging
 
-from src.game import play_hand_standalone
+from src.game import play_session
 from src.hand import Hand
 from src.player import Player
 
@@ -16,7 +16,7 @@ def main() -> None:
     """Create a player and play a session."""
     logging.basicConfig(level=logging.INFO, format="%(message)s")
     player = Player(name="Player", strategy=default_strategy)
-    play_hand_standalone(player)
+    play_session(player)
 
 
 if __name__ == "__main__":

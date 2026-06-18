@@ -540,7 +540,7 @@ def play_session(
             )
             return
 
-        if len(deck) <= cut_card:
+        if len(deck) <= max(cut_card, 4):
             emit_event(
                 GameEvent(
                     eventType="CUT",

@@ -30,10 +30,10 @@ def _hrf(event: GameEvent) -> str:
     """Render a GameEvent as a human-readable one-liner."""
     parts = [f"[{event.eventType}]"]
     parts.append(f"sess:{event.sessionId[-8:]}")
-    if event.handId:
+    if event.handId is not None:
         parts.append(f"hand:{event.handId[-8:]}")
     parts.append(f"evt:{event.eventId[-8:]}")
-    if event.actor:
+    if event.handId is not None and event.actor is not None:
         parts.append(f"actor:{event.actor}")
     message = event.data.get("message")
     if message is None:

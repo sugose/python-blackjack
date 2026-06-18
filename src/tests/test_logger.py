@@ -126,3 +126,36 @@ def test_emit_event_jsonl_failure_warns_not_raises(tmp_path: Path) -> None:
             emit_event(_make_hand_event(), session_file)
     assert len(caught) == 1
     assert "JSONL write failed" in str(caught[0].message)
+
+
+def test_hrf_non_serializable_data_does_not_raise(
+    tmp_path: Path, caplog: pytest.LogCaptureFixture
+) -> None:
+    """HRF rendering does not raise when data contains non-JSON-serialisable values."""
+    session_file = tmp_path / "test.jsonl"
+    event = GameEvent(
+        eventType="DEBUG",
+        sessionId=SESSION_ID,
+        data={"obj": object()},  # no "message" key; object() is not JSON-serialisable
+    )
+    with caplog.at_level(logging.INFO, logger="blackjack"):
+        emit_event(event, session_file)
+    assert "[DEBUG]" in caplog.text
+
+
+def test_hrf_session_level_event_with_actor_omits_actor_from_hrf(
+    tmp_path: Path, caplog: pytest.LogCaptureFixture
+) -> None:
+    """Session-level event (handId=None) with actor set must NOT include actor: in HRF."""
+    session_file = tmp_path / "test.jsonl"
+    event = GameEvent(
+        eventType="LEAVE",
+        sessionId=SESSION_ID,
+        actor=ACTOR,  # actor is set, but handId is None — should be omitted from HRF
+        data={"message": "Player leaves — no funds"},
+    )
+    assert event.handId is None
+    with caplog.at_level(logging.INFO, logger="blackjack"):
+        emit_event(event, session_file)
+    assert "[LEAVE]" in caplog.text
+    assert "actor:" not in caplog.text

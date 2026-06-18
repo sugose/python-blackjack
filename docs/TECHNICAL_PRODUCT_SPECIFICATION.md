@@ -197,7 +197,7 @@ def play_hand(player: Player, session_id: str, session_file: Path, deck: Deck) -
 
 ### `play_hand_standalone()` Wrapper
 
-Temporary wrapper used by `main.py` until PBI-1.4 introduces the full session loop:
+Temporary wrapper for running a single hand; kept for backward compatibility and tests:
 
 ```python
 def play_hand_standalone(player: Player, seed: int | None = None) -> None:
