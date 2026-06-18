@@ -52,7 +52,7 @@ def test_play_hand_deducts_bet_at_start(tmp_path: Path, caplog: pytest.LogCaptur
     sid, sf, deck = _ctx(tmp_path)
     with caplog.at_level(logging.INFO, logger="blackjack"):
         play_hand(p, sid, sf, deck)
-    assert "[BET]" in caplog.text
+    assert "[BetPlaced]" in caplog.text
     assert p.wallet == 99.0
 
 
