@@ -63,8 +63,11 @@ def emit_event(event: GameEvent, session_file: Path) -> None:
             if event.actor is not None:
                 payload["actor"] = event.actor
             f.write(json.dumps(payload, ensure_ascii=False) + "\n")
-    except Exception as exc:
-        warnings.warn(f"JSONL write failed: {exc}", stacklevel=2)
+    except (OSError, TypeError, ValueError) as exc:
+        warnings.warn(
+            f"JSONL write failed for {session_file} (eventType={event.eventType}): {exc!r}",
+            stacklevel=2,
+        )
 
     # HRF to stdout
     _logger.info(_hrf(event))
