@@ -1,5 +1,6 @@
 """Game engine — orchestrates a single blackjack hand or a full session."""
 
+from datetime import datetime, timezone
 from pathlib import Path
 from uuid import uuid4
 
@@ -11,10 +12,10 @@ from src.player import Player
 
 
 def _emit_wallet(player: Player, session_id: str, hand_id: str, session_file: Path) -> None:
-    """Emit WALLET event and WalletEmpty event if wallet reaches zero."""
+    """Emit WalletUpdated event and WalletEmpty event if wallet reaches zero."""
     emit_event(
         GameEvent(
-            eventType="WALLET",
+            eventType="WalletUpdated",
             sessionId=session_id,
             handId=hand_id,
             actor=player.name,
@@ -48,7 +49,7 @@ def play_hand(player: Player, session_id: str, session_file: Path, deck: Deck) -
     player.place_bet()
     emit_event(
         GameEvent(
-            eventType="BET",
+            eventType="BetPlaced",
             sessionId=session_id,
             handId=hand_id,
             actor=player.name,
@@ -67,7 +68,7 @@ def play_hand(player: Player, session_id: str, session_file: Path, deck: Deck) -
     c2 = player_hand.cards[1]
     emit_event(
         GameEvent(
-            eventType="DEAL",
+            eventType="CardDealt",
             sessionId=session_id,
             handId=hand_id,
             actor=player.name,
@@ -81,7 +82,7 @@ def play_hand(player: Player, session_id: str, session_file: Path, deck: Deck) -
     )
     emit_event(
         GameEvent(
-            eventType="DEAL",
+            eventType="CardDealt",
             sessionId=session_id,
             handId=hand_id,
             actor=player.name,
@@ -96,7 +97,7 @@ def play_hand(player: Player, session_id: str, session_file: Path, deck: Deck) -
     dc1 = dealer_hand.cards[0]
     emit_event(
         GameEvent(
-            eventType="DEAL",
+            eventType="CardDealt",
             sessionId=session_id,
             handId=hand_id,
             actor="Dealer",
@@ -110,7 +111,7 @@ def play_hand(player: Player, session_id: str, session_file: Path, deck: Deck) -
     )
     emit_event(
         GameEvent(
-            eventType="DEAL",
+            eventType="CardDealt",
             sessionId=session_id,
             handId=hand_id,
             actor="Dealer",
@@ -124,7 +125,7 @@ def play_hand(player: Player, session_id: str, session_file: Path, deck: Deck) -
             revealed = dealer.reveal_hole_card(dealer_hand)
             emit_event(
                 GameEvent(
-                    eventType="REVEAL",
+                    eventType="HoleCardRevealed",
                     sessionId=session_id,
                     handId=hand_id,
                     actor="Dealer",
@@ -138,7 +139,7 @@ def play_hand(player: Player, session_id: str, session_file: Path, deck: Deck) -
             )
             emit_event(
                 GameEvent(
-                    eventType="OUTCOME",
+                    eventType="HandResolved",
                     sessionId=session_id,
                     handId=hand_id,
                     data={"result": "push", "message": "Push — both have blackjack"},
@@ -148,7 +149,7 @@ def play_hand(player: Player, session_id: str, session_file: Path, deck: Deck) -
             player.receive_payout(player.bet)
             emit_event(
                 GameEvent(
-                    eventType="PAYOUT",
+                    eventType="PayoutMade",
                     sessionId=session_id,
                     handId=hand_id,
                     actor=player.name,
@@ -163,7 +164,7 @@ def play_hand(player: Player, session_id: str, session_file: Path, deck: Deck) -
         else:
             emit_event(
                 GameEvent(
-                    eventType="OUTCOME",
+                    eventType="HandResolved",
                     sessionId=session_id,
                     handId=hand_id,
                     data={
@@ -177,7 +178,7 @@ def play_hand(player: Player, session_id: str, session_file: Path, deck: Deck) -
             player.receive_payout(payout)
             emit_event(
                 GameEvent(
-                    eventType="PAYOUT",
+                    eventType="PayoutMade",
                     sessionId=session_id,
                     handId=hand_id,
                     actor=player.name,
@@ -196,7 +197,7 @@ def play_hand(player: Player, session_id: str, session_file: Path, deck: Deck) -
         revealed = dealer.reveal_hole_card(dealer_hand)
         emit_event(
             GameEvent(
-                eventType="REVEAL",
+                eventType="HoleCardRevealed",
                 sessionId=session_id,
                 handId=hand_id,
                 actor="Dealer",
@@ -210,7 +211,7 @@ def play_hand(player: Player, session_id: str, session_file: Path, deck: Deck) -
         )
         emit_event(
             GameEvent(
-                eventType="OUTCOME",
+                eventType="HandResolved",
                 sessionId=session_id,
                 handId=hand_id,
                 data={
@@ -230,7 +231,7 @@ def play_hand(player: Player, session_id: str, session_file: Path, deck: Deck) -
         if action == "stand":
             emit_event(
                 GameEvent(
-                    eventType="STAND",
+                    eventType="StandDeclared",
                     sessionId=session_id,
                     handId=hand_id,
                     actor=player.name,
@@ -246,7 +247,7 @@ def play_hand(player: Player, session_id: str, session_file: Path, deck: Deck) -
         player_hand.cards.append(card)
         emit_event(
             GameEvent(
-                eventType="HIT",
+                eventType="CardDrawn",
                 sessionId=session_id,
                 handId=hand_id,
                 actor=player.name,
@@ -262,7 +263,7 @@ def play_hand(player: Player, session_id: str, session_file: Path, deck: Deck) -
     if player_hand.is_bust:
         emit_event(
             GameEvent(
-                eventType="BUST",
+                eventType="HandBust",
                 sessionId=session_id,
                 handId=hand_id,
                 actor=player.name,
@@ -279,7 +280,7 @@ def play_hand(player: Player, session_id: str, session_file: Path, deck: Deck) -
     revealed = dealer.reveal_hole_card(dealer_hand)
     emit_event(
         GameEvent(
-            eventType="REVEAL",
+            eventType="HoleCardRevealed",
             sessionId=session_id,
             handId=hand_id,
             actor="Dealer",
@@ -297,7 +298,7 @@ def play_hand(player: Player, session_id: str, session_file: Path, deck: Deck) -
         if action == "stand":
             emit_event(
                 GameEvent(
-                    eventType="STAND",
+                    eventType="StandDeclared",
                     sessionId=session_id,
                     handId=hand_id,
                     actor="Dealer",
@@ -313,7 +314,7 @@ def play_hand(player: Player, session_id: str, session_file: Path, deck: Deck) -
         dealer_hand.cards.append(card)
         emit_event(
             GameEvent(
-                eventType="HIT",
+                eventType="CardDrawn",
                 sessionId=session_id,
                 handId=hand_id,
                 actor="Dealer",
@@ -329,7 +330,7 @@ def play_hand(player: Player, session_id: str, session_file: Path, deck: Deck) -
     if dealer_hand.is_bust:
         emit_event(
             GameEvent(
-                eventType="BUST",
+                eventType="HandBust",
                 sessionId=session_id,
                 handId=hand_id,
                 actor="Dealer",
@@ -342,7 +343,7 @@ def play_hand(player: Player, session_id: str, session_file: Path, deck: Deck) -
         )
         emit_event(
             GameEvent(
-                eventType="OUTCOME",
+                eventType="HandResolved",
                 sessionId=session_id,
                 handId=hand_id,
                 data={"result": "player_wins", "message": "Player wins — dealer busts"},
@@ -353,7 +354,7 @@ def play_hand(player: Player, session_id: str, session_file: Path, deck: Deck) -
         player.receive_payout(payout)
         emit_event(
             GameEvent(
-                eventType="PAYOUT",
+                eventType="PayoutMade",
                 sessionId=session_id,
                 handId=hand_id,
                 actor=player.name,
@@ -374,7 +375,7 @@ def play_hand(player: Player, session_id: str, session_file: Path, deck: Deck) -
     if pv > dv:
         emit_event(
             GameEvent(
-                eventType="OUTCOME",
+                eventType="HandResolved",
                 sessionId=session_id,
                 handId=hand_id,
                 data={
@@ -388,7 +389,7 @@ def play_hand(player: Player, session_id: str, session_file: Path, deck: Deck) -
         player.receive_payout(payout)
         emit_event(
             GameEvent(
-                eventType="PAYOUT",
+                eventType="PayoutMade",
                 sessionId=session_id,
                 handId=hand_id,
                 actor=player.name,
@@ -403,7 +404,7 @@ def play_hand(player: Player, session_id: str, session_file: Path, deck: Deck) -
     elif dv > pv:
         emit_event(
             GameEvent(
-                eventType="OUTCOME",
+                eventType="HandResolved",
                 sessionId=session_id,
                 handId=hand_id,
                 data={
@@ -416,7 +417,7 @@ def play_hand(player: Player, session_id: str, session_file: Path, deck: Deck) -
     else:
         emit_event(
             GameEvent(
-                eventType="OUTCOME",
+                eventType="HandResolved",
                 sessionId=session_id,
                 handId=hand_id,
                 data={"result": "push", "message": f"Push — both have {pv}"},
@@ -426,7 +427,7 @@ def play_hand(player: Player, session_id: str, session_file: Path, deck: Deck) -
         player.receive_payout(player.bet)
         emit_event(
             GameEvent(
-                eventType="PAYOUT",
+                eventType="PayoutMade",
                 sessionId=session_id,
                 handId=hand_id,
                 actor=player.name,
@@ -445,7 +446,8 @@ def play_hand(player: Player, session_id: str, session_file: Path, deck: Deck) -
 def play_hand_standalone(player: Player, seed: int | None = None) -> None:
     """Temporary wrapper — plays one hand with its own session context."""
     session_id = str(uuid4())
-    session_file = Path(f"logs/session-{session_id[-8:]}.jsonl")
+    timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S")
+    session_file = Path(f"logs/blackjack-{timestamp}-{session_id[-8:]}.jsonl")
     deck = Deck()
     deck.shuffle(seed=seed)
     play_hand(player, session_id, session_file, deck)
@@ -464,11 +466,12 @@ def play_session(
         raise ValueError(f"cut_card must be between 1 and 51, got {cut_card}")
 
     session_id = str(uuid4())
-    session_file = Path(f"logs/session-{session_id[-8:]}.jsonl")
+    timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S")
+    session_file = Path(f"logs/blackjack-{timestamp}-{session_id[-8:]}.jsonl")
 
     emit_event(
         GameEvent(
-            eventType="OPEN",
+            eventType="SessionOpened",
             sessionId=session_id,
             data={
                 "player": player.name,
@@ -487,7 +490,7 @@ def play_session(
     deck.shuffle(seed=seed)
     emit_event(
         GameEvent(
-            eventType="SHUFFLE",
+            eventType="ShoeShuffled",
             sessionId=session_id,
             data={"deckSize": len(deck), "message": f"Shuffled {len(deck)}-card deck"},
         ),
@@ -497,7 +500,7 @@ def play_session(
     for hand_number in range(1, max_hands + 1):
         emit_event(
             GameEvent(
-                eventType="HAND",
+                eventType="HandStarted",
                 sessionId=session_id,
                 data={
                     "handNumber": hand_number,
@@ -515,7 +518,7 @@ def play_session(
         if player.wallet == 0.0:
             emit_event(
                 GameEvent(
-                    eventType="LEAVE",
+                    eventType="PlayerLeft",
                     sessionId=session_id,
                     actor=player.name,
                     data={"reason": "no funds", "message": "Player leaves — no funds"},
@@ -524,7 +527,7 @@ def play_session(
             )
             emit_event(
                 GameEvent(
-                    eventType="CLOSE",
+                    eventType="SessionClosed",
                     sessionId=session_id,
                     data={
                         "handsPlayed": hand_number,
@@ -543,7 +546,7 @@ def play_session(
         if len(deck) <= max(cut_card, 4):
             emit_event(
                 GameEvent(
-                    eventType="CUT",
+                    eventType="CutCardReached",
                     sessionId=session_id,
                     data={"message": "Cut card reached — reshuffling after this hand"},
                 ),
@@ -553,7 +556,7 @@ def play_session(
             deck.shuffle(seed=seed + hand_number if seed is not None else None)
             emit_event(
                 GameEvent(
-                    eventType="SHUFFLE",
+                    eventType="ShoeShuffled",
                     sessionId=session_id,
                     data={"deckSize": len(deck), "message": f"Shuffled {len(deck)}-card deck"},
                 ),
@@ -562,7 +565,7 @@ def play_session(
 
     emit_event(
         GameEvent(
-            eventType="LEAVE",
+            eventType="PlayerLeft",
             sessionId=session_id,
             actor=player.name,
             data={
@@ -574,7 +577,7 @@ def play_session(
     )
     emit_event(
         GameEvent(
-            eventType="CLOSE",
+            eventType="SessionClosed",
             sessionId=session_id,
             data={
                 "handsPlayed": max_hands,
