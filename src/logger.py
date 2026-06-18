@@ -38,7 +38,7 @@ def _hrf(event: GameEvent) -> str:
     message = event.data.get("message")
     if message is None:
         try:
-            message = json.dumps(event.data)
+            message = json.dumps(event.data, ensure_ascii=False)
         except (TypeError, ValueError):
             message = repr(event.data)
     return " | ".join(parts) + f" — {message}"
@@ -61,7 +61,7 @@ def emit_event(event: GameEvent, session_file: Path) -> None:
                 payload["handId"] = event.handId
             if event.actor is not None:
                 payload["actor"] = event.actor
-            f.write(json.dumps(payload) + "\n")
+            f.write(json.dumps(payload, ensure_ascii=False) + "\n")
     except Exception as exc:
         warnings.warn(f"JSONL write failed: {exc}", stacklevel=2)
 

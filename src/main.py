@@ -1,4 +1,4 @@
-"""Entry point — play one hand of blackjack with the default strategy."""
+"""Entry point — play a session of blackjack with the default strategy."""
 
 import logging
 

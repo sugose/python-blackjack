@@ -225,7 +225,7 @@ A session loops over multiple hands using a single shared deck, applying a cut-c
    a. Log `[HAND]` with hand number and current wallet
    b. Call `play_hand(player, session_id, session_file, deck)` — deck is passed in (not created internally)
    c. If wallet == 0: log `[LEAVE]` (no funds) + `[CLOSE]` and return
-   d. If `len(deck) <= cut_card`: log `[CUT]`, reshuffle, log `[SHUFFLE]`
+   d. If `len(deck) <= max(cut_card, 4)`: log `[CUT]`, reshuffle, log `[SHUFFLE]`
 4. After max_hands: log `[LEAVE]` (max hands reached) + `[CLOSE]`
 
 ### Refactors to `play_hand()`
@@ -233,7 +233,7 @@ A session loops over multiple hands using a single shared deck, applying a cut-c
 - Signature: `play_hand(player: Player, session_id: str, session_file: Path, deck: Deck) -> None` — session context and deck are passed in by the caller
 - `seed` parameter removed; shuffling is the caller's responsibility
 - `DECK` event removed from `play_hand()` — replaced by `SHUFFLE` in `play_session()`
-- `TABLE` event renamed to `LEAVE`
+- `TABLE` event removed; `play_hand()` emits `WalletEmpty` on zero wallet; `play_session()` emits `LEAVE`
 - New `PAYOUT` event logged at every payout point
 
 ### New Events
