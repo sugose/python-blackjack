@@ -34,6 +34,9 @@ python-blackjack is a blackjack simulator. It is a Python-based project that sim
 **Code PRs** (any PR touching files under `src/`):
 1. Open the PR
 2. Request Copi review: `gh pr edit <PR-number> --add-reviewer copilot`
+
+> **Note:** `gh pr edit --add-reviewer copilot` does not work on this repo (resolves as unknown user). Always request Copi review manually via the GitHub web UI — open the PR, click "Reviewers", and select Copilot.
+
 3. Wait for Copi's review to complete — poll with `gh pr view <PR-number> --json reviews` until Copi's status is not `PENDING`
 4. Only then run `bash tools/pr_dump.sh <PR-number>` and report back to Clead with the full output
 
