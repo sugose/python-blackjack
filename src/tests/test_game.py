@@ -11,6 +11,7 @@ Seed reference (stand strategy unless noted):
 
 import json
 import logging
+import re
 from pathlib import Path
 from uuid import uuid4
 
@@ -458,6 +459,18 @@ def test_play_hand_standalone_creates_session_file(
     assert len(jsonl_files) == 1
 
 
+def test_play_hand_standalone_session_file_matches_naming_pattern(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """play_hand_standalone JSONL filename matches blackjack-{YYYYmmddTHHMMSS}-{id[-8:]}.jsonl."""
+    monkeypatch.chdir(tmp_path)
+    p = Player(name="Alice", strategy=_stand_strategy)
+    play_hand_standalone(p, seed=2)
+    jsonl_files = list((tmp_path / "logs").glob("*.jsonl"))
+    assert len(jsonl_files) == 1
+    assert re.match(r"blackjack-\d{8}T\d{6}-[0-9a-f]{8}\.jsonl", jsonl_files[0].name)
+
+
 # ---------------------------------------------------------------------------
 # play_session() — multi-hand session
 # ---------------------------------------------------------------------------
@@ -536,7 +549,7 @@ def test_play_session_wallet_zero_emits_wallet_empty_not_leave_from_hand(
     with caplog.at_level(logging.INFO, logger="blackjack"):
         play_session(p, max_hands=10, seed=2)
     assert "[WalletEmpty]" in caplog.text
-    # LEAVE fires exactly once — from play_session(), not from _emit_wallet()
+    # PlayerLeft fires exactly once — from play_session(), not from _emit_wallet()
     assert caplog.text.count("[PlayerLeft]") == 1
     assert "Player leaves — no funds" in caplog.text
 

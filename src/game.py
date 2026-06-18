@@ -12,7 +12,7 @@ from src.player import Player
 
 
 def _emit_wallet(player: Player, session_id: str, hand_id: str, session_file: Path) -> None:
-    """Emit WALLET event and WalletEmpty event if wallet reaches zero."""
+    """Emit WalletUpdated event and WalletEmpty event if wallet reaches zero."""
     emit_event(
         GameEvent(
             eventType="WalletUpdated",
