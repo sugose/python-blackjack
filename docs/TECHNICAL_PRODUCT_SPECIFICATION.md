@@ -272,3 +272,127 @@ def play_session(
 ### Updated `main.py`
 
 `main()` calls `play_session(player)` instead of `play_hand(player)`.
+
+---
+
+## 9. PBI-1.5 — Event Model Refactor
+
+### Overview
+
+Refactors the event model to apply finalised design decisions deferred from PBI-1.3/1.4:
+
+1. All `eventType` values migrate to PascalCase
+2. JSONL files become session-bound with a timestamp+sessionId filename
+3. HRF tag automatically reflects PascalCase eventType
+
+This is a pure refactor — no new behaviour, no new events, no signature changes.
+
+### EventType Migration
+
+| Current | PBI-1.5 |
+|---|---|
+| `OPEN` | `SessionOpened` |
+| `CLOSE` | `SessionClosed` |
+| `HAND` | `HandStarted` |
+| `SHUFFLE` | `ShoeShuffled` |
+| `CUT` | `CutCardReached` |
+| `BET` | `BetPlaced` |
+| `DEAL` | `CardDealt` |
+| `HIT` | `CardDrawn` |
+| `STAND` | `StandDeclared` |
+| `BUST` | `HandBust` |
+| `REVEAL` | `HoleCardRevealed` |
+| `OUTCOME` | `HandResolved` |
+| `PAYOUT` | `PayoutMade` |
+| `WALLET` | `WalletUpdated` |
+| `LEAVE` | `PlayerLeft` |
+| `WalletEmpty` | `WalletEmpty` (no change) |
+
+### JSONL File Naming
+
+Current: `logs/session-{sessionId[-8:]}.jsonl`
+
+PBI-1.5: `logs/blackjack-{YYYYmmddTHHMMSS}-{sessionId[-8:]}.jsonl`
+
+Example: `logs/blackjack-20260618T211752-b7c19a2d.jsonl`
+
+- Timestamp is UTC, compact ISO 8601 format, seconds precision
+- Session file path determined once when `SessionOpened` fires
+- Path held for entire session lifetime — all events for a session write to the same file
+- Guarantees a complete session is always contained in one file — no cross-hour boundary problem
+- `play_session()` and `play_hand_standalone()` both updated to use new naming
+
+### HRF Format
+
+No change required — HRF renders `event.eventType` directly, so PascalCase migration falls out automatically.
+
+Before: `[BET] | sess:b7c19a2d | ...`
+After:  `[BetPlaced] | sess:b7c19a2d | ...`
+
+### Event Envelope
+
+No changes to `GameEvent` dataclass fields or `emit_event()` signature.
+
+| Field | Type | Notes |
+|---|---|---|
+| `eventId` | UUID4 | Auto-generated |
+| `eventType` | str (PascalCase) | |
+| `timestamp` | ISO-8601 UTC | Auto-generated, seconds precision |
+| `sessionId` | UUID4 | |
+| `handId` | UUID4 | Optional — omitted for session-level events |
+| `actor` | str | Optional — omitted from HRF when `handId` is None |
+| `data` | `dict[str, Any]` | `message` key used for HRF when present, else falls back to `json.dumps` |
+
+### Session-Level vs Hand-Level Events
+
+| eventType | Level | actor | handId |
+|---|---|---|---|
+| `SessionOpened` | session | — | — |
+| `SessionClosed` | session | — | — |
+| `HandStarted` | session | — | — |
+| `ShoeShuffled` | session | — | — |
+| `CutCardReached` | session | — | — |
+| `BetPlaced` | hand | player name | ✓ |
+| `CardDealt` | hand | player or dealer | ✓ |
+| `CardDrawn` | hand | player or dealer | ✓ |
+| `StandDeclared` | hand | player or dealer | ✓ |
+| `HandBust` | hand | player or dealer | ✓ |
+| `HoleCardRevealed` | hand | dealer | ✓ |
+| `HandResolved` | hand | — | ✓ |
+| `PayoutMade` | hand | player name | ✓ |
+| `WalletUpdated` | hand | player name | ✓ |
+| `WalletEmpty` | hand | player name | ✓ |
+| `PlayerLeft` | session | player name | — |
+
+Note: `PlayerLeft` carries `actor` but is session-level — `actor:` is omitted from HRF since `handId` is None.
+
+### Breaking Changes
+
+- All `eventType` string literals in `game.py` renamed to PascalCase
+- All `eventType` assertions in test files updated to PascalCase
+- JSONL filename format changes in `play_session()` and `play_hand_standalone()`
+- TPS Section 8 event table updated to PascalCase
+
+### Future EventTypes (Icebox)
+
+The following eventTypes are reserved for future PBIs and must not be used before they are formally specced:
+
+| eventType | Planned for |
+|---|---|
+| `SplitTaken` | Future split PBI |
+| `DoubleDown` | Future double-down PBI |
+| `PlayerSeated` | Future multiplayer PBI |
+| `PlayerJoined` | Future multiplayer PBI |
+| `TableOpened` | Future multiplayer PBI |
+| `TableClosed` | Future multiplayer PBI |
+
+### JSONL Viewer (Icebox)
+
+A viewer module that reads session JSONL files and replays the event stream is planned after PBI-1.5. The viewer can assume a complete session is always contained in one file — guaranteed by the session-bound file design above.
+
+### Test Strategy
+
+- All existing tests pass after rename — only `eventType` string assertions change
+- No new tests required — behaviour is unchanged
+- Crog must search for every occurrence of old eventType strings in test files and update them all
+- Coverage threshold (80%) must still pass after refactor
