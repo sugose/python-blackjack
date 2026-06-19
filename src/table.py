@@ -48,5 +48,10 @@ class Table:
         names = [p.name for p in self.players]
         if len(names) != len(set(names)):
             seen: set[str] = set()
-            dupes = {n for n in names if n in seen or seen.add(n)}  # type: ignore[func-returns-value]
+            dupes: set[str] = set()
+            for name in names:
+                if name in seen:
+                    dupes.add(name)
+                else:
+                    seen.add(name)
             raise ValueError(f"duplicate player names at table: {sorted(dupes)}")

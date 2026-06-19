@@ -6,16 +6,17 @@ from pathlib import Path
 import pytest
 
 from src.dealer import Dealer
+from src.hand import Hand
 from src.player import Player
 from src.session import play_table_session
 from src.table import HouseRules, Table
 
 
-def _stand_strategy(hand):  # noqa: ANN001
+def _stand_strategy(hand: Hand) -> str:
     return "stand"
 
 
-def _always_hit(hand):  # noqa: ANN001
+def _always_hit(hand: Hand) -> str:
     return "hit"
 
 
@@ -314,7 +315,7 @@ class TestCutCard:
         # NEW code: 5 <= 6, reshuffle fires → hand 7 proceeds safely.
         monkeypatch.chdir(tmp_path)
 
-        def soft_hit(hand):  # noqa: ANN001
+        def soft_hit(hand: Hand) -> str:
             return "hit" if hand.value < 14 else "stand"
 
         players = [

@@ -253,6 +253,7 @@ def _resolve_player(
                 eventType="HandResolved",
                 sessionId=session_id,
                 handId=hand_id,
+                actor=player.name,
                 data={
                     "result": "player_bust",
                     "message": f"{player.name} busts with {player_hand.value}",
