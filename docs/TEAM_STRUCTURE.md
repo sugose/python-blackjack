@@ -89,8 +89,8 @@ Clead's verdict is delivered as a single Crog prompt with no preamble or chat co
 1. Adam picks the next PBI from `docs/PRODUCT_BACKLOG.md`.
 2. Adam pastes the Crog task prompt into Claude Code.
 3. Crog implements, opens a PR, requests Copi review (code PRs only), waits for Copi to complete, runs `pr_dump.sh`, and reports back.
-4. Clead reviews in Claude chat.
-5. Adam merges on Clead's approval.
+4. Adam drops the PR URL into Clead's chat. Clead fetches and reviews directly from GitHub.
+5. Adam pastes Clead's verdict prompt. Crog posts verdict comment and merges.
 6. Adam updates `CHANGELOG.md` and moves to the next PBI.
 
 **Parallel PRs:** When two or more PRs have no dependencies between them, Crog may work on them in parallel — opening PR B while Copi is reviewing PR A. Adam handles multiple PRs by dropping URLs to Clead in sequence as they arrive. Clead reviews each independently and produces separate verdict prompts.
