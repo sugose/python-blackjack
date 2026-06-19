@@ -4,6 +4,16 @@ All notable changes to python-blackjack are documented here.
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-06-19
+
+### Changed — PBI-1.5: Event Model Refactor
+
+- All `eventType` literals migrated to PascalCase: `BetPlaced`, `CardDealt`, `CardDrawn`, `StandDeclared`, `HandBust`, `HoleCardRevealed`, `HandResolved`, `PayoutMade`, `WalletUpdated`, `PlayerLeft`, `SessionOpened`, `SessionClosed`, `HandStarted`, `ShoeShuffled`, `CutCardReached` — `WalletEmpty` unchanged
+- JSONL filename format updated to session-bound with timestamp: `logs/blackjack-{YYYYmmddTHHMMSS}-{sessionId[-8:]}.jsonl`
+- HRF tag alignment falls out automatically from PascalCase eventType rename
+- All test assertions updated to PascalCase; new test added for JSONL filename pattern (`test_play_hand_standalone_session_file_matches_naming_pattern`)
+- Pure refactor — no new behaviour, no new events, no changes to `GameEvent` dataclass or `emit_event()` signature
+
 ## [0.4.0] - 2026-06-18
 
 ### Added — PBI-1.4: Game Session Loop
