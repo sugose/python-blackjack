@@ -528,7 +528,6 @@ def play_table_session(
             GameEvent(
                 eventType="HandStarted",
                 sessionId=session_id,
-                handId=hand_id,
                 data={
                     "handNumber": hand_number,
                     "wallets": {p.name: p.wallet for p in active_players},

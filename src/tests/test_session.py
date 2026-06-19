@@ -150,7 +150,7 @@ class TestHandEvents:
         table = _make_table(players=players)
         play_table_session(table, seed=42, max_hands=1)
         events = _read_events(next(tmp_path.glob("logs/*.jsonl")))
-        hand_id = next(e for e in events if e["eventType"] == "HandStarted")["handId"]
+        hand_id = next(e for e in events if e["eventType"] == "BetPlaced")["handId"]
         hand_events = [e for e in events if e.get("handId") == hand_id]
         actors = [e.get("actor") for e in hand_events if e.get("actor") is not None]
         # Alice and Bob should appear before Dealer
@@ -169,7 +169,7 @@ class TestHandEvents:
         table = _make_table(players=players)
         play_table_session(table, seed=42, max_hands=1)
         events = _read_events(next(tmp_path.glob("logs/*.jsonl")))
-        hand_id = next(e for e in events if e["eventType"] == "HandStarted")["handId"]
+        hand_id = next(e for e in events if e["eventType"] == "BetPlaced")["handId"]
         hand_events = [e for e in events if e.get("handId") == hand_id]
         actors = [e.get("actor") for e in hand_events]
         alice_idx = next(i for i, a in enumerate(actors) if a == "Alice")
@@ -183,7 +183,7 @@ class TestHandEvents:
         table = _make_table(players=[_make_player("Alice")])
         play_table_session(table, seed=0, max_hands=1)
         events = _read_events(next(tmp_path.glob("logs/*.jsonl")))
-        hand_id = next(e for e in events if e["eventType"] == "HandStarted")["handId"]
+        hand_id = next(e for e in events if e["eventType"] == "BetPlaced")["handId"]
         hand_events = [e for e in events if e.get("handId") == hand_id]
         player_actions = [
             e

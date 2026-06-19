@@ -504,7 +504,7 @@ Within each hand, players act in seat order (seat 1 → seat 2 → ... → seat 
 
 ### Shared Shoe
 
-All players and the dealer draw from a single shoe. Shoe size is `numDecks × 52` cards, shuffled together. Cut card policy unchanged — reshuffle when `len(deck) <= max(cut_card, 4)`.
+All players and the dealer draw from a single shoe. Shoe size is `numDecks × 52` cards, shuffled together. Cut card policy for multiplayer: reshuffle when `len(shoe) <= max(cut_card, 2 * len(active_players) + 2)` — ensures the shoe always has enough cards to deal the next full hand. Supersedes the single-player `max(cut_card, 4)` rule documented in Section 8.
 
 ---
 
