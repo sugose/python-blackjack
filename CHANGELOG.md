@@ -10,6 +10,18 @@ All notable changes to python-blackjack are documented here.
 - Tooling table added (T-1: Node.js version bump, T-2: PR process automation spec)
 - `NEXT_SESSION.md` cleared
 
+### Added — PR process automation
+
+- Auto-Copilot review workflow (`.github/workflows/request-copilot-review.yml`) — fires on PR open, ready-for-review, and push; requests Copilot review via REST API (`POST /requested_reviewers`) instead of `gh` CLI (which fails via GraphQL)
+- `synchronize` trigger added — Copilot re-review requested automatically on every push to an open PR
+- New PR flow: Crog posts pr_dump as PR comment; Adam drops PR URL to Clead; Clead fetches directly from GitHub; Clead produces verdict + merge prompt in one step
+- `CROG_ONBOARDING.md` and `TEAM_STRUCTURE.md` updated in both repos to reflect new flow
+
+### Changed — Tooling
+
+- `actions/checkout` bumped to v7.0.0 (Node.js 24, closes T-1)
+- `actions/setup-python` bumped to v6.2.0 (Node.js 24, closes T-1)
+
 ## [0.5.0] - 2026-06-19
 
 ### Changed — PBI-1.5: Event Model Refactor
