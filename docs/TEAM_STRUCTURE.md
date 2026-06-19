@@ -13,30 +13,24 @@
 
 ## PR Workflow
 
-### PR Directions
+**A — Feature/Fix PR (code)**
+1. Crog opens PR from `feature/<name>` or `fix/<name>` to `main`
+2. Copi review auto-requested by workflow
+3. Crog polls until Copi completes, waits 10s, posts pr_dump as PR comment
+4. Crog reports PR URL to Adam
+5. Adam drops URL into Clead's chat
+6. Clead fetches PR directly, reads diff + Copi comments + pr_dump
+7. If changes needed: Clead produces fix prompt → Adam pastes → Crog pushes → go to step 3
+8. If approved: Clead produces verdict + merge prompt → Adam pastes → Crog posts comment and merges
 
-**A — Feature PR (Crog → main)**
-1. Crog opens PR from `feature/<name>` to `main`.
-2. Crog requests Copi review: `gh pr edit <PR-number> --add-reviewer copilot`
-3. Crog waits for Copi review to complete.
-4. Crog runs `bash tools/pr_dump.sh <PR-number>` and reports to Clead with the full output.
-5. Clead reviews in Claude chat.
-6. Adam merges once CI is green and Clead approves.
-
-**B — Fix PR (Crog → main)**
-1. Crog opens PR from `fix/<name>` to `main`.
-2. Crog requests Copi review: `gh pr edit <PR-number> --add-reviewer copilot`
-3. Crog waits for Copi review to complete.
-4. Crog runs `bash tools/pr_dump.sh <PR-number>` and reports to Clead with the full output.
-5. Clead reviews in Claude chat.
-6. Adam merges once CI is green and Clead approves.
-
-**C — Spec/Docs PR (Clead → main)**
-1. Clead produces updated doc content.
-2. Crog writes the file to disk, commits, and opens a PR.
-3. Skip Copi — docs-only PR.
-4. Crog runs `bash tools/pr_dump.sh <PR-number>` immediately and reports to Clead.
-5. Adam reviews and merges directly.
+**B — Docs/Tooling PR**
+1. Crog opens PR from `docs/<name>` or `tooling/<name>` to `main`
+2. Skip Copi
+3. Crog posts pr_dump as PR comment
+4. Crog reports PR URL to Adam
+5. Adam drops URL into Clead's chat
+6. Clead fetches PR directly, reads diff + pr_dump
+7. Clead produces verdict + merge prompt → Adam pastes → Crog posts comment and merges
 
 ---
 

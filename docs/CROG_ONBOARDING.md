@@ -33,16 +33,21 @@ python-blackjack is a blackjack simulator. It is a Python-based project that sim
 
 **Code PRs** (any PR touching files under `src/`):
 1. Open the PR
-
-> **Note:** Copilot review is requested automatically by the workflow on PR open.
-
-2. Wait for Copi's review to complete — poll with `gh pr view <PR-number> --json reviews` until Copi's status is not `PENDING`
-3. Only then run `bash tools/pr_dump.sh <PR-number>` and report back to Clead with the full output
+2. Copi review is requested automatically by the workflow on PR open.
+3. Poll until Copi review is complete — `gh pr view <PR-number> --json reviews` until Copi's status is not `PENDING`. Then wait 10 seconds for Copi's comments to settle.
+4. Post the full pr_dump output as a PR comment: `gh pr comment <PR-number> --body "$(bash tools/pr_dump.sh <PR-number>)"`
+5. Report back to Adam with the PR URL only.
+6. Adam drops the URL into Clead's chat. Clead fetches and reviews.
+7. **If Clead requests changes:** implement fixes and push to the same branch. Copi re-review fires automatically via `synchronize` trigger. Go back to step 3.
+8. **If Clead approves:** Clead produces a verdict comment + merge prompt. Adam pastes it. Post the verdict as a PR comment and merge.
 
 **Docs/tooling PRs** (only touching `docs/`, `tools/`, config files, `.github/`, root files):
 1. Open the PR
-2. Skip Copi — this is not a code review
-3. Run `bash tools/pr_dump.sh <PR-number>` immediately and report back to Clead with the full output
+2. Skip Copi — this is not a code review.
+3. Post the full pr_dump output as a PR comment: `gh pr comment <PR-number> --body "$(bash tools/pr_dump.sh <PR-number> --no-src)"`
+4. Report back to Adam with the PR URL only.
+5. Adam drops the URL into Clead's chat. Clead fetches and reviews.
+6. Clead produces a verdict comment + merge prompt. Adam pastes it. Post the verdict as a PR comment and merge.
 
 ### PR Description Requirements
 
