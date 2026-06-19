@@ -45,3 +45,8 @@ class Table:
             )
         if self.minBet > self.maxBet:
             raise ValueError(f"minBet ({self.minBet}) must not exceed maxBet ({self.maxBet})")
+        names = [p.name for p in self.players]
+        if len(names) != len(set(names)):
+            seen: set[str] = set()
+            dupes = {n for n in names if n in seen or seen.add(n)}  # type: ignore[func-returns-value]
+            raise ValueError(f"duplicate player names at table: {sorted(dupes)}")

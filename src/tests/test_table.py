@@ -83,6 +83,11 @@ class TestTable:
         table = _make_table(min_bet=10.0, max_bet=10.0)
         assert table.minBet == table.maxBet
 
+    def test_duplicate_player_names_raises(self) -> None:
+        players = [_make_player("Alice"), _make_player("Alice")]
+        with pytest.raises(ValueError, match="duplicate"):
+            _make_table(players=players, max_seats=3)
+
     def test_player_vip_field_default_false(self) -> None:
         player = _make_player()
         assert player.vip is False

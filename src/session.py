@@ -511,6 +511,7 @@ def play_table_session(
     hand_number = 0
     dealer_hits_soft17 = table.houseRules.dealerHitsOnSoft17
     blackjack_payout = table.houseRules.blackjackPayout
+    termination_reason = "no players remaining"
 
     while active_players:
         hand_number += 1
@@ -577,11 +578,12 @@ def play_table_session(
         # Check for dealer blackjack before players act (peek)
         dealer_bj = dealer_hand.is_blackjack
 
-        # Player turns in seat order
-        for player in active_players:
-            ph = player_hands[player.name]
-            if not ph.is_blackjack:
-                _play_player_turn(player, ph, shoe, session_id, hand_id, session_file)
+        # Player turns in seat order — skipped entirely when dealer has blackjack
+        if not dealer_bj:
+            for player in active_players:
+                ph = player_hands[player.name]
+                if not ph.is_blackjack:
+                    _play_player_turn(player, ph, shoe, session_id, hand_id, session_file)
 
         # Dealer turn — only if at least one player hasn't busted
         any_not_bust = any(not player_hands[p.name].is_bust for p in active_players)
@@ -636,8 +638,9 @@ def play_table_session(
         if not active_players:
             break
 
-        # Cut card check
-        if len(shoe) <= max(cut_card, 4):
+        # Cut card check — also reshuffle if shoe can't cover the next full deal
+        min_cards_for_next_hand = 2 * len(active_players) + 2
+        if len(shoe) <= max(cut_card, min_cards_for_next_hand):
             _emit(
                 GameEvent(
                     eventType="CutCardReached",
@@ -662,6 +665,7 @@ def play_table_session(
 
         # max_hands termination
         if max_hands is not None and hand_number >= max_hands:
+            termination_reason = "max hands reached"
             for player in list(active_players):
                 _emit_player_left(player, "max hands reached", session_id, session_file)
             active_players.clear()
@@ -673,9 +677,7 @@ def play_table_session(
             sessionId=session_id,
             data={
                 "handsPlayed": hand_number,
-                "reason": "max hands reached"
-                if (max_hands is not None and hand_number >= max_hands)
-                else "no players remaining",
+                "reason": termination_reason,
                 "message": (f"Session closed — hands played: {hand_number}"),
             },
         ),

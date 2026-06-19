@@ -175,12 +175,30 @@ class TestHandEvents:
         bob_idx = next(i for i, a in enumerate(actors) if a == "Bob")
         assert alice_idx < bob_idx
 
+    def test_no_player_turns_when_dealer_has_blackjack(self, tmp_path: Path, monkeypatch) -> None:
+        # seed=0: dealer gets Ace+Queen (blackjack). Player turns must be skipped entirely.
+        # Regression: old code ran player hit/stand loop even when dealer_bj=True.
+        monkeypatch.chdir(tmp_path)
+        table = _make_table(players=[_make_player("Alice")])
+        play_table_session(table, seed=0, max_hands=1)
+        events = _read_events(next(tmp_path.glob("logs/*.jsonl")))
+        hand_id = next(e for e in events if e["eventType"] == "HandStarted")["handId"]
+        hand_events = [e for e in events if e.get("handId") == hand_id]
+        player_actions = [
+            e
+            for e in hand_events
+            if e["eventType"] in ("StandDeclared", "CardDrawn") and e.get("actor") == "Alice"
+        ]
+        assert player_actions == [], (
+            "Player should not act (no StandDeclared/CardDrawn) when dealer has blackjack"
+        )
+
     def test_hand_resolved_player_bust_emitted(self, tmp_path: Path, monkeypatch) -> None:
         # Regression guard: HandResolved with result "player_bust" must fire when player busts.
-        # seed=0 with always-hit strategy causes Alice to bust on hand 1.
+        # seed=1 with always-hit strategy causes Alice to bust on hand 1 (no dealer blackjack).
         monkeypatch.chdir(tmp_path)
         table = _make_table(players=[_make_player("Alice", strategy=_always_hit)])
-        play_table_session(table, seed=0, max_hands=1)
+        play_table_session(table, seed=1, max_hands=1)
         events = _read_events(next(tmp_path.glob("logs/*.jsonl")))
         bust_resolved = next(
             (
@@ -260,6 +278,22 @@ class TestTermination:
         sc = next(e for e in events if e["eventType"] == "SessionClosed")
         assert sc["data"]["reason"] == "max hands reached"
 
+    def test_session_closed_reason_no_players_when_all_broke_on_final_hand(
+        self, tmp_path: Path, monkeypatch
+    ) -> None:
+        # seed=0: Alice (wallet=1.0, bet=1.0) loses hand 1 (dealer blackjack).
+        # max_hands=1 so this is also the final hand. Player goes broke AND max_hands is hit
+        # on the same hand. Termination reason must be "no players remaining" not "max hands
+        # reached", because the player-broke path fires before the max_hands check.
+        monkeypatch.chdir(tmp_path)
+        player = Player(name="Alice", strategy=_stand_strategy, wallet=1.0)
+        table = _make_table(players=[player], max_seats=7)
+        play_table_session(table, seed=0, max_hands=1)
+        events = _read_events(next(tmp_path.glob("logs/*.jsonl")))
+        assert any(e["eventType"] == "WalletEmpty" for e in events), "Alice must go broke"
+        sc = next(e for e in events if e["eventType"] == "SessionClosed")
+        assert sc["data"]["reason"] == "no players remaining"
+
     def test_session_closed_contains_hands_played(self, tmp_path: Path, monkeypatch) -> None:
         monkeypatch.chdir(tmp_path)
         table = _make_table()
@@ -270,6 +304,29 @@ class TestTermination:
 
 
 class TestCutCard:
+    def test_reshuffle_before_shoe_exhausted_for_all_players(
+        self, tmp_path: Path, monkeypatch
+    ) -> None:
+        # With 2 players, min_cards_for_next_hand = 2*2+2 = 6.
+        # cut_card=4: old threshold = max(4,4)=4, new threshold = max(4,6)=6.
+        # seed=6 produces exactly 5 cards in the shoe after hand 6 (between 4 and 6).
+        # OLD code: 5 > 4, no reshuffle → hand 7 initial deal needs 6 from 5 → crash.
+        # NEW code: 5 <= 6, reshuffle fires → hand 7 proceeds safely.
+        monkeypatch.chdir(tmp_path)
+
+        def soft_hit(hand):  # noqa: ANN001
+            return "hit" if hand.value < 14 else "stand"
+
+        players = [
+            _make_player("A", strategy=soft_hit, wallet=200.0),
+            _make_player("B", strategy=soft_hit, wallet=200.0),
+        ]
+        table = _make_table(players=players, max_seats=7)
+        play_table_session(table, seed=6, cut_card=4, max_hands=7)
+        events = _read_events(next(tmp_path.glob("logs/*.jsonl")))
+        hand_starts = [e for e in events if e["eventType"] == "HandStarted"]
+        assert len(hand_starts) == 7, "All 7 hands must complete without crashing"
+
     def test_cut_card_triggers_reshuffle(self, tmp_path: Path, monkeypatch) -> None:
         monkeypatch.chdir(tmp_path)
         # With cut_card=39 and 1 deck, after ~2-3 hands the deck drops below 39
