@@ -515,6 +515,12 @@ def play_table_session(
     termination_reason = "no players remaining"
 
     while active_players:
+        for player in list(active_players):
+            if player.bet > player.wallet:
+                _emit_player_left(player, "insufficient funds", session_id, session_file)
+                active_players.remove(player)
+        if not active_players:
+            break
         hand_number += 1
         hand_id = str(uuid4())
 

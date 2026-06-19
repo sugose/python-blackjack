@@ -295,6 +295,21 @@ class TestTermination:
         sc = next(e for e in events if e["eventType"] == "SessionClosed")
         assert sc["data"]["reason"] == "no players remaining"
 
+    def test_player_evicted_when_wallet_below_bet(self, tmp_path: Path, monkeypatch) -> None:
+        # seed=0: player (wallet=1.5, bet=1.0) loses hand 1 → wallet=0.5.
+        # Before hand 2, wallet(0.5) < bet(1.0) → eviction with "insufficient funds".
+        # Session must complete without raising and PlayerLeft must be emitted.
+        monkeypatch.chdir(tmp_path)
+        player = Player(name="Short", strategy=_stand_strategy, wallet=1.5)
+        table = _make_table(players=[player], max_seats=7)
+        play_table_session(table, seed=0, max_hands=3)
+        events = _read_events(next(tmp_path.glob("logs/*.jsonl")))
+        left_events = [e for e in events if e["eventType"] == "PlayerLeft"]
+        assert any(
+            e["actor"] == "Short" and e["data"].get("reason") == "insufficient funds"
+            for e in left_events
+        ), "PlayerLeft with reason='insufficient funds' expected for Short"
+
     def test_session_closed_contains_hands_played(self, tmp_path: Path, monkeypatch) -> None:
         monkeypatch.chdir(tmp_path)
         table = _make_table()
