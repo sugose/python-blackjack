@@ -385,6 +385,9 @@ The following eventTypes are reserved for future PBIs and must not be used befor
 | `PlayerJoined` | Future multiplayer PBI |
 | `TableOpened` | Future multiplayer PBI |
 | `TableClosed` | Future multiplayer PBI |
+| `TableOpened` | ICE-3 multiplayer PBI |
+| `TableClosed` | ICE-3 multiplayer PBI |
+| `PlayerSeated` | ICE-3 multiplayer PBI |
 
 ### JSONL Viewer (Icebox)
 
@@ -396,3 +399,140 @@ A viewer module that reads session JSONL files and replays the event stream is p
 - No new tests required — behaviour is unchanged
 - Crog must search for every occurrence of old eventType strings in test files and update them all
 - Coverage threshold (80%) must still pass after refactor
+
+---
+
+## 10. ICE-3 — Multiplayer / Table Entity
+
+### Overview
+
+Introduces a `Table` entity that hosts multiple players sharing a single shoe. Players take turns in seat order before the dealer plays. A session is scoped to the table's lifetime — one JSONL file per table session.
+
+This spec does not include the floor manager or hall layers — those are ICE-8 and ICE-9.
+
+---
+
+### `Table` Entity
+
+```python
+@dataclass
+class Table:
+    tableId: str              # UUID4
+    maxSeats: int             # capacity, e.g. 7
+    minBet: float             # minimum bet (UoM)
+    maxBet: float             # maximum bet (UoM)
+    numDecks: int             # shoe size — 1, 2, 4, 6, or 8
+    players: list[Player]     # seated players, len ≤ maxSeats
+    dealer: Dealer
+    houseRules: HouseRules
+```
+
+### `HouseRules` Entity
+
+```python
+@dataclass
+class HouseRules:
+    blackjackPayout: float    # e.g. 1.5 for 3:2, 1.2 for 6:5
+    dealerHitsOnSoft17: bool  # True = dealer hits soft 17
+```
+
+`HouseRules` is defined here and will be extended by ICE-7 (double down, split, insurance, surrender).
+
+---
+
+### Player Entity Extension
+
+`Player` gains a `vip: bool` attribute (default `False`). Used by the floor manager (ICE-8) for queue priority — not used by table logic.
+
+---
+
+### Session Scope
+
+One session per table lifetime. `sessionId` is generated when the table opens. All events for the table's lifetime write to one JSONL file.
+
+JSONL filename: `logs/blackjack-{YYYYmmddTHHMMSS}-{sessionId[-8:]}.jsonl` — unchanged from PBI-1.5.
+
+---
+
+### Event Sequence
+
+**Setup:**
+1. `TableOpened` — table created, session starts, JSONL file created
+2. `SessionOpened` — game ready to accept players
+3. `PlayerSeated` (×n) — each player takes a seat (setup phase only)
+
+**Per hand:**
+4. `HandStarted` — hand number, current wallets
+5. Each player takes their turn in seat order, then dealer plays
+6. `PayoutMade`, `WalletUpdated`, `WalletEmpty` as applicable per player
+7. `PlayerLeft` — fires for any player whose wallet hits zero after hand resolution
+8. If `len(deck) <= max(cut_card, 4)`: `CutCardReached` → `ShoeShuffled`
+
+**Termination — natural:**
+9. When last player leaves: `SessionClosed` → `TableClosed`
+
+**Termination — forced (hall closing):**
+9. Close signal received → finish current hand → `PlayerLeft` (×n, all remaining players) → `SessionClosed` → `TableClosed`
+
+---
+
+### Turn Order
+
+Within each hand, players act in seat order (seat 1 → seat 2 → ... → seat N), then the dealer acts once. Each player's turn runs the full hit/stand loop as in the single-player engine.
+
+---
+
+### Shared Shoe
+
+All players and the dealer draw from a single shoe. Shoe size is `numDecks × 52` cards, shuffled together. Cut card policy unchanged — reshuffle when `len(deck) <= max(cut_card, 4)`.
+
+---
+
+### Session Termination
+
+| Trigger | Behaviour |
+|---|---|
+| Player wallet = 0 | `PlayerLeft` fires after hand resolution; player removed from table |
+| All players gone | `SessionClosed` → `TableClosed` |
+| Forced close signal | Finish current hand → `PlayerLeft` (×n) → `SessionClosed` → `TableClosed` |
+| `max_hands` reached | `PlayerLeft` (×n) → `SessionClosed` → `TableClosed` |
+
+`max_hands` is an optional session limit (default `None` = unlimited). In standard casino play it is not set. It is legitimate in specific contexts (tournaments, promotional tables, reserved sessions) and is also useful for test/dev scenarios where a deterministic termination condition is needed.
+
+---
+
+### New Events
+
+| eventType | Level | actor | handId | Notes |
+|---|---|---|---|---|
+| `TableOpened` | session | — | — | Table created |
+| `TableClosed` | session | — | — | Table shut down |
+| `PlayerSeated` | session | player name | — | Setup-phase seating only |
+
+`PlayerJoined` (mid-session join) deferred to ICE-8.
+
+---
+
+### New Modules
+
+| Module | Responsibility |
+|---|---|
+| `src/table.py` | `Table` and `HouseRules` dataclasses |
+| `src/session.py` | `play_table_session()` — multi-player session loop |
+
+`play_session()` in `src/game.py` retained for single-player use and backward compatibility.
+
+---
+
+### Breaking Changes
+
+- `Player` gains `vip: bool` field — default `False`, backward compatible
+- `HouseRules` is a new dependency for `Table` — does not affect existing `play_session()` or `play_hand()`
+
+---
+
+### Future EventTypes (Icebox)
+
+| eventType | Planned for |
+|---|---|
+| `PlayerJoined` | ICE-8 (mid-session join via floor manager) |
