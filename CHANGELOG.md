@@ -4,6 +4,12 @@ All notable changes to python-blackjack are documented here.
 
 ## [Unreleased]
 
+### Added — Backlog housekeeping
+
+- ICE-10–ICE-20 added to icebox: multi-seat play, back-betting, blackjack payout rounding, player identifier, event emission delay, session statistics and summary entities, dealer tipping, voluntary player departure, auto-evict on consecutive sit-outs, PlayerBooted behaviour, SitOut behaviour
+- Tooling table added (T-1: Node.js version bump, T-2: PR process automation spec)
+- `NEXT_SESSION.md` cleared
+
 ## [0.5.0] - 2026-06-19
 
 ### Changed — PBI-1.5: Event Model Refactor
