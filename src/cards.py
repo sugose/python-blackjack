@@ -61,3 +61,7 @@ class Deck:
         if not self._cards:
             raise ValueError("Cannot deal from an empty deck.")
         return self._cards.pop()
+
+    def extend(self, other: "Deck") -> None:
+        """Append all cards from another deck into this deck."""
+        self._cards.extend(other._cards)

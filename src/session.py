@@ -28,7 +28,7 @@ def _build_shoe(num_decks: int, seed: int | None) -> Deck:
     # Extend with additional decks beyond the first
     for _ in range(num_decks - 1):
         extra = Deck()
-        shoe._cards.extend(extra._cards)  # noqa: SLF001
+        shoe.extend(extra)
     shoe.shuffle(seed=seed)
     return shoe
 
@@ -402,7 +402,7 @@ def _emit_wallet(player: Player, session_id: str, hand_id: str, session_file: Pa
         ),
         session_file,
     )
-    if player.wallet == 0.0:
+    if player.wallet <= 0.0:
         _emit(
             GameEvent(
                 eventType="WalletEmpty",
@@ -637,7 +637,7 @@ def play_table_session(
             )
 
         # Remove busted wallets
-        broke: list[Player] = [p for p in active_players if p.wallet == 0.0]
+        broke: list[Player] = [p for p in active_players if p.wallet <= 0.0]
         for player in broke:
             _emit_player_left(player, "no funds", session_id, session_file)
             active_players.remove(player)

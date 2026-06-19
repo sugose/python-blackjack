@@ -94,3 +94,9 @@ class TestDeck:
             deck.deal()
         with pytest.raises(ValueError, match="[Ee]mpty"):
             deck.deal()
+
+    def test_extend_combines_two_decks(self):
+        base = Deck()
+        other = Deck()
+        base.extend(other)
+        assert len(base) == 104
