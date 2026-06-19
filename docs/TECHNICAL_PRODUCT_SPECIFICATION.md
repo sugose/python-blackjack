@@ -385,6 +385,8 @@ The following eventTypes are reserved for future PBIs and must not be used befor
 | `TableOpened` | ICE-3 multiplayer PBI |
 | `TableClosed` | ICE-3 multiplayer PBI |
 | `PlayerSeated` | ICE-3 multiplayer PBI |
+| `SitOut` | Future PBI — player at table skips a hand (no initial bet placed) |
+| `PlayerBooted` | Future PBI — FM removes a player from the table or hall |
 
 ### JSONL Viewer (Icebox)
 
