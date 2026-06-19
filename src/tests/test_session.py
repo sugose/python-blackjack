@@ -175,6 +175,23 @@ class TestHandEvents:
         bob_idx = next(i for i, a in enumerate(actors) if a == "Bob")
         assert alice_idx < bob_idx
 
+    def test_hand_resolved_player_bust_emitted(self, tmp_path: Path, monkeypatch) -> None:
+        # Regression guard: HandResolved with result "player_bust" must fire when player busts.
+        # seed=0 with always-hit strategy causes Alice to bust on hand 1.
+        monkeypatch.chdir(tmp_path)
+        table = _make_table(players=[_make_player("Alice", strategy=_always_hit)])
+        play_table_session(table, seed=0, max_hands=1)
+        events = _read_events(next(tmp_path.glob("logs/*.jsonl")))
+        bust_resolved = next(
+            (
+                e
+                for e in events
+                if e["eventType"] == "HandResolved" and e["data"].get("result") == "player_bust"
+            ),
+            None,
+        )
+        assert bust_resolved is not None, "HandResolved with result='player_bust' not emitted"
+
 
 class TestTermination:
     def test_table_closed_is_last_event(self, tmp_path: Path, monkeypatch) -> None:
@@ -284,12 +301,10 @@ class TestMultiDeck:
 
 class TestHouseRulesBlackjackPayout:
     def test_blackjack_payout_applied_from_house_rules(self, tmp_path: Path, monkeypatch) -> None:
+        # seed=5 is pinned: produces player blackjack on hand 1 with a single 1-deck shoe.
+        # bet=1.0, payout = 1.0 + 1.0 * 1.2 = 2.2 UoM.
         monkeypatch.chdir(tmp_path)
-        # Seed where player gets blackjack. We run with 1.2 payout and verify PayoutMade amount.
-        # seed=0 gives player blackjack on first hand with this deck setup.
-        # We use 1.2 payout and check the PayoutMade event has the correct amount (1 + 1*1.2=2.2)
         player = Player(name="Alice", strategy=_stand_strategy, wallet=10.0)
-        player.bet = 1.0
         rules = HouseRules(blackjackPayout=1.2, dealerHitsOnSoft17=False)
         table = Table(
             tableId="t-payout",
@@ -301,26 +316,18 @@ class TestHouseRulesBlackjackPayout:
             dealer=Dealer(),
             houseRules=rules,
         )
-        # Run many seeds to find one where player gets blackjack
-        for seed in range(50):
-            (tmp_path / "logs").mkdir(exist_ok=True)
-            for f in (tmp_path / "logs").glob("*.jsonl"):
-                f.unlink()
-            player.wallet = 10.0
-            play_table_session(table, seed=seed, max_hands=1)
-            events = _read_events(next(tmp_path.glob("logs/*.jsonl")))
-            bj_event = next(
-                (
-                    e
-                    for e in events
-                    if e["eventType"] == "HandResolved"
-                    and e["data"].get("result") == "player_blackjack"
-                ),
-                None,
-            )
-            if bj_event:
-                payout_event = next(e for e in events if e["eventType"] == "PayoutMade")
-                # bet=1.0, payout = 1.0 + 1.0*1.2 = 2.2
-                assert payout_event["data"]["amount"] == pytest.approx(2.2)
-                return
-        pytest.skip("No seed in range produced player blackjack — expand range")
+        play_table_session(table, seed=5, max_hands=1)
+        events = _read_events(next(tmp_path.glob("logs/*.jsonl")))
+        bj_event = next(
+            (
+                e
+                for e in events
+                if e["eventType"] == "HandResolved"
+                and e["data"].get("result") == "player_blackjack"
+            ),
+            None,
+        )
+        # seed=5 is pinned; update if card ordering ever changes
+        assert bj_event is not None
+        payout_event = next(e for e in events if e["eventType"] == "PayoutMade")
+        assert payout_event["data"]["amount"] == pytest.approx(2.2)

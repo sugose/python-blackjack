@@ -248,7 +248,18 @@ def _resolve_player(
     dealer_bust = dealer_hand.is_bust
 
     if player_bust:
-        # already emitted HandBust; no further payout
+        _emit(
+            GameEvent(
+                eventType="HandResolved",
+                sessionId=session_id,
+                handId=hand_id,
+                data={
+                    "result": "player_bust",
+                    "message": f"{player.name} busts with {player_hand.value}",
+                },
+            ),
+            session_file,
+        )
         _emit_wallet(player, session_id, hand_id, session_file)
         return
 
@@ -554,13 +565,13 @@ def play_table_session(
         dealer_hand = _deal_dealer_hand(shoe)
         _emit_card_dealt(dealer_hand.cards[0], "Dealer", None, session_id, hand_id, session_file)
         _emit_card_dealt(
-            None,
+            dealer_hand.cards[1],
             "Dealer",
             None,
             session_id,
             hand_id,
             session_file,
-            is_hidden=True,  # type: ignore[arg-type]
+            is_hidden=True,
         )
 
         # Check for dealer blackjack before players act (peek)
