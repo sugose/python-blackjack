@@ -383,8 +383,6 @@ The following eventTypes are reserved for future PBIs and must not be used befor
 | `DoubleDown` | Future double-down PBI |
 | `PlayerSeated` | Future multiplayer PBI |
 | `PlayerJoined` | Future multiplayer PBI |
-| `TableOpened` | Future multiplayer PBI |
-| `TableClosed` | Future multiplayer PBI |
 | `TableOpened` | ICE-3 multiplayer PBI |
 | `TableClosed` | ICE-3 multiplayer PBI |
 | `PlayerSeated` | ICE-3 multiplayer PBI |
@@ -473,6 +471,27 @@ JSONL filename: `logs/blackjack-{YYYYmmddTHHMMSS}-{sessionId[-8:]}.jsonl` — un
 
 **Termination — forced (hall closing):**
 9. Close signal received → finish current hand → `PlayerLeft` (×n, all remaining players) → `SessionClosed` → `TableClosed`
+
+```mermaid
+flowchart TD
+    A([TableOpened]) --> B([SessionOpened])
+    B --> C([PlayerSeated ×n])
+    C --> D([HandStarted])
+    D --> E["Player turns — seat order\nBetPlaced · CardDealt · CardDrawn\nStandDeclared / HandBust per player"]
+    E --> F["Dealer turn\nHoleCardRevealed · CardDrawn · HandBust"]
+    F --> G["Resolution ×n players\nHandResolved · PayoutMade · WalletUpdated"]
+    G --> H{Wallet = 0?}
+    H -- yes --> I([WalletEmpty → PlayerLeft])
+    I --> J
+    H -- no --> J{Cut card reached?}
+    J -- yes --> K([CutCardReached → ShoeShuffled])
+    K --> L
+    J -- no --> L{Players remaining?\nOr forced close / max_hands?}
+    L -- yes, next hand --> D
+    L -- no --> M([PlayerLeft ×n remaining])
+    M --> N([SessionClosed])
+    N --> O([TableClosed])
+```
 
 ---
 
