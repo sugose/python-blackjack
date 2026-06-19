@@ -17,7 +17,7 @@
 | PBI-1.2 | Play out a single hand end-to-end — player and dealer turns, betting, payout, wallet, logging | ✅ Done |
 | PBI-1.3 | Structured logger — `GameEvent` dataclass, `emit_event()` JSONL + HRF output, refactor `play_hand()` to carry session/hand context | ✅ Done (PR #12) |
 | PBI-1.4 | Game session loop — multi-hand session with shared deck, cut-card reshuffle policy, session open/close logging, wallet termination | ✅ Done (PR #12) |
-| PBI-1.5 | Event model refactor — PascalCase eventTypes, session-bound JSONL filename, HRF tag alignment | 🔲 Not started |
+| PBI-1.5 | Event model refactor — PascalCase eventTypes, session-bound JSONL filename, HRF tag alignment | ✅ Done (PR #17) |
 
 ---
 
