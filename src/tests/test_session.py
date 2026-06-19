@@ -340,6 +340,18 @@ class TestTermination:
 
 
 class TestCutCard:
+    def test_no_cut_card_event_on_final_hand(self, tmp_path: Path, monkeypatch) -> None:
+        # seed=42, cut_card=47, max_hands=1: the shoe drops below the cut card threshold
+        # after the only hand. CutCardReached must NOT be emitted — the session is ending
+        # and the reshuffled shoe would never be used.
+        monkeypatch.chdir(tmp_path)
+        table = _make_table()
+        play_table_session(table, seed=42, cut_card=47, max_hands=1)
+        events = _read_events(next(tmp_path.glob("logs/*.jsonl")))
+        assert not any(e["eventType"] == "CutCardReached" for e in events), (
+            "CutCardReached must not fire after the final hand of a bounded session"
+        )
+
     def test_reshuffle_before_shoe_exhausted_for_all_players(
         self, tmp_path: Path, monkeypatch
     ) -> None:

@@ -640,30 +640,31 @@ def play_table_session(
         if not active_players:
             break
 
-        # Cut card check — also reshuffle if shoe can't cover the next full deal
-        min_cards_for_next_hand = 2 * len(active_players) + 2
-        if len(shoe) <= max(cut_card, min_cards_for_next_hand):
-            _emit(
-                GameEvent(
-                    eventType="CutCardReached",
-                    sessionId=session_id,
-                    data={"message": "Cut card reached — reshuffling shoe"},
-                ),
-                session_file,
-            )
-            new_seed = seed + hand_number if seed is not None else None
-            shoe = _build_shoe(table.numDecks, new_seed)
-            _emit(
-                GameEvent(
-                    eventType="ShoeShuffled",
-                    sessionId=session_id,
-                    data={
-                        "deckSize": len(shoe),
-                        "message": f"Shuffled {len(shoe)}-card shoe",
-                    },
-                ),
-                session_file,
-            )
+        # Cut card check — skip on the final hand (reshuffled shoe would never be used)
+        if max_hands is None or hand_number < max_hands:
+            min_cards_for_next_hand = 2 * len(active_players) + 2
+            if len(shoe) <= max(cut_card, min_cards_for_next_hand):
+                _emit(
+                    GameEvent(
+                        eventType="CutCardReached",
+                        sessionId=session_id,
+                        data={"message": "Cut card reached — reshuffling shoe"},
+                    ),
+                    session_file,
+                )
+                new_seed = seed + hand_number if seed is not None else None
+                shoe = _build_shoe(table.numDecks, new_seed)
+                _emit(
+                    GameEvent(
+                        eventType="ShoeShuffled",
+                        sessionId=session_id,
+                        data={
+                            "deckSize": len(shoe),
+                            "message": f"Shuffled {len(shoe)}-card shoe",
+                        },
+                    ),
+                    session_file,
+                )
 
         # max_hands termination
         if max_hands is not None and hand_number >= max_hands:
