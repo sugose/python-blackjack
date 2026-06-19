@@ -381,7 +381,6 @@ The following eventTypes are reserved for future PBIs and must not be used befor
 |---|---|
 | `SplitTaken` | Future split PBI |
 | `DoubleDown` | Future double-down PBI |
-| `PlayerSeated` | Future multiplayer PBI |
 | `PlayerJoined` | Future multiplayer PBI |
 | `TableOpened` | ICE-3 multiplayer PBI |
 | `TableClosed` | ICE-3 multiplayer PBI |
