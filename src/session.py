@@ -592,8 +592,11 @@ def play_table_session(
                     _play_player_turn(player, ph, shoe, session_id, hand_id, session_file)
 
         # Dealer turn — only if at least one player hasn't busted
-        any_not_bust = any(not player_hands[p.name].is_bust for p in active_players)
-        if any_not_bust and not dealer_bj:
+        any_needs_dealer = any(
+            not player_hands[p.name].is_bust and not player_hands[p.name].is_blackjack
+            for p in active_players
+        )
+        if any_needs_dealer and not dealer_bj:
             _play_dealer_turn(
                 dealer_hand,
                 shoe,

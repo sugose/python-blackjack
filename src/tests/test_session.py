@@ -194,6 +194,26 @@ class TestHandEvents:
             "Player should not act (no StandDeclared/CardDrawn) when dealer has blackjack"
         )
 
+    def test_dealer_does_not_draw_when_all_players_have_blackjack(
+        self, tmp_path: Path, monkeypatch
+    ) -> None:
+        # seed=5: Alice gets blackjack (no dealer blackjack). Dealer must not draw — the hand
+        # resolves immediately as player_blackjack. Old code: any_not_bust was True (not bust),
+        # so dealer drew unnecessarily. Fix: any_needs_dealer also excludes blackjack players.
+        monkeypatch.chdir(tmp_path)
+        table = _make_table(players=[_make_player("Alice")])
+        play_table_session(table, seed=5, max_hands=1)
+        events = _read_events(next(tmp_path.glob("logs/*.jsonl")))
+        assert any(
+            e["eventType"] == "HandResolved"
+            and e.get("data", {}).get("result") == "player_blackjack"
+            for e in events
+        ), "seed=5 must produce player blackjack"
+        dealer_draws = [
+            e for e in events if e["eventType"] == "CardDrawn" and e.get("actor") == "Dealer"
+        ]
+        assert dealer_draws == [], "Dealer must not draw when all players have blackjack"
+
     def test_hand_resolved_player_bust_emitted(self, tmp_path: Path, monkeypatch) -> None:
         # Regression guard: HandResolved with result "player_bust" must fire when player busts.
         # seed=1 with always-hit strategy causes Alice to bust on hand 1 (no dealer blackjack).

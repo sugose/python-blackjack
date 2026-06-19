@@ -39,4 +39,4 @@
 
 | ID | Description |
 |---|---|
-| TD-1 | `play_hand()` in `src/game.py` uses `player.wallet == 0.0` for the `WalletEmpty` check (lines 29 and 518). This should be `<= 0.0` to handle float rounding edge cases where the wallet lands just below zero. Out of scope for ICE-3 — fix when touching `game.py` next. |
+| TD-1 | `play_hand()` in `src/game.py` uses `player.wallet == 0.0` for the `WalletEmpty` check (in `_emit_wallet()`). This should be `<= 0.0` to handle float rounding edge cases where the wallet lands just below zero. Out of scope for ICE-3 — fix when touching `game.py` next. |
