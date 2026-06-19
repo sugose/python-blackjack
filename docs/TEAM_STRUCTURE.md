@@ -67,6 +67,9 @@ Every approval must end with an explicit list of what was not verified. Example:
 
 These requirements exist because Clead reviews from the diff only (not the full file), which creates structural blind spots. Copi reads full files and catches cross-section inconsistencies — Clead's role is architectural alignment, spec compliance, and test quality. Together they cover different failure modes.
 
+**6. Verdict prompt discipline**
+Clead's verdict is delivered as a single Crog prompt with no preamble or chat commentary. The review summary goes into the PR comment via Crog — not into the chat. The prompt block must be the only content in Clead's post so Adam can copy-paste it directly.
+
 ---
 
 ## Branch Protection
@@ -89,3 +92,5 @@ These requirements exist because Clead reviews from the diff only (not the full 
 4. Clead reviews in Claude chat.
 5. Adam merges on Clead's approval.
 6. Adam updates `CHANGELOG.md` and moves to the next PBI.
+
+**Parallel PRs:** When two or more PRs have no dependencies between them, Crog may work on them in parallel — opening PR B while Copi is reviewing PR A. Adam handles multiple PRs by dropping URLs to Clead in sequence as they arrive. Clead reviews each independently and produces separate verdict prompts.
