@@ -253,7 +253,6 @@ def _resolve_player(
                 eventType="HandResolved",
                 sessionId=session_id,
                 handId=hand_id,
-                actor=player.name,
                 data={
                     "result": "player_bust",
                     "message": f"{player.name} busts with {player_hand.value}",
@@ -270,7 +269,6 @@ def _resolve_player(
                 eventType="HandResolved",
                 sessionId=session_id,
                 handId=hand_id,
-                actor=player.name,
                 data={"result": "push", "message": "Push — both have blackjack"},
             ),
             session_file,
@@ -285,7 +283,6 @@ def _resolve_player(
                 eventType="HandResolved",
                 sessionId=session_id,
                 handId=hand_id,
-                actor=player.name,
                 data={
                     "result": "player_blackjack",
                     "message": f"Player {player.name} blackjack — pays {blackjack_payout}:1",
@@ -302,7 +299,6 @@ def _resolve_player(
                 eventType="HandResolved",
                 sessionId=session_id,
                 handId=hand_id,
-                actor=player.name,
                 data={
                     "result": "dealer_blackjack",
                     "message": f"Dealer blackjack — player {player.name} loses",
@@ -318,7 +314,6 @@ def _resolve_player(
                 eventType="HandResolved",
                 sessionId=session_id,
                 handId=hand_id,
-                actor=player.name,
                 data={
                     "result": "player_wins",
                     "message": (
@@ -338,7 +333,6 @@ def _resolve_player(
                 eventType="HandResolved",
                 sessionId=session_id,
                 handId=hand_id,
-                actor=player.name,
                 data={
                     "result": "dealer_wins",
                     "message": (f"Dealer wins — dealer {dv} beats player {player.name} {pv}"),
@@ -353,7 +347,6 @@ def _resolve_player(
                 eventType="HandResolved",
                 sessionId=session_id,
                 handId=hand_id,
-                actor=player.name,
                 data={"result": "push", "message": f"Push — both have {pv}"},
             ),
             session_file,
