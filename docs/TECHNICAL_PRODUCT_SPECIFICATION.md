@@ -708,15 +708,15 @@ class AIProvider(Protocol):
 | `OllamaProvider` | Local models via HTTP (no API key required) |
 | `MockProvider` | Deterministic responses for testing |
 
-Provider selected via `--provider` CLI flag or `AI_PROVIDER` env var. Provider-specific config (model name, base URL, API key) via env vars. Optional dependencies — graceful error if provider SDK not installed.
+Provider selected via `--provider` CLI flag or `AI_PROVIDER` env var — used as the default provider. Tournaments override this per-player via the `name:provider` syntax in `--players` (e.g. `anthropic:claude`, `openai:gpt-4o`). Provider-specific config (model name, base URL, API key) via env vars. Optional dependencies — graceful error if provider SDK not installed.
 
 ### PBI-2.2 — AI Player Strategy
 
-`AIStrategyProvider` wraps any `AIProvider` and implements `Callable[[Hand], str]`. Describes hand state and dealer upcard to the model, parses "hit" or "stand" from response. Pluggable at `Player` construction — zero changes to `play_hand()` or `play_session()`.
+`AIStrategyProvider` wraps any `AIProvider` and implements `Callable[[Hand], str]`. Describes hand state to the model, parses "hit" or "stand" from response. Note: dealer upcard not available at call time under current `Callable[[Hand], str]` interface — signature extension deferred to PBI-2.2 implementation; align with ICE-6 if upcard context is needed. Pluggable at `Player` construction — zero changes to `play_hand()` or `play_session()`.
 
 ### PBI-2.3 — Stochastic Strategy Support
 
-A stochastic strategy is defined by a fixed policy with randomised execution. Seeded for reproducibility in tests.
+Adds stochastic strategy implementations — no change to the `Callable[[Hand], str]` interface. A stochastic strategy is defined by a fixed policy with randomised execution. Seeded for reproducibility in tests.
 
 Built-in stochastic strategies:
 
