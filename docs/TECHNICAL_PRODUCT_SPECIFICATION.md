@@ -666,6 +666,7 @@ Must list all filterable fields with a brief description of each, including the 
 
 - Interactive mode (`--interactive`) — apply/change filters without restarting
 - `playerId` filter field (requires ICE-13)
+- Additional operators (`>`, `<` for timestamp range filtering)
 
 ---
 
@@ -753,4 +754,3 @@ PBI-2.1 → PBI-2.2 ┐
 PBI-2.1 → PBI-2.3 ┘            ├→ PBI-2.6
 PBI-2.1 → PBI-2.4 ─────────────┘
 ```
-- Additional operators (`>`, `<` for timestamp range filtering)
