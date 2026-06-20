@@ -709,3 +709,26 @@ def test_duplicate_file_paths_not_printed_twice(
     out = capsys.readouterr().out
     lines = [ln for ln in out.splitlines() if ln.strip()]
     assert len(lines) == 1
+
+
+def test_filter_not_equals_passes_when_field_absent(
+    tmp_path: Path, capsys: pytest.CaptureFixture
+) -> None:
+    """!= filter passes session-level events where the field is absent."""
+    events = [
+        _make_event("SessionOpened", event_id=EVENT_ID_1, timestamp="2024-01-01T00:00:00+00:00"),
+        _make_event(
+            "BetPlaced",
+            event_id=EVENT_ID_2,
+            hand_id=HAND_ID,
+            actor="Dealer",
+            timestamp="2024-01-01T00:00:01+00:00",
+        ),
+    ]
+    f = tmp_path / "s.jsonl"
+    _write_jsonl(f, events)
+    main([str(f), "--filter", "actor!=dealer"])
+    out = capsys.readouterr().out
+    lines = [ln for ln in out.splitlines() if ln.strip()]
+    assert len(lines) == 1
+    assert "[SessionOpened]" in lines[0]

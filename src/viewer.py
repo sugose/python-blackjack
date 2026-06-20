@@ -257,7 +257,12 @@ def main(argv: list[str] | None = None) -> None:
 
     # Deduplicate while preserving order
     seen: set[str] = set()
-    resolved = [p for p in resolved if not (p in seen or seen.add(p))]
+    deduped: list[str] = []
+    for p in resolved:
+        if p not in seen:
+            seen.add(p)
+            deduped.append(p)
+    resolved = deduped
 
     # Read all events from all resolved files
     events: list[dict[str, Any]] = []
@@ -268,7 +273,15 @@ def main(argv: list[str] | None = None) -> None:
                     line = line.strip()
                     if line:
                         try:
-                            events.append(json.loads(line))
+                            parsed = json.loads(line)
+                            if not isinstance(parsed, dict):
+                                print(
+                                    f"Warning: skipping non-object line in {filepath!r}:"
+                                    f" {parsed!r}",
+                                    file=sys.stderr,
+                                )
+                            else:
+                                events.append(parsed)
                         except json.JSONDecodeError as exc:
                             print(
                                 f"Warning: skipping malformed line in {filepath!r}: {exc}",
@@ -286,8 +299,13 @@ def main(argv: list[str] | None = None) -> None:
         if filter_node is None or match_event(event, filter_node):
             try:
                 print(_event_to_hrf(event))
-            except (KeyError, TypeError) as exc:
-                print(f"Warning: skipping malformed event (missing field: {exc})", file=sys.stderr)
+            except KeyError as exc:
+                print(
+                    f"Warning: skipping malformed event (missing required field: {exc})",
+                    file=sys.stderr,
+                )
+            except TypeError as exc:
+                print(f"Warning: skipping invalid event payload: {exc}", file=sys.stderr)
 
 
 if __name__ == "__main__":
