@@ -23,7 +23,7 @@ All notable changes to python-blackjack are documented here.
 - HRF output identical to `emit_event()` format
 - No new dependencies — stdlib only (`argparse`, `glob`, `json`, `re`)
 - Exit codes: 0 success, 1 filter/parse error, 2 file/glob error
-- 30 tests in `src/tests/test_viewer.py`
+- 36 tests in `src/tests/test_viewer.py`
 
 ### Changed — PR process and Copi review gate
 
