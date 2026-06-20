@@ -4,6 +4,12 @@ All notable changes to python-blackjack are documented here.
 
 ## [Unreleased]
 
+### Changed — PR flow: Clead gates every Copi iteration
+
+- `docs/CROG_ONBOARDING.md` updated: hard stop rule added — Crog stops after posting pr_dump and waits for Clead instruction; Crog must not read or act on Copi findings autonomously
+- `docs/TEAM_STRUCTURE.md` updated: hard stop rule documented for all PR types
+- Motivated by PR #58 cautionary case: 7 autonomous Crog/Copi iterations without Clead involvement resulted in an incorrect spec change requiring a Clead-directed revert
+
 ### Added — Event model clarifications and HouseRules extension
 
 - TPS Section 10: `HouseRules` extended with `multiSeatAllowed: bool` field (ICE-10 enablement)

@@ -42,10 +42,17 @@ python-blackjack is a blackjack simulator. It is a Python-based project that sim
 4. After Copi completes, wait 10 seconds for comments to settle, then post the full pr_dump output as a PR comment:
    `gh pr comment <PR-number> --body "$(bash tools/pr_dump.sh <PR-number>)"`
 5. Report back to Adam with the PR URL appended with `?i=1` (increment `i` by 1 on each subsequent re-report of the same PR, e.g. `?i=2`, `?i=3`).
-6. Adam drops the URL into Clead's chat. Clead fetches and reviews.
-7. **If Clead requests changes:** implement fixes and push to the same branch. Then:
-   a. Run `bash tools/copi_wait.sh <PR-number>` — this re-requests Copi review, reports detection status, and polls until complete.
-   b. Go back to step 3.
+
+   - [ ] Post pr_dump as PR comment
+   - [ ] Report PR URL to Adam with `?i=1` (increment `i` by 1 on each re-report of the same PR)
+   - [ ] STOP. Do not read or act on Copi's comments.
+   - [ ] Wait for Adam to paste Clead's instruction. Do nothing until then.
+
+6. Adam drops the URL into Clead's chat. Clead fetches and reviews. Clead produces either a fix prompt or a verdict.
+7. **If Clead produces a fix prompt:** implement only and exactly what the prompt specifies. Nothing more.
+   a. Push the fix to the same branch.
+   b. Run `bash tools/copi_wait.sh <PR-number>`.
+   c. Go back to step 4.
 8. **If Clead approves:** Clead produces a verdict comment + merge prompt. Adam pastes it. Post the verdict as a PR comment and merge.
 
 **Docs/tooling PRs** (only touching `docs/`, `tools/`, config files, `.github/`, root files):
@@ -59,11 +66,31 @@ python-blackjack is a blackjack simulator. It is a Python-based project that sim
 4. After Copi completes, wait 10 seconds for comments to settle, then post the full pr_dump output as a PR comment:
    `gh pr comment <PR-number> --body "$(bash tools/pr_dump.sh <PR-number> --no-src)"`
 5. Report back to Adam with the PR URL appended with `?i=1` (increment `i` by 1 on each subsequent re-report of the same PR, e.g. `?i=2`, `?i=3`).
-6. Adam drops the URL into Clead's chat. Clead fetches and reviews.
-7. **If Clead requests changes or Copi has open comments:** implement fixes and push to the same branch. Then:
-   a. Run `bash tools/copi_wait.sh <PR-number>` — this re-requests Copi review, reports detection status, and polls until complete.
-   b. Go back to step 3.
+
+   - [ ] Post pr_dump as PR comment
+   - [ ] Report PR URL to Adam with `?i=1` (increment `i` by 1 on each re-report of the same PR)
+   - [ ] STOP. Do not read or act on Copi's comments.
+   - [ ] Wait for Adam to paste Clead's instruction. Do nothing until then.
+
+6. Adam drops the URL into Clead's chat. Clead fetches and reviews. Clead produces either a fix prompt or a verdict.
+7. **If Clead produces a fix prompt:** implement only and exactly what the prompt specifies. Nothing more.
+   a. Push the fix to the same branch.
+   b. Run `bash tools/copi_wait.sh <PR-number>`.
+   c. Go back to step 4.
 8. **If Clead approves:** Clead produces a verdict comment + merge prompt. Adam pastes it. Post the verdict as a PR comment and merge.
+
+### Copi Finding Scope — Hard Stop Rule
+
+After posting the pr_dump and reporting back to Adam, Crog must stop completely. This means:
+
+- **Do not read Copi's inline comments** with intent to act on them.
+- **Do not push any fix** based on Copi's findings.
+- **Do not re-request Copi review** unless instructed by Clead.
+- **Wait** for Adam to paste a prompt from Clead. That prompt is the only authorised source of next actions.
+
+The only exception: a mechanical mistake that is unambiguously Crog's own (e.g. a stray line left by an incomplete edit). This may be fixed before the first Clead review, in the same commit. Everything after that requires explicit Clead instruction.
+
+**Why this matters:** Copi findings often look like simple wording fixes but are design decisions in disguise. Crog acting on them autonomously creates spec drift without architectural sign-off. On PR #58, Crog and Copi bounced through 7 iterations without Clead involvement — resulting in an incorrect spec change that required a Clead-directed revert. Clead must gate every iteration.
 
 ### PR Description Requirements
 
