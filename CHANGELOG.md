@@ -4,6 +4,12 @@ All notable changes to python-blackjack are documented here.
 
 ## [Unreleased]
 
+### Fixed — copi_wait.sh: dismiss existing review before re-requesting
+
+- Root cause identified: GitHub silently no-ops `/requested_reviewers` API when reviewer has already submitted a review
+- Fix: dismiss existing Copi review before re-requesting, resetting reviewer state
+- Makes Copi re-review reliable on all subsequent pushes, not just PR open
+
 ### Changed — PR flow: Clead gates every Copi iteration
 
 - `docs/CROG_ONBOARDING.md` updated: hard stop rule added — Crog stops after posting pr_dump and waits for Clead instruction; Crog must not read or act on Copi findings autonomously
