@@ -4,11 +4,11 @@ All notable changes to python-blackjack are documented here.
 
 ## [Unreleased]
 
-### Fixed — copi_wait.sh: dismiss existing review before re-requesting
+### Reverted — copi_wait.sh dismiss logic (PR #60)
 
-- Root cause identified: GitHub silently no-ops `/requested_reviewers` API when reviewer has already submitted a review
-- Fix: dismiss existing Copi review before re-requesting, resetting reviewer state
-- Makes Copi re-review reliable on all subsequent pushes, not just PR open
+- Dismiss approach fails: GitHub returns 422 on COMMENTED reviews; REST dismiss API only works on APPROVED or CHANGES_REQUESTED
+- `set -euo pipefail` caused script to abort before re-request fired — PR #60 made things worse
+- Root cause of re-review unreliability remains open; investigating DELETE/re-add reviewer approach next
 
 ### Changed — PR flow: Clead gates every Copi iteration
 
