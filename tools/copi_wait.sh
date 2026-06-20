@@ -12,6 +12,15 @@ BEFORE=$(gh pr view "$PR" --json reviews \
   --jq '[.reviews[] | select(.author.login | test("copilot"; "i"))] | length')
 
 echo "Re-requesting Copi review on PR #$PR (existing Copi reviews: $BEFORE)..."
+
+# Remove Copi from requested reviewers first — GitHub silently no-ops the
+# re-request POST if a review already exists. DELETE resets reviewer state.
+echo "Removing Copi from requested reviewers before re-requesting..."
+gh api "repos/$REPO/pulls/$PR/requested_reviewers" \
+  -X DELETE \
+  -f 'reviewers[]=copilot-pull-request-reviewer[bot]' \
+  --silent || echo "DELETE returned non-zero (may be fine if already removed)"
+
 if ! gh api \
   --method POST \
   -H "Accept: application/vnd.github+json" \

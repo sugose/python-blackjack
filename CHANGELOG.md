@@ -9,6 +9,12 @@ All notable changes to python-blackjack are documented here.
 - Crog must post a brief console summary as a PR comment when scripts were executed, non-zero exits occurred, or the task was diagnostic
 - Ensures Clead has execution context via PR URL fetch without needing raw console output from Adam
 
+### Fixed (attempt 2) — copi_wait.sh: DELETE reviewer before re-requesting
+
+- Attempt 1 (dismiss) failed: GitHub 422 on COMMENTED reviews
+- Attempt 2: DELETE /requested_reviewers before POST to reset reviewer state
+- Under test — smoke test required before treating as confirmed fix
+
 ### Reverted — copi_wait.sh dismiss logic (PR #60)
 
 - Dismiss approach fails: GitHub returns 422 on COMMENTED reviews; REST dismiss API only works on APPROVED or CHANGES_REQUESTED
