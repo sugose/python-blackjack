@@ -18,6 +18,7 @@
 | PBI-1.3 | Structured logger — `GameEvent` dataclass, `emit_event()` JSONL + HRF output, refactor `play_hand()` to carry session/hand context | ✅ Done (PR #12) |
 | PBI-1.4 | Game session loop — multi-hand session with shared deck, cut-card reshuffle policy, session open/close logging, wallet termination | ✅ Done (PR #12) |
 | PBI-1.5 | Event model refactor — PascalCase eventTypes, session-bound JSONL filename, HRF tag alignment | ✅ Done (PR #17) |
+| PBI-1.6 | Event schema versioning — add `schemaVersion: str` field to `GameEvent` dataclass; value sourced from a `SCHEMA_VERSION` constant (e.g. `"1.0"`); included in every JSONL event envelope; bumped independently of code version when the event envelope or any eventType's `data` payload changes. `schemaVersion` added as a filterable field in the JSONL viewer (ICE-2 follow-up). | Not started |
 
 ---
 

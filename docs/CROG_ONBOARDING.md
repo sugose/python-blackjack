@@ -99,6 +99,14 @@ One row per non-trivial behaviour. Happy-path rows are optional; error-path and 
 
 ---
 
+### Incremental Commits on Substantial Tasks
+
+For any implementation spanning multiple logical chunks (e.g. parser + CLI + tests), commit after each chunk passes its tests — do not wait until the entire task is complete before committing. This ensures partial work is preserved in git if the session is interrupted.
+
+A logical commit boundary is: tests for this chunk are green, lint passes, nothing is broken.
+
+---
+
 ## Benchmark Protocol
 
 When implementing an algorithm or logic that has a known reference implementation:
