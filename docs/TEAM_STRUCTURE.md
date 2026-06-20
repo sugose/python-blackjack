@@ -30,7 +30,7 @@
 4. Crog reports PR URL to Adam
 5. Adam drops URL into Clead's chat
 6. Clead fetches PR directly, reads diff + Copi comments + pr_dump
-7. If Clead requests changes or Copi has open comments: Crog pushes fix → re-request Copi review → go to step 3
+7. If Clead requests changes or Copi has open comments: Crog pushes fix → Copi re-review fires automatically on push → go to step 3
 8. If approved: Clead produces verdict + merge prompt → Adam pastes → Crog posts comment and merges
 
 ---

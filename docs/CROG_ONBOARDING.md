@@ -143,7 +143,7 @@ You are not a passive code generator. The standard is a thoughtful senior develo
 3. Implement until tests pass (green).
 4. Lint and format before committing.
 5. Open a PR with a clear description including the test coverage narrative table.
-6. Follow the PR Review Rules above — Copi reviews all PRs automatically via the GitHub ruleset.
+6. Follow the PR Review Rules above — Copi review is requested automatically by `.github/workflows/request-copilot-review.yml`.
 7. Run `bash tools/pr_dump.sh <PR-number>` (or `--no-src` for docs/tooling PRs) and report back to Clead with the full output.
 8. Never merge your own PRs.
 9. Never commit to `main`.
