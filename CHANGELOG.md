@@ -9,6 +9,13 @@ All notable changes to python-blackjack are documented here.
 - Crog must post a brief console summary as a PR comment when scripts were executed, non-zero exits occurred, or the task was diagnostic
 - Ensures Clead has execution context via PR URL fetch without needing raw console output from Adam
 
+### Added — TPS Section 12: AI role taxonomy and player behaviour interface
+
+- AI role taxonomy table: six roles across development and runtime phases (Clead/Crog, Player strategy, Analyst, Operator, AIProvider, Copi)
+- Unified player behaviour interface: `Callable[[GameState, DecisionPoint], Action]`
+- `DecisionPoint` enum: BET, PLAY, QUIT, TIP, DRINK
+- PLAY action set open-ended, extended by ICE-7; GameState spec deferred to ICE-3
+
 ### Closed — Copi re-review programmatic invocation investigation
 
 - All four REST/GraphQL approaches exhausted — no public API can re-trigger Copi after first review

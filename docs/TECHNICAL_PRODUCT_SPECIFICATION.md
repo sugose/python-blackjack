@@ -771,3 +771,57 @@ PBI-2.1 → PBI-2.2 ┐
 PBI-2.1 → PBI-2.3 ┘            ├→ PBI-2.6
 PBI-2.1 → PBI-2.4 ─────────────┘
 ```
+
+---
+
+### AI Role Taxonomy
+
+The following table orients the six AI roles active across the python-blackjack platform. Roles are distinct by lifecycle phase and decision authority.
+
+| # | Role | Actor | Phase | Decision authority |
+|---|---|---|---|---|
+| 1 | Developer | Clead / Crog | Development | Architecture, implementation |
+| 2 | Player strategy | Player callable | Runtime — game execution | Bet, play, quit, tip, drink |
+| 3 | Analyst | Viewer AI (PBI-2.4) | Post-session | Interpretation, reporting |
+| 4 | Operator | FM verbal (ICE-9) | Runtime — pre-game | Table assignment, player flow |
+| 5 | Infrastructure | AIProvider protocol | Dev → Runtime | LLM invocation, context management |
+| 6 | Code Reviewer | Copi | Development | Code quality, spec compliance |
+
+Roles 2–4 are runtime roles visible in the event stream. Roles 1, 5, 6 are development-phase roles invisible to the game simulation.
+
+---
+
+### Player Behaviour Interface
+
+All player decisions are governed by a single unified callable:
+
+```python
+Callable[[GameState, DecisionPoint], Action]
+```
+
+`DecisionPoint` is an enum covering every moment a player must act:
+
+```python
+class DecisionPoint(Enum):
+    BET   = "bet"    # before each hand — how much to wager
+    PLAY  = "play"   # during each hand — hit, stand, and ICE-7 extensions
+    QUIT  = "quit"   # after each hand — walk away or continue
+    TIP   = "tip"    # after a hand or session — tip amount (0.0 = no tip)
+    DRINK = "drink"  # accept or decline a goodwill drink offer (Chaos Mode)
+```
+
+Return type is discriminated by `DecisionPoint`:
+
+| DecisionPoint | Return type | Values |
+|---|---|---|
+| `BET` | `float` | Wager amount (≥ table minimum) |
+| `PLAY` | `str` | `"hit"` / `"stand"` — extended by ICE-7 with `"double"`, `"split"`, `"surrender"`, `"insurance"` |
+| `QUIT` | `bool` | `True` = walk away, `False` = play next hand |
+| `TIP` | `float` | Tip amount (0.0 = no tip) |
+| `DRINK` | `bool` | `True` = accept drink, `False` = decline |
+
+**Design rationale:** A single interface covers all decision points. Simple bots implement `BET` and `PLAY` and return safe defaults for the rest. AI players (PBI-2.2) implement all points with context-aware logic. The FM has its own callable governed by the same interface for `DRINK` and `TIP` decisions (ICE-8 / ICE-21).
+
+**ICE-7 extension:** The `PLAY` action string set is open-ended. ICE-7 (extended rules bundle) adds `"double"`, `"split"`, `"surrender"`, `"insurance"` to the valid return set. Existing strategies returning only `"hit"` / `"stand"` remain valid — the engine only requests actions available on the current hand.
+
+**`GameState`:** Full session context passed to the callable at each decision point — current hand, wallet, hand history, table rules, seat context. Spec deferred to ICE-3 implementation.
