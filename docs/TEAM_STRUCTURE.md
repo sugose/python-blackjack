@@ -70,6 +70,9 @@ These requirements exist because Clead reviews from the diff only (not the full 
 **6. Verdict prompt discipline**
 Clead's verdict is delivered as a single Crog prompt with no preamble or chat commentary. The review summary goes into the PR comment via Crog — not into the chat. The prompt block must be the only content in Clead's post so Adam can copy-paste it directly.
 
+**7. Copi review gate**
+Clead's verdict prompt includes a merge instruction if and only if Copi has completed its review and has no further comments. If Copi has not yet reviewed, or has open comments requiring resolution, the verdict prompt must not include a merge instruction. The merge prompt is issued separately once Copi is satisfied.
+
 ---
 
 ## Branch Protection
