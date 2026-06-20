@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # smoke-test-2 commit 1
+# smoke-test-2 commit 2
 # copi_wait.sh — Re-request Copi review and wait for it to complete.
 # Usage: bash tools/copi_wait.sh <PR-number>
 
