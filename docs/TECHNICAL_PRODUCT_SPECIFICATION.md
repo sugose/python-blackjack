@@ -433,6 +433,7 @@ class Table:
 class HouseRules:
     blackjackPayout: float    # e.g. 1.5 for 3:2, 1.2 for 6:5
     dealerHitsOnSoft17: bool  # True = dealer hits soft 17
+    multiSeatAllowed: bool    # True = a single player may occupy multiple seats (ICE-10)
 ```
 
 `HouseRules` is defined here and will be extended by ICE-7 (double down, split, insurance, surrender).
@@ -493,6 +494,20 @@ flowchart TD
     M --> N([SessionClosed])
     N --> O([TableClosed])
 ```
+
+---
+
+### Hand Event Model — Multiplayer Clarifications
+
+Each hand in a multiplayer session produces the following event sequence. Events are emitted once per hand unless noted.
+
+**`HandStarted`** — emitted once per hand, scoped to the table. No per-player breakdown; the hand has not yet been dealt.
+
+**`BetPlaced`** — emitted once per seated player, in seat order, before any cards are dealt.
+
+**`HandResolved`** — emitted once per player at hand close, carrying the outcome for that player. Multiple `HandResolved` events are emitted per hand (one per player), in seat order. The dealer does not receive a `HandResolved` event.
+
+**`handId`** — a UUID4 generated at `HandStarted` and carried on every event within that hand (including `BetPlaced`, `CardDealt`, `CardDrawn`, `StandDeclared`, `HandBust`, `HoleCardRevealed`, `PayoutMade`, `WalletUpdated`, `HandResolved`). Scoped to the table session — unique within a session, not guaranteed globally.
 
 ---
 
@@ -695,6 +710,8 @@ All four types implement the same `Callable[[Hand], str]` strategy interface. Th
 class AIProvider(Protocol):
     def query(self, context: str, prompt: str) -> str: ...
 ```
+
+`converse(messages: list[dict]) -> str` is under consideration for PBI-2.4 (AI viewer mode) to support multi-turn dialogue. Not included in this spec — will be added if needed during PBI-2.4 implementation.
 
 **Module:** `src/providers/`
 
