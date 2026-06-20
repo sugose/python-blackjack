@@ -118,7 +118,7 @@ def match_event(event: dict[str, Any], node: tuple) -> bool:
     actual_key = _FIELD_MAP[field]
     raw = event.get(actual_key)
     if raw is None:
-        return False
+        return op == "!="
 
     raw_lower = str(raw).lower()
     value_lower = value.lower()
@@ -255,6 +255,15 @@ def main(argv: list[str] | None = None) -> None:
             sys.exit(2)
         resolved.extend(matches)
 
+    # Deduplicate while preserving order
+    seen: set[str] = set()
+    deduped: list[str] = []
+    for p in resolved:
+        if p not in seen:
+            seen.add(p)
+            deduped.append(p)
+    resolved = deduped
+
     # Read all events from all resolved files
     events: list[dict[str, Any]] = []
     for filepath in resolved:
@@ -264,20 +273,39 @@ def main(argv: list[str] | None = None) -> None:
                     line = line.strip()
                     if line:
                         try:
-                            events.append(json.loads(line))
-                        except json.JSONDecodeError:
-                            pass  # skip malformed lines silently
+                            parsed = json.loads(line)
+                            if not isinstance(parsed, dict):
+                                print(
+                                    f"Warning: skipping non-object line in {filepath!r}:"
+                                    f" {parsed!r}",
+                                    file=sys.stderr,
+                                )
+                            else:
+                                events.append(parsed)
+                        except json.JSONDecodeError as exc:
+                            print(
+                                f"Warning: skipping malformed line in {filepath!r}: {exc}",
+                                file=sys.stderr,
+                            )
         except OSError as exc:
             print(f"Error: Cannot read {filepath!r}: {exc}", file=sys.stderr)
             parser.print_help(sys.stderr)
             sys.exit(2)
 
-    # Merge chronologically
+    # Note: all events buffered in memory for chronological sort — large files may be slow.
     events.sort(key=lambda e: e.get("timestamp", ""))
 
     for event in events:
         if filter_node is None or match_event(event, filter_node):
-            print(_event_to_hrf(event))
+            try:
+                print(_event_to_hrf(event))
+            except KeyError as exc:
+                print(
+                    f"Warning: skipping malformed event (missing required field: {exc})",
+                    file=sys.stderr,
+                )
+            except TypeError as exc:
+                print(f"Warning: skipping invalid event payload: {exc}", file=sys.stderr)
 
 
 if __name__ == "__main__":

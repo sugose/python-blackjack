@@ -661,3 +661,74 @@ def test_match_event_not_equals_operator() -> None:
     event = _make_event("BetPlaced")
     assert match_event(event, parse_filter("eventType!=BetPlaced")) is False
     assert match_event(event, parse_filter("eventType!=SessionOpened")) is True
+
+
+def test_malformed_event_missing_required_field_is_skipped(
+    tmp_path: Path, capsys: pytest.CaptureFixture
+) -> None:
+    """Valid JSON missing required fields is skipped with a warning, not a crash."""
+    f = tmp_path / "s.jsonl"
+    f.write_text(
+        '{"eventType":"BetPlaced","sessionId":"s","data":{},"eventId":"1","timestamp":"2024-01-01T00:00:00+00:00"}\n'
+        '{"partial": true}\n',
+        encoding="utf-8",
+    )
+    main([str(f)])
+    out = capsys.readouterr()
+    lines = [ln for ln in out.out.splitlines() if ln.strip()]
+    assert len(lines) == 1
+    assert "[BetPlaced]" in lines[0]
+    assert "malformed" in out.err.lower() or "skipping" in out.err.lower()
+
+
+def test_malformed_json_line_warns_and_continues(
+    tmp_path: Path, capsys: pytest.CaptureFixture
+) -> None:
+    """A malformed JSON line emits a warning to stderr and the viewer continues."""
+    f = tmp_path / "s.jsonl"
+    f.write_text(
+        '{"eventType":"BetPlaced","sessionId":"s","data":{},"eventId":"1","timestamp":"2024-01-01T00:00:00+00:00"}\n'
+        "not-json\n",
+        encoding="utf-8",
+    )
+    main([str(f)])
+    out = capsys.readouterr()
+    lines = [ln for ln in out.out.splitlines() if ln.strip()]
+    assert len(lines) == 1
+    assert "[BetPlaced]" in lines[0]
+    assert "warning" in out.err.lower() or "malformed" in out.err.lower()
+
+
+def test_duplicate_file_paths_not_printed_twice(
+    tmp_path: Path, capsys: pytest.CaptureFixture
+) -> None:
+    """Passing the same file twice does not double-print its events."""
+    f = tmp_path / "s.jsonl"
+    _write_jsonl(f, [_make_event("BetPlaced", event_id=EVENT_ID_1, hand_id=HAND_ID, actor="Alice")])
+    main([str(f), str(f)])
+    out = capsys.readouterr().out
+    lines = [ln for ln in out.splitlines() if ln.strip()]
+    assert len(lines) == 1
+
+
+def test_filter_not_equals_passes_when_field_absent(
+    tmp_path: Path, capsys: pytest.CaptureFixture
+) -> None:
+    """!= filter passes session-level events where the field is absent."""
+    events = [
+        _make_event("SessionOpened", event_id=EVENT_ID_1, timestamp="2024-01-01T00:00:00+00:00"),
+        _make_event(
+            "BetPlaced",
+            event_id=EVENT_ID_2,
+            hand_id=HAND_ID,
+            actor="Dealer",
+            timestamp="2024-01-01T00:00:01+00:00",
+        ),
+    ]
+    f = tmp_path / "s.jsonl"
+    _write_jsonl(f, events)
+    main([str(f), "--filter", "actor!=dealer"])
+    out = capsys.readouterr().out
+    lines = [ln for ln in out.splitlines() if ln.strip()]
+    assert len(lines) == 1
+    assert "[SessionOpened]" in lines[0]
