@@ -44,7 +44,7 @@ python-blackjack is a blackjack simulator. It is a Python-based project that sim
 5. Report back to Adam with the PR URL appended with `?i=1` (increment `i` by 1 on each subsequent re-report of the same PR, e.g. `?i=2`, `?i=3`).
 
    - [ ] Post pr_dump as PR comment
-   - [ ] Report PR URL to Adam with `?i=N`
+   - [ ] Report PR URL to Adam with `?i=1` (increment `i` by 1 on each re-report of the same PR)
    - [ ] STOP. Do not read or act on Copi's comments.
    - [ ] Wait for Adam to paste Clead's instruction. Do nothing until then.
 
@@ -68,7 +68,7 @@ python-blackjack is a blackjack simulator. It is a Python-based project that sim
 5. Report back to Adam with the PR URL appended with `?i=1` (increment `i` by 1 on each subsequent re-report of the same PR, e.g. `?i=2`, `?i=3`).
 
    - [ ] Post pr_dump as PR comment
-   - [ ] Report PR URL to Adam with `?i=N`
+   - [ ] Report PR URL to Adam with `?i=1` (increment `i` by 1 on each re-report of the same PR)
    - [ ] STOP. Do not read or act on Copi's comments.
    - [ ] Wait for Adam to paste Clead's instruction. Do nothing until then.
 
