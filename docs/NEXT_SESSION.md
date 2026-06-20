@@ -6,7 +6,7 @@ Items to action at the start of the next session. Clear this file once actioned.
 
 | # | Item |
 |---|---|
-| 1 | **Copi review of ICE-2** — ICE-2 merged without full Copi review due to process gap; create a trivial fix PR on `src/tests/test_viewer.py` (fix `~~=` docstring typo in `test_match_event_contains_operator`) to give Copi a proper pass at the implementation |
+| 1 | **Copi review of ICE-2** — ICE-2 merged without full Copi review due to process gap; create a trivial fix PR touching `src/` (e.g. a minor docstring or comment improvement in `src/viewer.py`) to give Copi a proper pass at the implementation |
 | 2 | **Update CROG_ONBOARDING** — one PR covering: (a) when reporting PR URL to Adam, append `?i=N` query string starting at 1, incrementing on each re-report of the same PR; (b) Crog waits for Copi review to complete before posting PR URL; (c) after each push on an existing PR, Crog explicitly re-requests Copi review via REST API before polling; (d) Crog outputs status message when Copi review is detected (or timeout message after 60s if not) |
 
 ## Pending investigations
