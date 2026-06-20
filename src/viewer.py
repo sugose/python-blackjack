@@ -106,7 +106,7 @@ def parse_filter(expr: str) -> tuple:
 
 
 def match_event(event: dict[str, Any], node: tuple) -> bool:
-    """Evaluate a filter AST node against a JSONL event dict."""
+    """Evaluate a filter AST node against a JSONL event dict. Returns True if the event matches."""
     kind = node[0]
     if kind == "AND":
         return match_event(event, node[1]) and match_event(event, node[2])
