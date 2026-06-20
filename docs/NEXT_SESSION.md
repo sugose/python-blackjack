@@ -7,9 +7,9 @@ Items to action at the start of the next session. Clear this file once actioned.
 | # | Item |
 |---|---|
 | 1 | **ICE-2 viewer test gaps** — follow-up PR to close 4 missing test paths identified in Crog's post-merge review: (a) `eventId` UUID suffix match, (b) `~=` on absent field returns False, (c) `actor!=player` and `actor!=dealer` abstract semantics, (d) non-dict JSON line warning path (e.g. `[1,2,3]`) |
-| 2 | **CHANGELOG** — update with ICE-2 post-merge Copi findings fix (PR #53) |
-| 3 | **Template repo sync** — mirror PR #53 viewer fixes to `sugose/ai-project-template` if applicable (likely not — viewer is project-specific) |
-| 4 | **`tools/copi_wait.sh` completion loop fix** — completion loop exits on `TOTAL > 0 AND PENDING == 0` which is a false positive when pre-existing reviews exist. Fix: change exit condition to `TOTAL > BEFORE AND PENDING == 0`. Sync fix to `sugose/ai-project-template` as well. |
+| 2 | **CHANGELOG** — update with: ICE-2 post-merge Copi findings fix (PR #53), copi_wait.sh fixes (PR #55) |
+| 3 | **`copi_wait.sh` sync to ai-project-template** — PR #55 fixed the completion loop logic in python-blackjack; same fix needs porting to `sugose/ai-project-template` (currently still has `TOTAL > 0` condition) |
+| 4 | **Document post-merge review process** — established this session: when a PR is merged without sufficient Copi iterations, correct remedy is VS Code Copilot full-file review of all changed files, findings fed back to Clead, fix PR opened for any material findings. Add to `docs/TEAM_STRUCTURE.md` under Clead Review Standard. |
 
 ## Pending investigations
 
