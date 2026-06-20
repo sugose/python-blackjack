@@ -436,7 +436,7 @@ class HouseRules:
     multiSeatAllowed: bool    # True = a single player may occupy multiple seats (ICE-10)
 ```
 
-`HouseRules` is defined here. ICE-10 extends it with `multiSeatAllowed`; ICE-7 will extend it further with double down, split, insurance, and surrender fields.
+`HouseRules` is defined here. `multiSeatAllowed` is reserved as the enablement gate for ICE-10 (multi-seat play). ICE-7 will extend it further with double down, split, insurance, and surrender fields.
 
 ---
 
@@ -505,7 +505,7 @@ Each hand in a multiplayer session produces the following event sequence. Events
 
 **`BetPlaced`** — emitted once per seated player, in seat order, before any cards are dealt.
 
-**`HandResolved`** — emitted once per player at hand close, carrying the outcome for that player. Multiple `HandResolved` events are emitted per hand (one per player), in seat order. The dealer does not receive a `HandResolved` event.
+**`HandResolved`** — emitted once per player at hand close, carrying the outcome for that player. Multiple `HandResolved` events are emitted per hand (one per player), in seat order. The dealer does not receive a `HandResolved` event. In ICE-3 multiplayer, `HandResolved` will carry `actor: player name` to identify which player the outcome applies to — the Section 9 Session-Level vs Hand-Level Events table will be updated from `actor: —` to `actor: player name` when ICE-3 is implemented.
 
 **`handId`** — a UUID4 generated at the top of `play_hand()` (after `HandStarted` is emitted) and carried on every subsequent hand-level event: `BetPlaced`, `CardDealt`, `CardDrawn`, `StandDeclared`, `HandBust`, `HoleCardRevealed`, `PayoutMade`, `WalletUpdated`, `HandResolved`. `HandStarted` is session-level and does **not** carry `handId` (see Section 9 Session-Level vs Hand-Level Events). Scoped to the table session — unique within a session, not guaranteed globally.
 
@@ -711,7 +711,7 @@ class AIProvider(Protocol):
     def query(self, context: str, prompt: str) -> str: ...
 ```
 
-`converse(messages: list[dict]) -> str` is under consideration for PBI-2.4 (AI viewer mode) to support multi-turn dialogue. Not included in this spec — will be added if needed during PBI-2.4 implementation.
+`converse(messages: list[dict[str, Any]]) -> str` is under consideration for PBI-2.4 (AI viewer mode) to support multi-turn dialogue. Not included in this spec — will be added if needed during PBI-2.4 implementation.
 
 **Module:** `src/providers/`
 
