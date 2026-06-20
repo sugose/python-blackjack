@@ -94,7 +94,7 @@ The only exception: a mechanical mistake that is unambiguously Crog's own (e.g. 
 
 ### Console Summary Rule
 
-After posting the pr_dump and before reporting back to Adam, post a brief console summary as a **separate PR comment** if any of the following apply. For diagnostic tasks with no PR diff, the console summary replaces the pr_dump comment rather than following it:
+Post a brief console summary as a **separate PR comment** if any of the following apply. For standard PRs, post it after the pr_dump comment. For diagnostic tasks with no PR diff, it replaces the pr_dump comment:
 
 - A script or tool was executed (not just file edits)
 - A command returned a non-zero exit code or unexpected output
