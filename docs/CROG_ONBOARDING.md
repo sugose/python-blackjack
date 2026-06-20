@@ -38,11 +38,33 @@ python-blackjack is a blackjack simulator. It is a Python-based project that sim
    If Copi has open comments requiring resolution, flag them to Clead —
    do not merge until Copi has no open comments requiring resolution
    and Clead has issued a merge instruction.
-3. Poll until Copi review is complete — `gh pr view <PR-number> --json reviews` until Copi's status is not `PENDING`. Then wait 10 seconds for Copi's comments to settle.
-4. Post the full pr_dump output as a PR comment: `gh pr comment <PR-number> --body "$(bash tools/pr_dump.sh <PR-number>)"`
-5. Report back to Adam with the PR URL only.
+3. Poll until Copi review is complete — `gh pr view <PR-number> --json reviews` until Copi's status is not `PENDING`.
+4. After Copi completes, wait 10 seconds for comments to settle, then post the full pr_dump output as a PR comment:
+   `gh pr comment <PR-number> --body "$(bash tools/pr_dump.sh <PR-number>)"`
+5. Report back to Adam with the PR URL appended with `?i=1` (increment `i` by 1 on each subsequent re-report of the same PR, e.g. `?i=2`, `?i=3`).
 6. Adam drops the URL into Clead's chat. Clead fetches and reviews.
-7. **If Clead requests changes:** implement fixes and push to the same branch. Copi re-review fires automatically via `synchronize` trigger. Go back to step 3.
+7. **If Clead requests changes:** implement fixes and push to the same branch. Then:
+   a. Re-request Copi review via REST before polling:
+      ```
+      REPO=$(gh repo view --json nameWithOwner -q .nameWithOwner)
+      gh api \
+        --method POST \
+        -H "Accept: application/vnd.github+json" \
+        -H "X-GitHub-Api-Version: 2022-11-28" \
+        "repos/$REPO/pulls/<PR-number>/requested_reviewers" \
+        -f 'reviewers[]=copilot'
+      ```
+   b. Poll for Copi review detection — check every 10 seconds for up to 60 seconds:
+      `gh pr view <PR-number> --json reviews | jq '[.reviews[] | select(.author.login | test("copilot"; "i"))]'`
+      - If the output is a non-empty array AND any entry has `state == "PENDING"`: Copi review in progress.
+        → Output: `"Copi review detected. Polling until complete..."`
+        Continue polling until no entry has `state == "PENDING"`.
+      - If the output is a non-empty array AND no entry has `state == "PENDING"`: Copi review already complete.
+        → Proceed to step 4.
+      - If output is empty after 60 seconds: no Copi review detected.
+        → Output: `"No Copi review detected after 60s — please re-request manually via GitHub UI."`
+        Continue polling in case manual request arrives.
+   c. Go back to step 3.
 8. **If Clead approves:** Clead produces a verdict comment + merge prompt. Adam pastes it. Post the verdict as a PR comment and merge.
 
 **Docs/tooling PRs** (only touching `docs/`, `tools/`, config files, `.github/`, root files):
@@ -52,11 +74,13 @@ python-blackjack is a blackjack simulator. It is a Python-based project that sim
    If Copi has open comments requiring resolution, flag them to Clead —
    do not merge until Copi has no open comments requiring resolution
    and Clead has issued a merge instruction.
-3. Poll until Copi review is complete — `gh pr view <PR-number> --json reviews` until Copi's status is not `PENDING`. Then wait 10 seconds for Copi's comments to settle.
-4. Post the full pr_dump output as a PR comment: `gh pr comment <PR-number> --body "$(bash tools/pr_dump.sh <PR-number> --no-src)"`
-5. Report back to Adam with the PR URL only.
+3. Poll until Copi review is complete — `gh pr view <PR-number> --json reviews` until Copi's status is not `PENDING`.
+4. After Copi completes, wait 10 seconds for comments to settle, then post the full pr_dump output as a PR comment:
+   `gh pr comment <PR-number> --body "$(bash tools/pr_dump.sh <PR-number> --no-src)"`
+5. Report back to Adam with the PR URL appended with `?i=1` (increment `i` by 1 on each subsequent re-report of the same PR, e.g. `?i=2`, `?i=3`).
 6. Adam drops the URL into Clead's chat. Clead fetches and reviews.
-7. Clead produces a verdict comment + merge prompt. Adam pastes it. Post the verdict as a PR comment and merge.
+7. **If Clead requests changes or Copi has open comments:** implement fixes and push to the same branch. Re-request Copi review via REST (same as Code PRs step 7a), output Copi detection status (same as step 7b), then go back to step 3.
+8. **If Clead approves:** Clead produces a verdict comment + merge prompt. Adam pastes it. Post the verdict as a PR comment and merge.
 
 ### PR Description Requirements
 
@@ -145,7 +169,7 @@ You are not a passive code generator. The standard is a thoughtful senior develo
 4. Lint and format before committing.
 5. Open a PR with a clear description including the test coverage narrative table.
 6. Follow the PR Review Rules above — Copi review is requested via `.github/workflows/request-copilot-review.yml` (request manually via GitHub UI if the review does not start).
-7. Run `bash tools/pr_dump.sh <PR-number>` (or `--no-src` for docs/tooling PRs) and report back to Clead with the full output.
+7. Wait for Copi to complete its review, then run `bash tools/pr_dump.sh <PR-number>` (or `--no-src` for docs/tooling PRs) and post the output as a PR comment. Report back to Adam with the PR URL appended with `?i=1` (increment `i` by 1 on each subsequent re-report of the same PR).
 8. Never merge your own PRs.
 9. Never commit to `main`.
 
