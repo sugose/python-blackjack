@@ -12,6 +12,23 @@ BEFORE=$(gh pr view "$PR" --json reviews \
   --jq '[.reviews[] | select(.author.login | test("copilot"; "i"))] | length')
 
 echo "Re-requesting Copi review on PR #$PR (existing Copi reviews: $BEFORE)..."
+
+# Dismiss the latest Copi review so GitHub will accept a fresh re-request.
+# GitHub silently no-ops /requested_reviewers when the reviewer has already submitted
+# a review — dismissing first resets reviewer state.
+REVIEW_ID=$(gh api "repos/$REPO/pulls/$PR/reviews" \
+  --jq '[.[] | select(.user.login == "copilot-pull-request-reviewer[bot]" or (.user.type == "Bot" and (.user.login | contains("copilot"))))] | last | .id')
+
+if [ -n "$REVIEW_ID" ] && [ "$REVIEW_ID" != "null" ]; then
+  gh api "repos/$REPO/pulls/$PR/reviews/$REVIEW_ID/dismissals" \
+    -X PUT \
+    -f message="Dismissing prior review to enable re-request after push" \
+    --silent
+  echo "Dismissed review ${REVIEW_ID}"
+else
+  echo "No existing Copi review to dismiss"
+fi
+
 if ! gh api \
   --method POST \
   -H "Accept: application/vnd.github+json" \
