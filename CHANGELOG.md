@@ -10,6 +10,27 @@ All notable changes to python-blackjack are documented here.
 - Tooling table added (T-1: Node.js version bump, T-2: PR process automation spec)
 - `NEXT_SESSION.md` cleared
 
+### Added — ICE-2: JSONL Viewer CLI (v1)
+
+- `src/viewer.py` — command-line tool for inspecting session JSONL files
+- Invocation: `python -m src.viewer [OPTIONS] FILE [FILE...]`
+- SQL-like `--filter` expression with AND/OR/parentheses, case-insensitive field and value matching
+- UUID fields (`sessionId`, `handId`, `eventId`) use implicit suffix match
+- `actor=player` / `actor=dealer` abstraction over raw actor values
+- Operators: `=`, `!=`, `~=` (contains)
+- Cross-platform glob expansion for file arguments
+- Multiple files merged and sorted chronologically by timestamp
+- HRF output identical to `emit_event()` format
+- No new dependencies — stdlib only (`argparse`, `glob`, `json`, `re`)
+- Exit codes: 0 success, 1 filter/parse error, 2 file/glob error
+- Full test suite in `src/tests/test_viewer.py`
+
+### Changed — PR process and Copi review gate
+
+- Copi review gate rule added: Clead's verdict prompt includes merge instruction only when Copi has no open comments requiring resolution
+- Copi review auto-requested on PR open and push via GitHub ruleset (`review_on_push` enabled); manual re-request may be needed on subsequent pushes
+- `docs/CROG_ONBOARDING.md` and `docs/TEAM_STRUCTURE.md` updated to reflect unified PR flow for code and docs/tooling PRs
+
 ### Added — PR process automation
 
 - Auto-Copilot review workflow (`.github/workflows/request-copilot-review.yml`) — fires on PR open, ready-for-review, and push; requests Copilot review via REST API (`POST /requested_reviewers`) instead of `gh` CLI (which fails via GraphQL)
