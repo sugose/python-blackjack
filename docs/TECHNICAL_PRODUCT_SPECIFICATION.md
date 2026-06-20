@@ -556,3 +556,112 @@ All players and the dealer draw from a single shoe. Shoe size is `numDecks × 52
 | eventType | Planned for |
 |---|---|
 | `PlayerJoined` | ICE-8 (mid-session join via floor manager) |
+
+---
+
+## 11. ICE-2 — JSONL Viewer (CLI, v1)
+
+### Overview
+
+A command-line tool for inspecting session JSONL files produced by the blackjack simulator. Reads one or more session files, merges them into a single chronological event stream, and prints matching events as HRF one-liners to stdout. Filtering is via a SQL-like expression string.
+
+---
+
+### Invocation
+
+```
+python -m src.viewer [OPTIONS] FILE [FILE...]
+```
+
+- No arguments → print `--help` and exit 0
+- `--version` → print version string and exit 0
+- `--filter "EXPRESSION"` → apply filter expression to event stream
+- `FILE` → one or more JSONL session files; glob patterns supported and expanded by the viewer (cross-platform)
+- Multiple files are merged and sorted chronologically by `timestamp`
+
+---
+
+### Output
+
+One HRF one-liner per matching event, printed to stdout. HRF format is identical to the format produced by `emit_event()` in `src/logger.py`.
+
+---
+
+### Filter Expression
+
+A SQL-like expression string passed as the value of `--filter`.
+
+**Filterable fields:**
+
+| Field | Type | Notes |
+|---|---|---|
+| `eventType` | string | e.g. `BetPlaced`, `CardDealt` |
+| `sessionId` | UUID | implicit suffix match |
+| `handId` | UUID | implicit suffix match; absent on session-level events |
+| `actor` | string | `player` = any non-dealer actor; `dealer` = Dealer only; any other value = literal match |
+| `timestamp` | string | ISO-8601 UTC |
+| `eventId` | UUID | implicit suffix match |
+
+`playerId` is reserved as a future filter field (ICE-13) and not implemented in v1.
+
+**Matching rules:**
+
+- Field names are case-insensitive — `Actor`, `actor`, `ACTOR` all work
+- Values are case-insensitive — `BetPlaced`, `betplaced` both match
+- UUID fields (`sessionId`, `handId`, `eventId`) use implicit suffix match — `sessionId=b7c19a2d` matches any UUID ending in `b7c19a2d`
+- `actor=player` matches any event where actor is not `"Dealer"`
+- `actor=dealer` matches events where actor is `"Dealer"`
+- Any other `actor` value is a literal case-insensitive match
+
+**Operators:**
+
+| Operator | Meaning |
+|---|---|
+| `=` | equality (case-insensitive; suffix match for UUID fields) |
+| `~=` | contains (case-insensitive, any field) |
+| `!=` | not equals (case-insensitive) |
+
+**Logical operators:** `AND`, `OR`, parentheses for grouping — all case-insensitive.
+
+**Examples:**
+```
+--filter "eventType=BetPlaced"
+--filter "eventType=BetPlaced AND actor=player"
+--filter "(eventType=CardDealt OR eventType=CardDrawn) AND actor=dealer"
+--filter "sessionId=b7c19a2d"
+--filter "eventType!=SessionOpened AND actor!=dealer"
+```
+
+---
+
+### Error Handling
+
+- On any argument error (unknown field, parse error, missing file, unresolvable glob): print a human-readable reason, print `--help`, exit with a non-zero exit code
+- Implementer chooses specific non-zero exit codes and documents them in the PR description
+
+**Exit codes:**
+
+| Code | Meaning |
+|---|---|
+| 0 | Success |
+| Non-zero | Error — specific codes chosen by implementer and documented in PR |
+
+---
+
+### Module
+
+`src/viewer.py`
+
+---
+
+### `--help` Output Requirements
+
+Must list all filterable fields with a brief description of each, including the implicit suffix match behaviour for UUID fields and the `player`/`dealer` abstraction for `actor`.
+
+---
+
+### Future
+
+- Interactive mode (`--interactive`) — apply/change filters without restarting
+- `playerId` filter field (requires ICE-13)
+- Additional operators (`>`, `<` for timestamp range filtering)
