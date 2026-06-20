@@ -46,18 +46,20 @@ python-blackjack is a blackjack simulator. It is a Python-based project that sim
 7. **If Clead requests changes:** implement fixes and push to the same branch. Then:
    a. Re-request Copi review via REST before polling:
       ```
+      REPO=$(gh repo view --json nameWithOwner -q .nameWithOwner)
       gh api \
         --method POST \
         -H "Accept: application/vnd.github+json" \
         -H "X-GitHub-Api-Version: 2022-11-28" \
-        /repos/$(gh repo view --json nameWithOwner -q .nameWithOwner)/pulls/<PR-number>/requested_reviewers \
+        "repos/$REPO/pulls/<PR-number>/requested_reviewers" \
         -f 'reviewers[]=copilot'
       ```
    b. Poll for Copi review detection — check every 10 seconds for up to 60 seconds:
-      `gh pr view <PR-number> --json reviews | jq '[.reviews[] | select(.author.login | test("copilot"; "i"))]'`
-      - If a Copi review entry with state `PENDING` is detected:
+      `gh pr view <PR-number> --json reviews | jq '[.reviews[] | select(.author.login | test("copilot"; "i")) | select(.state == "PENDING")]'`
+      - If the output is a non-empty array: Copi review detected.
         → Output: `"Copi review detected. Polling until complete..."`
-      - If no Copi review detected after 60 seconds:
+        Continue polling until state is no longer `PENDING`.
+      - If output is empty after 60 seconds:
         → Output: `"No Copi review detected after 60s — please re-request manually via GitHub UI."`
         Continue polling in case manual request arrives.
    c. Go back to step 3.
