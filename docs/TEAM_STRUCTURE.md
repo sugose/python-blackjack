@@ -25,7 +25,7 @@
 
 **B — Docs/Tooling PR**
 1. Crog opens PR from `docs/<name>` or `tooling/<name>` to `main`
-2. Copi review is requested automatically by the workflow (request manually via GitHub UI if the review does not start).
+2. Copi review request is triggered automatically by the workflow on PR open (if Copi does not begin reviewing, request manually via GitHub UI).
 3. Crog polls until Copi completes, waits 10s, posts pr_dump as PR comment
 4. Crog reports PR URL to Adam
 5. Adam drops URL into Clead's chat

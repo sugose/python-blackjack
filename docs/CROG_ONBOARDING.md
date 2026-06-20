@@ -33,7 +33,7 @@ python-blackjack is a blackjack simulator. It is a Python-based project that sim
 
 **Code PRs** (any PR touching files under `src/`):
 1. Open the PR
-2. Copi review is requested automatically by the workflow on PR open.
+2. Copi review is requested automatically by the workflow on PR open (request manually via GitHub UI if the review does not start).
    Wait for Copi to complete its review before running `pr_dump.sh`.
    If Copi has open comments requiring resolution, flag them to Clead —
    do not merge until Copi has no open comments requiring resolution
@@ -47,7 +47,7 @@ python-blackjack is a blackjack simulator. It is a Python-based project that sim
 
 **Docs/tooling PRs** (only touching `docs/`, `tools/`, config files, `.github/`, root files):
 1. Open the PR
-2. Copi review is requested automatically by the workflow on PR open.
+2. Copi review is requested automatically by the workflow on PR open (request manually via GitHub UI if the review does not start).
    Wait for Copi to complete its review before running `pr_dump.sh`.
    If Copi has open comments requiring resolution, flag them to Clead —
    do not merge until Copi has no open comments requiring resolution
