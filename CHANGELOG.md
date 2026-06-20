@@ -28,8 +28,8 @@ All notable changes to python-blackjack are documented here.
 ### Changed — PR process and Copi review gate
 
 - Copi review gate rule added: Clead's verdict prompt includes merge instruction only when Copi has no open comments requiring resolution
-- All PRs now receive Copi review automatically via GitHub ruleset (`review_on_push` enabled)
-- `CROG_ONBOARDING.md` and `TEAM_STRUCTURE.md` updated to reflect unified PR flow for code and docs/tooling PRs
+- Copi review auto-requested on PR open and push via GitHub ruleset (`review_on_push` enabled); manual re-request may be needed on subsequent pushes
+- `docs/CROG_ONBOARDING.md` and `docs/TEAM_STRUCTURE.md` updated to reflect unified PR flow for code and docs/tooling PRs
 
 ### Added — PR process automation
 
