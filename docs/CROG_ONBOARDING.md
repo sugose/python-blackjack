@@ -55,11 +55,13 @@ python-blackjack is a blackjack simulator. It is a Python-based project that sim
         -f 'reviewers[]=copilot'
       ```
    b. Poll for Copi review detection — check every 10 seconds for up to 60 seconds:
-      `gh pr view <PR-number> --json reviews | jq '[.reviews[] | select(.author.login | test("copilot"; "i")) | select(.state == "PENDING")]'`
-      - If the output is a non-empty array: Copi review detected.
+      `gh pr view <PR-number> --json reviews | jq '[.reviews[] | select(.author.login | test("copilot"; "i"))]'`
+      - If the output is a non-empty array AND any entry has `state == "PENDING"`: Copi review in progress.
         → Output: `"Copi review detected. Polling until complete..."`
-        Continue polling until state is no longer `PENDING`.
-      - If output is empty after 60 seconds:
+        Continue polling until no entry has `state == "PENDING"`.
+      - If the output is a non-empty array AND no entry has `state == "PENDING"`: Copi review already complete.
+        → Proceed to step 4.
+      - If output is empty after 60 seconds: no Copi review detected.
         → Output: `"No Copi review detected after 60s — please re-request manually via GitHub UI."`
         Continue polling in case manual request arrives.
    c. Go back to step 3.
