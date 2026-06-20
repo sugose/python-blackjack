@@ -436,7 +436,7 @@ class HouseRules:
     multiSeatAllowed: bool    # True = a single player may occupy multiple seats (ICE-10)
 ```
 
-`HouseRules` is defined here and will be extended by ICE-7 (double down, split, insurance, surrender).
+`HouseRules` is defined here. ICE-10 extends it with `multiSeatAllowed`; ICE-7 will extend it further with double down, split, insurance, and surrender fields.
 
 ---
 
@@ -507,7 +507,7 @@ Each hand in a multiplayer session produces the following event sequence. Events
 
 **`HandResolved`** — emitted once per player at hand close, carrying the outcome for that player. Multiple `HandResolved` events are emitted per hand (one per player), in seat order. The dealer does not receive a `HandResolved` event.
 
-**`handId`** — a UUID4 generated at `HandStarted` and carried on every event within that hand (including `BetPlaced`, `CardDealt`, `CardDrawn`, `StandDeclared`, `HandBust`, `HoleCardRevealed`, `PayoutMade`, `WalletUpdated`, `HandResolved`). Scoped to the table session — unique within a session, not guaranteed globally.
+**`handId`** — a UUID4 generated at the top of `play_hand()` (after `HandStarted` is emitted) and carried on every subsequent hand-level event: `BetPlaced`, `CardDealt`, `CardDrawn`, `StandDeclared`, `HandBust`, `HoleCardRevealed`, `PayoutMade`, `WalletUpdated`, `HandResolved`. `HandStarted` is session-level and does **not** carry `handId` (see Section 9 Session-Level vs Hand-Level Events). Scoped to the table session — unique within a session, not guaranteed globally.
 
 ---
 
