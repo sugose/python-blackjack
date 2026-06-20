@@ -78,3 +78,4 @@ if [ "$COMPLETED" = false ]; then
   exit 1
 fi
 # smoke-test-3 commit 1
+# smoke-test-3 commit 2
