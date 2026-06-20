@@ -9,11 +9,13 @@ All notable changes to python-blackjack are documented here.
 - Crog must post a brief console summary as a PR comment when scripts were executed, non-zero exits occurred, or the task was diagnostic
 - Ensures Clead has execution context via PR URL fetch without needing raw console output from Adam
 
-### Fixed (attempt 2) — copi_wait.sh: DELETE reviewer before re-requesting
+### Closed — Copi re-review programmatic invocation investigation
 
-- Attempt 1 (dismiss) failed: GitHub 422 on COMMENTED reviews
-- Attempt 2: DELETE /requested_reviewers before POST to reset reviewer state
-- Under test — smoke test required before treating as confirmed fix
+- All four REST/GraphQL approaches exhausted — no public API can re-trigger Copi after first review
+- PR #64 DELETE approach reverted — silent success but no effect
+- `copi_wait.sh` timeout message updated to prompt manual UI re-request
+- Known limitation documented in `docs/CROG_ONBOARDING.md`
+- Manual "Re-request review" button in GitHub UI remains the only reliable path
 
 ### Reverted — copi_wait.sh dismiss logic (PR #60)
 

@@ -105,6 +105,18 @@ Keep it brief — 3–5 lines max. Clead reads it via the PR URL fetch, so it mu
 
 For pure docs/code PRs where only file edits were made and nothing was executed, no console comment is needed.
 
+### Copi Re-review Known Limitation
+
+GitHub provides no public API (REST or GraphQL) to re-trigger a Copi review after it has already submitted one on a PR. The GitHub UI "Re-request review" button uses an undocumented internal mechanism.
+
+**Investigated and exhausted (PRs #60, #62, #64, #67):**
+- `PUT /reviews/{id}/dismissals` — 422: COMMENTED reviews are not dismissable
+- `DELETE /requested_reviewers` then `POST` — DELETE succeeds silently; Copi does not re-review
+- `POST` with `app_slugs[]` — 422: parameter not accepted by REST API
+- GraphQL `requestReviews` mutation — no `appIds` support; mutation is a no-op for GitHub Apps
+
+**Current process:** After pushing a fix, run `bash tools/copi_wait.sh <PR-number>`. If it times out, click "Re-request review" in the GitHub UI on the PR, then run `bash tools/copi_wait.sh <PR-number>` again. Crog detects Copi completion reliably — only the invocation is unavailable via API.
+
 ### PR Description Requirements
 
 Every PR that contains code changes (`src/`) must include a **test coverage narrative table** in the PR description:
