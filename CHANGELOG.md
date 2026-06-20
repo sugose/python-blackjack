@@ -6,7 +6,7 @@ All notable changes to python-blackjack are documented here.
 
 ### Changed — CROG_ONBOARDING: console summary rule
 
-- Crog must post a brief console summary as a PR comment when scripts were executed, non-zero exits occurred, or task was diagnostic
+- Crog must post a brief console summary as a PR comment when scripts were executed, non-zero exits occurred, or the task was diagnostic
 - Ensures Clead has execution context via PR URL fetch without needing raw console output from Adam
 
 ### Reverted — copi_wait.sh dismiss logic (PR #60)
