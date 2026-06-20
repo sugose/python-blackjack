@@ -433,9 +433,10 @@ class Table:
 class HouseRules:
     blackjackPayout: float    # e.g. 1.5 for 3:2, 1.2 for 6:5
     dealerHitsOnSoft17: bool  # True = dealer hits soft 17
+    multiSeatAllowed: bool = False  # True = a single player may occupy multiple seats (ICE-10)
 ```
 
-`HouseRules` is defined here and will be extended by ICE-7 (double down, split, insurance, surrender).
+`HouseRules` is defined here. `multiSeatAllowed` is reserved as the enablement gate for ICE-10 (multi-seat play). ICE-7 will extend it further with double down, split, insurance, and surrender fields.
 
 ---
 
@@ -493,6 +494,20 @@ flowchart TD
     M --> N([SessionClosed])
     N --> O([TableClosed])
 ```
+
+---
+
+### Hand Event Model — Multiplayer Clarifications
+
+Each hand in a multiplayer session produces the following event sequence. Events are emitted once per hand unless noted.
+
+**`HandStarted`** — emitted once per hand, before any cards are dealt. Carries summary data (hand number, current wallets). Classified as session-level (no `handId`, per Section 9) even though it fires once per hand rather than once per session. Consumers correlate `HandStarted` to the events that follow it within the same session by treating the first `BetPlaced` event (which does carry `handId`) as the start of that hand's event group.
+
+**`BetPlaced`** — emitted once per seated player, in seat order, before any cards are dealt.
+
+**`HandResolved`** — emitted once per player at hand close, carrying the outcome for that player. Multiple `HandResolved` events are emitted per hand (one per player), in seat order. The dealer does not receive a `HandResolved` event. Note: `HandResolved` currently does not set `actor` (Section 9); how consumers identify the per-player outcome in ICE-3 multiplayer (via `actor`, `data` payload, or seat context) is a detail deferred to the ICE-3 implementation spec.
+
+**`handId`** — a UUID4 assigned per hand; absent on `HandStarted` (session-level, per Section 9) and present on all subsequent hand-level events: `BetPlaced`, `CardDealt`, `CardDrawn`, `StandDeclared`, `HandBust`, `HoleCardRevealed`, `PayoutMade`, `WalletUpdated`, `WalletEmpty`, `HandResolved`. Unique within a session but not guaranteed globally; consumers should key on (`sessionId`, `handId`) as the stable hand identifier.
 
 ---
 
@@ -695,6 +710,8 @@ All four types implement the same `Callable[[Hand], str]` strategy interface. Th
 class AIProvider(Protocol):
     def query(self, context: str, prompt: str) -> str: ...
 ```
+
+`converse(messages: list[dict[str, Any]]) -> str` is under consideration for PBI-2.4 (AI viewer mode) to support multi-turn dialogue. Not included in this spec — will be added if needed during PBI-2.4 implementation.
 
 **Module:** `src/providers/`
 

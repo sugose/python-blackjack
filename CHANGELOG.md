@@ -4,6 +4,14 @@ All notable changes to python-blackjack are documented here.
 
 ## [Unreleased]
 
+### Added — Event model clarifications and HouseRules extension
+
+- TPS Section 10: `HouseRules` extended with `multiSeatAllowed: bool` field (ICE-10 enablement)
+- TPS Section 10: "Hand Event Model — Multiplayer Clarifications" subsection documenting `HandStarted`, `BetPlaced`, `HandResolved`, and `handId` scoping for multi-player hands
+- TPS Section 12 (PBI-2.1): `converse()` method noted as under consideration for PBI-2.4 AI viewer mode
+- Backlog ICE-9: FM human mode may optionally be backed by an `AIProvider` for conversational operator assistance (under consideration)
+- Backlog ICE-10: dependency updated to require ICE-3 and ICE-13; `HouseRules.multiSeatAllowed = True` as enablement gate
+
 ### Added — Epic 2: The Arena (design)
 
 - Epic 2 — The Arena added to backlog and TPS (Section 12): competitive platform supporting mixed player types (AI, human, deterministic bot, stochastic bot) at the same table
