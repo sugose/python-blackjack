@@ -52,10 +52,11 @@ python-blackjack is a blackjack simulator. It is a Python-based project that sim
    If Copi has open comments requiring resolution, flag them to Clead —
    do not merge until Copi has no open comments requiring resolution
    and Clead has issued a merge instruction.
-3. Post the full pr_dump output as a PR comment: `gh pr comment <PR-number> --body "$(bash tools/pr_dump.sh <PR-number> --no-src)"`
-4. Report back to Adam with the PR URL only.
-5. Adam drops the URL into Clead's chat. Clead fetches and reviews.
-6. Clead produces a verdict comment + merge prompt. Adam pastes it. Post the verdict as a PR comment and merge.
+3. Poll until Copi review is complete — `gh pr view <PR-number> --json reviews` until Copi's status is not `PENDING`. Then wait 10 seconds for Copi's comments to settle.
+4. Post the full pr_dump output as a PR comment: `gh pr comment <PR-number> --body "$(bash tools/pr_dump.sh <PR-number> --no-src)"`
+5. Report back to Adam with the PR URL only.
+6. Adam drops the URL into Clead's chat. Clead fetches and reviews.
+7. Clead produces a verdict comment + merge prompt. Adam pastes it. Post the verdict as a PR comment and merge.
 
 ### PR Description Requirements
 
@@ -143,7 +144,7 @@ You are not a passive code generator. The standard is a thoughtful senior develo
 3. Implement until tests pass (green).
 4. Lint and format before committing.
 5. Open a PR with a clear description including the test coverage narrative table.
-6. Follow the PR Review Rules above — Copi review is requested automatically by `.github/workflows/request-copilot-review.yml`.
+6. Follow the PR Review Rules above — Copi review is requested via `.github/workflows/request-copilot-review.yml` (request manually via GitHub UI if the review does not start).
 7. Run `bash tools/pr_dump.sh <PR-number>` (or `--no-src` for docs/tooling PRs) and report back to Clead with the full output.
 8. Never merge your own PRs.
 9. Never commit to `main`.
