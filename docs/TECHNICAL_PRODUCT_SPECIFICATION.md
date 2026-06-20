@@ -784,7 +784,7 @@ The following table orients the six AI roles active across the python-blackjack 
 | 2 | Player strategy | Player callable | Runtime — game execution | Bet, play, quit, tip, drink |
 | 3 | Analyst | Viewer AI (PBI-2.4) | Post-session | Interpretation, reporting |
 | 4 | Operator | FM verbal (ICE-9) | Runtime — pre-game | Table assignment, player flow |
-| 5 | Infrastructure | AIProvider protocol | Dev → Runtime | LLM invocation, context management |
+| 5 | Infrastructure | `AIProvider` protocol | Dev → Runtime | LLM invocation, context management |
 | 6 | Code Reviewer | Copi | Development | Code quality, spec compliance |
 
 Roles 2–4 are runtime roles visible in the event stream. Roles 1, 5, 6 are development-phase roles invisible to the game simulation.
@@ -796,7 +796,7 @@ Roles 2–4 are runtime roles visible in the event stream. Roles 1, 5, 6 are dev
 All player decisions are governed by a single unified callable:
 
 ```python
-Callable[[GameState, DecisionPoint], Action]
+Callable[[GameState, DecisionPoint], float | str | bool]
 ```
 
 `DecisionPoint` is an enum covering every moment a player must act:
@@ -810,6 +810,8 @@ class DecisionPoint(Enum):
     DRINK = "drink"  # accept or decline a goodwill drink offer (Chaos Mode)
 ```
 
+Existing PLAY-only strategies (`Callable[[Hand], str]`) remain valid and can be adapted to this interface — the engine wraps them transparently for the `PLAY` decision point.
+
 Return type is discriminated by `DecisionPoint`:
 
 | DecisionPoint | Return type | Values |
@@ -821,6 +823,8 @@ Return type is discriminated by `DecisionPoint`:
 | `DRINK` | `bool` | `True` = accept drink, `False` = decline |
 
 **Design rationale:** A single interface covers all decision points. Simple bots implement `BET` and `PLAY` and return safe defaults for the rest. AI players (PBI-2.2) implement all points with context-aware logic. The FM has its own callable governed by the same interface for `DRINK` and `TIP` decisions (ICE-8 / ICE-21).
+
+**Table selection** is not a `DecisionPoint`. It is FM responsibility (ICE-8) — the FM matches players to tables based on player preferences (min/max bet tolerance, house rules, stakes relative to wallet). Player preferences are player attributes, not callable decision points.
 
 **ICE-7 extension:** The `PLAY` action string set is open-ended. ICE-7 (extended rules bundle) adds `"double"`, `"split"`, `"surrender"`, `"insurance"` to the valid return set. Existing strategies returning only `"hit"` / `"stand"` remain valid — the engine only requests actions available on the current hand.
 
