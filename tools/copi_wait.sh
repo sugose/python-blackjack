@@ -44,6 +44,7 @@ fi
 # Poll until no Copi review is PENDING (with timeout)
 WAIT_COUNT=0
 MAX_WAIT=18
+COMPLETED=false
 while [ "$WAIT_COUNT" -lt "$MAX_WAIT" ]; do
   sleep 10
   WAIT_COUNT=$((WAIT_COUNT + 1))
@@ -53,9 +54,11 @@ while [ "$WAIT_COUNT" -lt "$MAX_WAIT" ]; do
     --jq '[.reviews[] | select(.author.login | test("copilot"; "i")) | select(.state == "PENDING")] | length')
   if [ "$TOTAL" -gt "$BEFORE" ] && [ "$PENDING" -eq 0 ]; then
     echo "Copi review complete."
+    COMPLETED=true
     break
   fi
 done
-if [ "$WAIT_COUNT" -ge "$MAX_WAIT" ]; then
+if [ "$COMPLETED" = false ]; then
   echo "Copi review did not complete within 3 minutes — check GitHub UI."
+  exit 1
 fi
