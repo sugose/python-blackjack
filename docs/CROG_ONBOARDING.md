@@ -46,19 +46,20 @@ python-blackjack is a blackjack simulator. It is a Python-based project that sim
 7. **If Clead requests changes:** implement fixes and push to the same branch. Then:
    a. Re-request Copi review via REST before polling:
       ```
-      curl -L -X POST \
+      gh api \
+        --method POST \
         -H "Accept: application/vnd.github+json" \
-        -H "Authorization: Bearer $(gh auth token)" \
         -H "X-GitHub-Api-Version: 2022-11-28" \
-        https://api.github.com/repos/$(gh repo view --json nameWithOwner -q .nameWithOwner)/pulls/<PR-number>/requested_reviewers \
-        -d '{"reviewers": ["copilot"]}'
+        /repos/$(gh repo view --json nameWithOwner -q .nameWithOwner)/pulls/<PR-number>/requested_reviewers \
+        -f 'reviewers[]=copilot'
       ```
-   b. Output Copi detection status:
-      - If Copi review is detected as started within 60 seconds:
-        → `"Copi review detected — started at <timestamp>. Polling until complete..."`
+   b. Poll for Copi review detection — check every 10 seconds for up to 60 seconds:
+      `gh pr view <PR-number> --json reviews | jq '[.reviews[] | select(.author.login | test("copilot"; "i"))]'`
+      - If a Copi review entry with state `PENDING` is detected:
+        → Output: `"Copi review detected. Polling until complete..."`
       - If no Copi review detected after 60 seconds:
-        → `"No Copi review detected after 60s — please re-request manually via GitHub UI."`
-        Then continue polling in case manual request arrives.
+        → Output: `"No Copi review detected after 60s — please re-request manually via GitHub UI."`
+        Continue polling in case manual request arrives.
    c. Go back to step 3.
 8. **If Clead approves:** Clead produces a verdict comment + merge prompt. Adam pastes it. Post the verdict as a PR comment and merge.
 
