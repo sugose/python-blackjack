@@ -20,7 +20,7 @@
 4. Crog reports PR URL to Adam
 5. Adam drops URL into Clead's chat
 6. Clead fetches PR directly, reads diff + Copi comments + pr_dump
-7. If changes needed: Clead produces fix prompt → Adam pastes → Crog pushes → go to step 3
+7. If changes needed: Clead produces fix prompt → Adam pastes → Crog implements only what the prompt specifies → pushes → runs `copi_wait.sh` → posts pr_dump → reports `?i=N` to Adam → **stops and waits**. Go back to step 5.
 8. If approved: Clead produces verdict + merge prompt → Adam pastes → Crog posts comment and merges
 
 **B — Docs/Tooling PR**
@@ -30,8 +30,10 @@
 4. Crog reports PR URL to Adam
 5. Adam drops URL into Clead's chat
 6. Clead fetches PR directly, reads diff + Copi comments + pr_dump
-7. If Clead requests changes or Copi has open comments: Crog pushes fix → Copi re-review fires automatically on push → go to step 3
+7. If Clead requests changes: Clead produces fix prompt → Adam pastes → Crog implements only what the prompt specifies → pushes → runs `copi_wait.sh` → posts pr_dump → reports `?i=N` to Adam → **stops and waits**. Go back to step 5.
 8. If approved: Clead produces verdict + merge prompt → Adam pastes → Crog posts comment and merges
+
+**Hard stop rule:** After every Copi review iteration, Crog posts the pr_dump, reports back to Adam, and stops. Crog does not read or act on Copi's comments. Crog does not push any fix. Crog waits for Adam to paste Clead's instruction. Clead is the mandatory gate on every iteration for all PR types. No exceptions except Crog's own unambiguous mechanical mistakes before the first Clead review.
 
 ---
 
