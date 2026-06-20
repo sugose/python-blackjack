@@ -41,16 +41,30 @@ if [ "$DETECTED" = false ]; then
   echo "Continuing to poll..."
 fi
 
-# Poll until no Copi review is PENDING
-# Only exit if we know a review exists (BEFORE > 0 or DETECTED=true)
-while true; do
+# Poll until no Copi review is PENDING (with timeout)
+WAIT_COUNT=0
+MAX_WAIT=18
+COMPLETED=false
+while [ "$WAIT_COUNT" -lt "$MAX_WAIT" ]; do
   sleep 10
+  WAIT_COUNT=$((WAIT_COUNT + 1))
   TOTAL=$(gh pr view "$PR" --json reviews \
     --jq '[.reviews[] | select(.author.login | test("copilot"; "i"))] | length')
   PENDING=$(gh pr view "$PR" --json reviews \
     --jq '[.reviews[] | select(.author.login | test("copilot"; "i")) | select(.state == "PENDING")] | length')
-  if [ "$TOTAL" -gt 0 ] && [ "$PENDING" -eq 0 ]; then
+  # If detection succeeded, BEFORE was updated to AFTER — just check PENDING.
+  # If detection failed, require TOTAL > BEFORE to avoid exiting on stale reviews.
+  if [ "$DETECTED" = true ] && [ "$PENDING" -eq 0 ]; then
     echo "Copi review complete."
+    COMPLETED=true
+    break
+  elif [ "$DETECTED" = false ] && [ "$TOTAL" -gt "$BEFORE" ] && [ "$PENDING" -eq 0 ]; then
+    echo "Copi review complete."
+    COMPLETED=true
     break
   fi
 done
+if [ "$COMPLETED" = false ]; then
+  echo "Copi review did not complete within 3 minutes — check GitHub UI."
+  exit 1
+fi
