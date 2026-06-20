@@ -50,7 +50,7 @@ python-blackjack is a blackjack simulator. It is a Python-based project that sim
         -H "Accept: application/vnd.github+json" \
         -H "Authorization: Bearer $(gh auth token)" \
         -H "X-GitHub-Api-Version: 2022-11-28" \
-        https://api.github.com/repos/sugose/python-blackjack/pulls/<PR-number>/requested_reviewers \
+        https://api.github.com/repos/$(gh repo view --json nameWithOwner -q .nameWithOwner)/pulls/<PR-number>/requested_reviewers \
         -d '{"reviewers": ["copilot"]}'
       ```
    b. Output Copi detection status:
@@ -164,7 +164,7 @@ You are not a passive code generator. The standard is a thoughtful senior develo
 4. Lint and format before committing.
 5. Open a PR with a clear description including the test coverage narrative table.
 6. Follow the PR Review Rules above — Copi review is requested via `.github/workflows/request-copilot-review.yml` (request manually via GitHub UI if the review does not start).
-7. Wait for Copi to complete its review, then run `bash tools/pr_dump.sh <PR-number>` (or `--no-src` for docs/tooling PRs) and post the output as a PR comment. Report back to Adam with the PR URL as `?i=1`.
+7. Wait for Copi to complete its review, then run `bash tools/pr_dump.sh <PR-number>` (or `--no-src` for docs/tooling PRs) and post the output as a PR comment. Report back to Adam with the PR URL appended with `?i=1` (increment `i` by 1 on each subsequent re-report of the same PR).
 8. Never merge your own PRs.
 9. Never commit to `main`.
 
