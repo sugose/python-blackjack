@@ -41,12 +41,12 @@ python-blackjack is a blackjack simulator. It is a Python-based project that sim
 3. Poll until Copi review is complete — `gh pr view <PR-number> --json reviews` until Copi's status is not `PENDING`.
 4. After Copi completes, wait 10 seconds for comments to settle, then post the full pr_dump output as a PR comment:
    `gh pr comment <PR-number> --body "$(bash tools/pr_dump.sh <PR-number>)"`
-5. Report back to Adam with the PR URL appended with `?i=N`.
+5. Report back to Adam with the PR URL appended with `?i=1` (increment `i` by 1 on each subsequent re-report of the same PR, e.g. `?i=2`, `?i=3`).
 
-   ☐ Post pr_dump as PR comment
-   ☐ Report PR URL to Adam with `?i=N`
-   ☐ STOP. Do not read or act on Copi's comments.
-   ☐ Wait for Adam to paste Clead's instruction. Do nothing until then.
+   - [ ] Post pr_dump as PR comment
+   - [ ] Report PR URL to Adam with `?i=N`
+   - [ ] STOP. Do not read or act on Copi's comments.
+   - [ ] Wait for Adam to paste Clead's instruction. Do nothing until then.
 
 6. Adam drops the URL into Clead's chat. Clead fetches and reviews. Clead produces either a fix prompt or a verdict.
 7. **If Clead produces a fix prompt:** implement only and exactly what the prompt specifies. Nothing more.
@@ -65,12 +65,12 @@ python-blackjack is a blackjack simulator. It is a Python-based project that sim
 3. Poll until Copi review is complete — `gh pr view <PR-number> --json reviews` until Copi's status is not `PENDING`.
 4. After Copi completes, wait 10 seconds for comments to settle, then post the full pr_dump output as a PR comment:
    `gh pr comment <PR-number> --body "$(bash tools/pr_dump.sh <PR-number> --no-src)"`
-5. Report back to Adam with the PR URL appended with `?i=N`.
+5. Report back to Adam with the PR URL appended with `?i=1` (increment `i` by 1 on each subsequent re-report of the same PR, e.g. `?i=2`, `?i=3`).
 
-   ☐ Post pr_dump as PR comment
-   ☐ Report PR URL to Adam with `?i=N`
-   ☐ STOP. Do not read or act on Copi's comments.
-   ☐ Wait for Adam to paste Clead's instruction. Do nothing until then.
+   - [ ] Post pr_dump as PR comment
+   - [ ] Report PR URL to Adam with `?i=N`
+   - [ ] STOP. Do not read or act on Copi's comments.
+   - [ ] Wait for Adam to paste Clead's instruction. Do nothing until then.
 
 6. Adam drops the URL into Clead's chat. Clead fetches and reviews. Clead produces either a fix prompt or a verdict.
 7. **If Clead produces a fix prompt:** implement only and exactly what the prompt specifies. Nothing more.
