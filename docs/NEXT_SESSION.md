@@ -10,6 +10,7 @@ Items to action at the start of the next session. Clear this file once actioned.
 | 2 | **CHANGELOG** — update with: ICE-2 post-merge Copi findings fix (PR #53), copi_wait.sh fixes (PR #55) |
 | 3 | **`copi_wait.sh` sync to ai-project-template** — PR #55 fixed the completion loop logic in python-blackjack; same fix needs porting to `sugose/ai-project-template` (currently still has `TOTAL > 0` condition) |
 | 4 | **Document post-merge review process** — established this session: when a PR is merged without sufficient Copi iterations, correct remedy is VS Code Copilot full-file review of all changed files, findings fed back to Clead, fix PR opened for any material findings. Add to `docs/TEAM_STRUCTURE.md` under Clead Review Standard. |
+| 5 | **Epic 2 backlog sync to ai-project-template** — Epic 2 items added to python-blackjack backlog and TPS; same additions need porting to `sugose/ai-project-template` for cross-repo consistency. |
 
 ## Pending investigations
 

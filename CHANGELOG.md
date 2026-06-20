@@ -4,6 +4,16 @@ All notable changes to python-blackjack are documented here.
 
 ## [Unreleased]
 
+### Added — Epic 2: The Arena (design)
+
+- Epic 2 — The Arena added to backlog and TPS (Section 12): competitive platform supporting mixed player types (AI, human, deterministic bot, stochastic bot) at the same table
+- PBI-2.1: Pluggable AI provider infrastructure (`AIProvider` protocol, Anthropic/OpenAI/Grok/Ollama/Mock implementations)
+- PBI-2.2: AI player strategy (wraps `AIProvider` in `Callable[[Hand], str]` interface)
+- PBI-2.3: Stochastic strategy support (`WeightedStrategy`, `NoisyDealerStrategy`)
+- PBI-2.4: AI viewer mode (`--ai` flag on `src/viewer.py`)
+- PBI-2.5: Tournament runner (`src/tournament.py`, mixed player types, multi-table)
+- PBI-2.6: Post-match analysis (`--analyse`, `--perspective each`)
+
 ### Added — Backlog housekeeping
 
 - ICE-10–ICE-20 added to icebox: multi-seat play, back-betting, blackjack payout rounding, player identifier, event emission delay, session statistics and summary entities, dealer tipping, voluntary player departure, auto-evict on consecutive sit-outs, PlayerBooted behaviour, SitOut behaviour
