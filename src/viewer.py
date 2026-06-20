@@ -118,7 +118,7 @@ def match_event(event: dict[str, Any], node: tuple) -> bool:
     actual_key = _FIELD_MAP[field]
     raw = event.get(actual_key)
     if raw is None:
-        return False
+        return op == "!="
 
     raw_lower = str(raw).lower()
     value_lower = value.lower()
@@ -255,6 +255,10 @@ def main(argv: list[str] | None = None) -> None:
             sys.exit(2)
         resolved.extend(matches)
 
+    # Deduplicate while preserving order
+    seen: set[str] = set()
+    resolved = [p for p in resolved if not (p in seen or seen.add(p))]
+
     # Read all events from all resolved files
     events: list[dict[str, Any]] = []
     for filepath in resolved:
@@ -265,19 +269,25 @@ def main(argv: list[str] | None = None) -> None:
                     if line:
                         try:
                             events.append(json.loads(line))
-                        except json.JSONDecodeError:
-                            pass  # skip malformed lines silently
+                        except json.JSONDecodeError as exc:
+                            print(
+                                f"Warning: skipping malformed line in {filepath!r}: {exc}",
+                                file=sys.stderr,
+                            )
         except OSError as exc:
             print(f"Error: Cannot read {filepath!r}: {exc}", file=sys.stderr)
             parser.print_help(sys.stderr)
             sys.exit(2)
 
-    # Merge chronologically
+    # Note: all events buffered in memory for chronological sort — large files may be slow.
     events.sort(key=lambda e: e.get("timestamp", ""))
 
     for event in events:
         if filter_node is None or match_event(event, filter_node):
-            print(_event_to_hrf(event))
+            try:
+                print(_event_to_hrf(event))
+            except (KeyError, TypeError) as exc:
+                print(f"Warning: skipping malformed event (missing field: {exc})", file=sys.stderr)
 
 
 if __name__ == "__main__":
