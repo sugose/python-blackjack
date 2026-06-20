@@ -33,7 +33,7 @@
 7. If Clead requests changes: Clead produces fix prompt → Adam pastes → Crog implements only what the prompt specifies → pushes → runs `bash tools/copi_wait.sh <PR-number>` → posts pr_dump → reports `?i=1` to Adam (increment `i` by 1 on each re-report of the same PR) → **stops and waits**. Go back to step 5.
 8. If approved: Clead produces verdict + merge prompt → Adam pastes → Crog posts comment and merges
 
-**Hard stop rule:** After every Copi review iteration, Crog posts the pr_dump, reports back to Adam, and stops. Crog does not read or act on Copi's comments. Crog does not push any fix. Crog waits for Adam to paste Clead's instruction. Clead is the mandatory gate on every iteration for all PR types. No exceptions except Crog's own unambiguous mechanical mistakes before the first Clead review.
+**Hard stop rule:** After every Copi review iteration, Crog posts the pr_dump, reports back to Adam, and stops. Crog does not read or act on Copi's comments. Crog does not push any fix based on Copi's findings. Crog waits for Adam to paste Clead's instruction. Clead is the mandatory gate on every iteration for all PR types. No exceptions except Crog's own unambiguous mechanical mistakes before the first Clead review.
 
 ---
 

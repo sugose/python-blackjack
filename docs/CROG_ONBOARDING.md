@@ -52,7 +52,7 @@ python-blackjack is a blackjack simulator. It is a Python-based project that sim
 7. **If Clead produces a fix prompt:** implement only and exactly what the prompt specifies. Nothing more.
    a. Push the fix to the same branch.
    b. Run `bash tools/copi_wait.sh <PR-number>`.
-   c. Go back to step 3.
+   c. Go back to step 4.
 8. **If Clead approves:** Clead produces a verdict comment + merge prompt. Adam pastes it. Post the verdict as a PR comment and merge.
 
 **Docs/tooling PRs** (only touching `docs/`, `tools/`, config files, `.github/`, root files):
@@ -76,7 +76,7 @@ python-blackjack is a blackjack simulator. It is a Python-based project that sim
 7. **If Clead produces a fix prompt:** implement only and exactly what the prompt specifies. Nothing more.
    a. Push the fix to the same branch.
    b. Run `bash tools/copi_wait.sh <PR-number>`.
-   c. Go back to step 3.
+   c. Go back to step 4.
 8. **If Clead approves:** Clead produces a verdict comment + merge prompt. Adam pastes it. Post the verdict as a PR comment and merge.
 
 ### Copi Finding Scope — Hard Stop Rule
