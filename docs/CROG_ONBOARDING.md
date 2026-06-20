@@ -44,27 +44,8 @@ python-blackjack is a blackjack simulator. It is a Python-based project that sim
 5. Report back to Adam with the PR URL appended with `?i=1` (increment `i` by 1 on each subsequent re-report of the same PR, e.g. `?i=2`, `?i=3`).
 6. Adam drops the URL into Clead's chat. Clead fetches and reviews.
 7. **If Clead requests changes:** implement fixes and push to the same branch. Then:
-   a. Re-request Copi review via REST before polling:
-      ```
-      REPO=$(gh repo view --json nameWithOwner -q .nameWithOwner)
-      gh api \
-        --method POST \
-        -H "Accept: application/vnd.github+json" \
-        -H "X-GitHub-Api-Version: 2022-11-28" \
-        "repos/$REPO/pulls/<PR-number>/requested_reviewers" \
-        -f 'reviewers[]=copilot'
-      ```
-   b. Poll for Copi review detection — check every 10 seconds for up to 60 seconds:
-      `gh pr view <PR-number> --json reviews | jq '[.reviews[] | select(.author.login | test("copilot"; "i"))]'`
-      - If the output is a non-empty array AND any entry has `state == "PENDING"`: Copi review in progress.
-        → Output: `"Copi review detected. Polling until complete..."`
-        Continue polling until no entry has `state == "PENDING"`.
-      - If the output is a non-empty array AND no entry has `state == "PENDING"`: Copi review already complete.
-        → Proceed to step 4.
-      - If output is empty after 60 seconds: no Copi review detected.
-        → Output: `"No Copi review detected after 60s — please re-request manually via GitHub UI."`
-        Continue polling in case manual request arrives.
-   c. Go back to step 3.
+   a. Run `bash tools/copi_wait.sh <PR-number>` — this re-requests Copi review, reports detection status, and polls until complete.
+   b. Go back to step 3.
 8. **If Clead approves:** Clead produces a verdict comment + merge prompt. Adam pastes it. Post the verdict as a PR comment and merge.
 
 **Docs/tooling PRs** (only touching `docs/`, `tools/`, config files, `.github/`, root files):
@@ -79,7 +60,9 @@ python-blackjack is a blackjack simulator. It is a Python-based project that sim
    `gh pr comment <PR-number> --body "$(bash tools/pr_dump.sh <PR-number> --no-src)"`
 5. Report back to Adam with the PR URL appended with `?i=1` (increment `i` by 1 on each subsequent re-report of the same PR, e.g. `?i=2`, `?i=3`).
 6. Adam drops the URL into Clead's chat. Clead fetches and reviews.
-7. **If Clead requests changes or Copi has open comments:** implement fixes and push to the same branch. Re-request Copi review via REST (same as Code PRs step 7a), output Copi detection status (same as step 7b), then go back to step 3.
+7. **If Clead requests changes or Copi has open comments:** implement fixes and push to the same branch. Then:
+   a. Run `bash tools/copi_wait.sh <PR-number>` — this re-requests Copi review, reports detection status, and polls until complete.
+   b. Go back to step 3.
 8. **If Clead approves:** Clead produces a verdict comment + merge prompt. Adam pastes it. Post the verdict as a PR comment and merge.
 
 ### PR Description Requirements
