@@ -52,7 +52,13 @@ while [ "$WAIT_COUNT" -lt "$MAX_WAIT" ]; do
     --jq '[.reviews[] | select(.author.login | test("copilot"; "i"))] | length')
   PENDING=$(gh pr view "$PR" --json reviews \
     --jq '[.reviews[] | select(.author.login | test("copilot"; "i")) | select(.state == "PENDING")] | length')
-  if [ "$TOTAL" -gt "$BEFORE" ] && [ "$PENDING" -eq 0 ]; then
+  # If detection succeeded, BEFORE was updated to AFTER — just check PENDING.
+  # If detection failed, require TOTAL > BEFORE to avoid exiting on stale reviews.
+  if [ "$DETECTED" = true ] && [ "$PENDING" -eq 0 ]; then
+    echo "Copi review complete."
+    COMPLETED=true
+    break
+  elif [ "$DETECTED" = false ] && [ "$TOTAL" -gt "$BEFORE" ] && [ "$PENDING" -eq 0 ]; then
     echo "Copi review complete."
     COMPLETED=true
     break
