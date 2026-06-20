@@ -6,12 +6,14 @@ Items to action at the start of the next session. Clear this file once actioned.
 
 | # | Item |
 |---|---|
-| 1 | **Copi review of ICE-2** — ICE-2 merged without full Copi review due to process gap; create a trivial fix PR touching `src/` (e.g. a minor docstring or comment improvement in `src/viewer.py`) to give Copi a proper pass at the implementation |
-| 2 | **Template repo sync** — mirror all doc and tooling changes from this session to `sugose/ai-project-template`: `CROG_ONBOARDING.md`, `TEAM_STRUCTURE.md`, `tools/copi_wait.sh`, and enable `review_on_push` ruleset if not already set |
+| 1 | **ICE-2 viewer test gaps** — follow-up PR to close 4 missing test paths identified in Crog's post-merge review: (a) `eventId` UUID suffix match, (b) `~=` on absent field returns False, (c) `actor!=player` and `actor!=dealer` abstract semantics, (d) non-dict JSON line warning path (e.g. `[1,2,3]`) |
+| 2 | **CHANGELOG** — update with ICE-2 post-merge Copi findings fix (PR #53) |
+| 3 | **Template repo sync** — mirror PR #53 viewer fixes to `sugose/ai-project-template` if applicable (likely not — viewer is project-specific) |
 
 ## Pending investigations
 
 | # | Item |
 |---|---|
-| 1 | **Copi re-review on push not firing reliably** — GitHub ruleset has `review_on_push: true` confirmed enabled. Despite this, Copi does not automatically re-review on subsequent pushes. Root cause unknown. `copi_wait.sh` now handles re-request and polling as the workaround. Investigate via Chrome DevTools: capture the exact request made when manually clicking "Re-request review" to see if a different endpoint is used. |
-| 2 | **Fetch caching on multi-iteration PRs** — `web_fetch` returns cached content on repeated fetches of the same URL; workaround is `?i=N` query string cache-busting. Investigate whether there is a more reliable solution. |
+| 1 | **Copi re-review on push not firing reliably** — `review_on_push: true` confirmed enabled. Despite correct config, Copi does not automatically re-review on subsequent pushes. `copi_wait.sh` is the workaround. Investigate via Chrome DevTools: capture the exact request made when manually clicking "Re-request review". |
+| 2 | **Fetch caching on multi-iteration PRs** — `web_fetch` returns cached content on repeated fetches of the same URL; workaround is `?i=N` query string cache-busting. |
+| 3 | **`~=` on absent field semantics** — currently returns False (field absent = no match). Not documented in TPS Section 11. Clarify and document before PBI-1.6. |
