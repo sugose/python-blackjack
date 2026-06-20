@@ -77,3 +77,4 @@ if [ "$COMPLETED" = false ]; then
   echo "Copi review did not complete within 3 minutes — check GitHub UI."
   exit 1
 fi
+# smoke-test-3 commit 1
