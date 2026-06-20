@@ -92,6 +92,19 @@ The only exception: a mechanical mistake that is unambiguously Crog's own (e.g. 
 
 **Why this matters:** Copi findings often look like simple wording fixes but are design decisions in disguise. Crog acting on them autonomously creates spec drift without architectural sign-off. On PR #58, Crog and Copi bounced through 7 iterations without Clead involvement — resulting in an incorrect spec change that required a Clead-directed revert. Clead must gate every iteration.
 
+### Console Summary Rule
+
+Post a brief console summary as a **separate PR comment** if any of the following apply. For standard PRs, post it after the pr_dump comment. For diagnostic tasks with no PR diff, it replaces the pr_dump comment:
+
+- A script or tool was executed (not just file edits)
+- A command returned a non-zero exit code or unexpected output
+- It is a diagnostic task with no PR diff to review
+- An unexpected condition arose worth flagging to Clead
+
+Keep it brief — 3–5 lines max. Clead reads it via the PR URL fetch, so it must appear as a PR comment to be visible.
+
+For pure docs/code PRs where only file edits were made and nothing was executed, no console comment is needed.
+
 ### PR Description Requirements
 
 Every PR that contains code changes (`src/`) must include a **test coverage narrative table** in the PR description:
