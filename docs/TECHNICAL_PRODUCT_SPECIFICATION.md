@@ -604,6 +604,8 @@ A SQL-like expression string passed as the value of `--filter`.
 
 `playerId` is reserved as a future filter field (ICE-13) and not implemented in v1.
 
+`schemaVersion` is reserved as a filterable field (PBI-1.6) and not implemented in v1.
+
 **Matching rules:**
 
 - Field names are case-insensitive — `Actor`, `actor`, `ACTOR` all work
