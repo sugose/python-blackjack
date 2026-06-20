@@ -25,11 +25,11 @@
 
 **B — Docs/Tooling PR**
 1. Crog opens PR from `docs/<name>` or `tooling/<name>` to `main`
-2. Skip Copi
-3. Crog posts pr_dump as PR comment
+2. Copi reviews automatically
+3. Crog polls until Copi completes, waits 10s, posts pr_dump as PR comment
 4. Crog reports PR URL to Adam
 5. Adam drops URL into Clead's chat
-6. Clead fetches PR directly, reads diff + pr_dump
+6. Clead fetches PR directly, reads diff + Copi comments + pr_dump
 7. Clead produces verdict + merge prompt → Adam pastes → Crog posts comment and merges
 
 ---
@@ -71,7 +71,7 @@ These requirements exist because Clead reviews from the diff only (not the full 
 Clead's verdict is delivered as a single Crog prompt with no preamble or chat commentary. The review summary goes into the PR comment via Crog — not into the chat. The prompt block must be the only content in Clead's post so Adam can copy-paste it directly.
 
 **7. Copi review gate**
-Clead's verdict prompt includes a merge instruction if and only if Copi has completed its review and has no further comments. If Copi has not yet reviewed, or has open comments requiring resolution, the verdict prompt must not include a merge instruction. The merge prompt is issued separately once Copi is satisfied.
+Clead's verdict prompt includes a merge instruction if and only if Copi has completed its review and has no open comments requiring resolution. If Copi has not yet reviewed, or has open comments, the verdict prompt must not include a merge instruction — the merge prompt is issued separately once Copi is satisfied.
 
 ---
 
@@ -91,7 +91,7 @@ Clead's verdict prompt includes a merge instruction if and only if Copi has comp
 
 1. Adam picks the next PBI from `docs/PRODUCT_BACKLOG.md`.
 2. Adam pastes the Crog task prompt into Claude Code.
-3. Crog implements, opens a PR, requests Copi review (code PRs only), waits for Copi to complete, runs `pr_dump.sh`, and reports back.
+3. Crog implements, opens a PR, waits for Copi to complete its review, runs `pr_dump.sh`, and reports back.
 4. Adam drops the PR URL into Clead's chat. Clead fetches and reviews directly from GitHub.
 5. Adam pastes Clead's verdict prompt. Crog posts verdict comment and merges.
 6. Adam updates `CHANGELOG.md` and moves to the next PBI.

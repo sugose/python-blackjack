@@ -33,7 +33,11 @@ python-blackjack is a blackjack simulator. It is a Python-based project that sim
 
 **Code PRs** (any PR touching files under `src/`):
 1. Open the PR
-2. Wait for Copi to complete its review before running pr_dump.sh. If Copi has open comments, flag them to Clead — do not merge until Copi has no further comments and Clead has issued a merge instruction.
+2. Copi review is requested automatically by the workflow on PR open.
+   Wait for Copi to complete its review before running `pr_dump.sh`.
+   If Copi has open comments requiring resolution, flag them to Clead —
+   do not merge until Copi has no open comments requiring resolution
+   and Clead has issued a merge instruction.
 3. Poll until Copi review is complete — `gh pr view <PR-number> --json reviews` until Copi's status is not `PENDING`. Then wait 10 seconds for Copi's comments to settle.
 4. Post the full pr_dump output as a PR comment: `gh pr comment <PR-number> --body "$(bash tools/pr_dump.sh <PR-number>)"`
 5. Report back to Adam with the PR URL only.
@@ -43,7 +47,7 @@ python-blackjack is a blackjack simulator. It is a Python-based project that sim
 
 **Docs/tooling PRs** (only touching `docs/`, `tools/`, config files, `.github/`, root files):
 1. Open the PR
-2. Skip Copi — this is not a code review.
+2. Copi reviews automatically. Wait for Copi to complete its review before running `pr_dump.sh`. If Copi has open comments requiring resolution, flag them to Clead — do not merge until Copi has no open comments requiring resolution and Clead has issued a merge instruction.
 3. Post the full pr_dump output as a PR comment: `gh pr comment <PR-number> --body "$(bash tools/pr_dump.sh <PR-number> --no-src)"`
 4. Report back to Adam with the PR URL only.
 5. Adam drops the URL into Clead's chat. Clead fetches and reviews.
