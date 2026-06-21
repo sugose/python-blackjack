@@ -18,7 +18,7 @@ from uuid import uuid4
 import pytest
 
 from src.cards import Deck
-from src.game import play_hand, play_hand_standalone, play_session
+from src.game import _emit_wallet, play_hand, play_hand_standalone, play_session
 from src.hand import Hand
 from src.player import Player
 
@@ -652,3 +652,24 @@ def test_play_session_low_cut_card_does_not_crash(
     # With cut_card=1, the reshuffle guard (max(cut_card, 4)) must prevent
     # deal_initial() from being called with fewer than 4 cards.
     play_session(p, max_hands=20, cut_card=1, seed=0)
+
+
+# ---------------------------------------------------------------------------
+# _emit_wallet() — regression guard for TD-1
+# ---------------------------------------------------------------------------
+
+
+def test_wallet_empty_fires_when_wallet_just_below_zero(
+    tmp_path: Path, caplog: pytest.LogCaptureFixture
+) -> None:
+    """WalletEmpty is emitted when wallet drops just below zero (float rounding edge case).
+
+    Regression guard for TD-1: _emit_wallet check must be <= 0.0, not == 0.0.
+    """
+    p = Player(name="Alice", strategy=_stand_strategy)
+    p.wallet = -0.000000001  # just below zero — simulates float rounding
+    sid = str(uuid4())
+    sf = tmp_path / "test.jsonl"
+    with caplog.at_level(logging.INFO, logger="blackjack"):
+        _emit_wallet(p, sid, "hand-id", sf)
+    assert "[WalletEmpty]" in caplog.text
