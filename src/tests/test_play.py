@@ -35,7 +35,7 @@ def test_main_runs_with_valid_args(_patch_session):
 
 
 def test_invalid_deck_count_exits(monkeypatch, capsys):
-    """Invalid deck count exits cleanly with sys.exit(1) and error message."""
+    """Invalid deck count exits cleanly with sys.exit(1) and error message on stderr."""
     with patch.object(sys, "argv", ["src.play", "--decks", "3"]):
         with pytest.raises(SystemExit) as exc_info:
             from src.play import main
@@ -43,8 +43,47 @@ def test_invalid_deck_count_exits(monkeypatch, capsys):
             main()
     assert exc_info.value.code == 1
     captured = capsys.readouterr()
-    assert "Error" in captured.out
-    assert "3" in captured.out
+    assert "Error" in captured.err
+    assert "3" in captured.err
+
+
+def test_invalid_hands_exits(capsys):
+    """--hands 0 exits with sys.exit(1) and error message on stderr."""
+    with patch.object(sys, "argv", ["src.play", "--hands", "0"]):
+        with pytest.raises(SystemExit) as exc_info:
+            from src.play import main
+
+            main()
+    assert exc_info.value.code == 1
+    captured = capsys.readouterr()
+    assert "Error" in captured.err
+    assert "0" in captured.err
+
+
+def test_invalid_bet_exits(capsys):
+    """--bet 0 exits with sys.exit(1) and error message on stderr."""
+    with patch.object(sys, "argv", ["src.play", "--bet", "0"]):
+        with pytest.raises(SystemExit) as exc_info:
+            from src.play import main
+
+            main()
+    assert exc_info.value.code == 1
+    captured = capsys.readouterr()
+    assert "Error" in captured.err
+    assert "0" in captured.err
+
+
+def test_negative_bet_exits(capsys):
+    """--bet -5 exits with sys.exit(1) and error message on stderr."""
+    with patch.object(sys, "argv", ["src.play", "--bet", "-5"]):
+        with pytest.raises(SystemExit) as exc_info:
+            from src.play import main
+
+            main()
+    assert exc_info.value.code == 1
+    captured = capsys.readouterr()
+    assert "Error" in captured.err
+    assert "-5" in captured.err
 
 
 def test_default_args(_patch_session):

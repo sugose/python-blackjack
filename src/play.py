@@ -34,7 +34,18 @@ def main() -> None:
     args = parse_args()
 
     if args.decks not in VALID_DECK_COUNTS:
-        print(f"Error: --decks must be one of {sorted(VALID_DECK_COUNTS)}, got {args.decks}")
+        print(
+            f"Error: --decks must be one of {sorted(VALID_DECK_COUNTS)}, got {args.decks}",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    if args.hands < 1:
+        print(f"Error: --hands must be at least 1, got {args.hands}", file=sys.stderr)
+        sys.exit(1)
+
+    if args.bet <= 0:
+        print(f"Error: --bet must be greater than 0, got {args.bet}", file=sys.stderr)
         sys.exit(1)
 
     player = Player(name=args.name, strategy=human_strategy, wallet=args.wallet)
