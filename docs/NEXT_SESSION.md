@@ -9,6 +9,9 @@
 - New events: PlayerQueued, PlayerRejected
 - Goodwill credit: FM distributes on rejection
 
+## In Progress
+- PR #91 play launcher: adding --hands/--bet validation and stderr for error output (i=2 docs touch for Copi re-review experiment)
+
 ## Process notes
 - Copi first invocation: automatic via ruleset ("Copilot review for default branch") on all PRs.
 - Copi re-review (src PRs): always manual — Adam clicks "Re-request review" in GitHub UI.
