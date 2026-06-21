@@ -10,24 +10,22 @@
 - Goodwill credit: FM distributes on rejection
 
 ## Process notes
-- `request-copilot-review.yml` scoped to `src/**` — Copi will not auto-invoke on docs/tooling PRs.
-- GitHub ruleset "Copilot review for default branch" disabled on all three repos (python-blackjack, ai-project-template, fomo-f) — workflow is sole Copi trigger.
-- `pr_dump.sh` output is wrapped in a fenced code block — inline comment bodies render correctly when Clead fetches a PR.
-- Copi re-review known limitation: no public API can re-trigger Copi after first review. After pushing a fix, run `bash tools/copi_wait.sh <PR-number>`. If timeout: click "Re-request review" in GitHub UI, then run again.
-- Console summary rule: Crog posts 3–5 line summary as separate PR comment when scripts run, non-zero exit, or diagnostic task.
-- Hard stop rule: after posting pr_dump, Crog stops. Wait for Adam to paste Clead's instruction before acting on any Copi finding.
-- `python -m tools.<script>` is the correct invocation for scripts in `tools/` (direct `python tools/...` fails without PYTHONPATH).
+- Copi first invocation: automatic via ruleset ("Copilot review for default branch") on all PRs.
+- Copi re-review (src PRs): always manual — Adam clicks "Re-request review" in GitHub UI.
+- Copi re-review (non-src PRs): not expected by default; only if Clead explicitly instructs.
+- `pr_dump.sh` output is wrapped in a fenced code block.
+- Hard stop rule: after posting pr_dump, Crog stops. Wait for Adam to paste Clead's instruction.
+- `python -m tools.<script>` is the correct invocation for scripts in `tools/`.
 - `HouseRules.multiSeatAllowed` is docs-only — add to `src/table.py` when ICE-3 is next touched.
+- No Copi credits: skip `copi_wait.sh`, post pr_dump, state "Copi credits exhausted" in report.
 
 ## Backlog (next up)
-- PBI-1.6 — `schemaVersion` field on `GameEvent`
-- ICE-3 — Multiplayer (fully specced, `session.py` and `table.py` exist, ready to implement)
+- ICE-3 — Multiplayer (fully specced TPS Section 10, `src/session.py` and `src/table.py` exist, ready to implement) ← **next**
 - T-2 — CI validator for eventType consistency
-- TD-1 — `play_hand()` wallet check `== 0.0` should be `<= 0.0`
 
 ## PRs merged last session
-#71 — Copi gate rule formalised (docs/tooling PRs skip Copi)
-#72 — request-copilot-review.yml scoped to src/** only
-#73 — pr_dump.sh output wrapped in fenced code block
-#74 — NEXT_SESSION.md updated (session close)
-#75 — NEXT_SESSION.md trimmed (Chaos Mode/intoxication deferred)
+#77 — TD-1: `_emit_wallet` wallet check `== 0.0` → `<= 0.0`
+#78 — tooling: revert Copi review workflow to gh CLI
+#79 — PBI-1.6: schemaVersion field on GameEvent
+#80 — tooling: add --repo flag and || true to Copi review workflow
+#81 — docs: CROG_ONBOARDING Copi flow update
