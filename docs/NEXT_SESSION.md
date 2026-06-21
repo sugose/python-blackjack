@@ -2,31 +2,14 @@
 
 ## Active pins (re-pin at session start)
 
-**Pin A — Table queue & intoxication model (ICE-3 design)**
+**Pin A — Table queue (ICE-3 design)**
 - Players arriving mid-hand go into table queue (FIFO)
 - Before each hand: seating procedure processes queue; full table → PlayerRejected
 - Rejected players pushed back to FM hall queue (VIP queue if player.vip = True)
 - New events: PlayerQueued, PlayerRejected
-- Goodwill credit: FM distributes on rejection; amount/threshold lowers as FM intoxication rises
-- Three-axis intoxication model per actor:
-  - Player: erratic decisions (DecisionPoint.PLAY error rate), tips more/larger/biased toward drinks
-  - FM: mutates HouseRules/ChaosRules, goodwill credit threshold/amount lowers
-  - Dealer: mutates HouseRules/ChaosRules
-- Feedback loop: FM drinks → more goodwill drinks to players → players tip FM drinks → FM more intoxicated → rules change + more generous → repeat
-- `player.levelOfIntoxication` → strategy error rate
-- `fm.levelOfIntoxication` / `dealer.levelOfIntoxication` → HouseRules/ChaosRules mutation + generosity axis
+- Goodwill credit: FM distributes on rejection
 
-**Pin B — ICE-21: Chaos Mode (icebox — low priority)**
-- `ChaosRules` dataclass on `Table`
-- `bustThreshold: int = 26` — FM raises bust limit
-- `dual_value_cards: dict[str, tuple[int, int]]` — FM-designated arbitrary dual values (e.g. `{"5": (5, -5)}`, `{"7H": (7, 17)}`). Values are arbitrary per FM proclamation, NOT derived from ace formula. Negative values allowed.
-- New events: `FMDeclaredRule`, `DealerImprovisedRule`, `FMTookOverTable`, `RulesViolation`, `CasinoShutdown`
-- Implementation: two primitives — card value override lookup + bust threshold check
-- ICE-21 v1: table-level `ChaosRules` only
-- ICE-21 v2: player-level override with inheritance from table (same pattern as HouseRules)
-- FM/player intoxication cascade feeds into Chaos Mode
-
-**Pin C — Cross-repo sync (ai-project-template + fomo-f)**
+**Pin B — Cross-repo sync (ai-project-template + fomo-f)**
 - Port to `ai-project-template`: process changes from PRs #71, #72, #73 (Copi gate rule, src/-only workflow trigger, pr_dump fenced code block), plus any earlier items not yet synced (PR flow hard stop rule, copi_wait.sh known limitation, console summary rule, Epic 2 backlog structure)
 - Check `fomo-f` for consistency
 - Depends on main being clean ✅
