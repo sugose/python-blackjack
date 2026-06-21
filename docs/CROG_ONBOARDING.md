@@ -105,7 +105,11 @@ For pure docs/code PRs where only file edits were made and nothing was executed,
 Copi is requested automatically via the GitHub ruleset ("Copilot review for default branch") on every PR open — src and non-src alike. No manual action needed. Run `bash tools/copi_wait.sh <PR-number>` and wait for completion before posting pr_dump.
 
 ### Re-review (src PRs)
-After pushing a fix to a src PR, re-review is always expected. Tell Adam explicitly: "Please click 'Re-request review' on Copilot in the GitHub UI for PR #<N>, then I will run `bash tools/copi_wait.sh <N>`." Wait for Adam to confirm before running.
+After pushing a fix to a src PR, Copi re-review is triggered automatically via the `synchronize` workflow trigger — no manual action needed. Run `bash tools/copi_wait.sh <PR-number>` and wait for completion before posting pr_dump.
+
+If `copi_wait.sh` times out without detecting a review, Copi may still be running. Wait a few minutes and check the PR in the GitHub UI before concluding review failed.
+
+Note: manual "Re-request review" via the GitHub UI is no longer required for src re-reviews.
 
 ### Re-review (non-src PRs)
 Not expected by default. Only request re-review if Clead explicitly instructs it in the verdict prompt. If Clead does instruct it, tell Adam to manually invoke, then run `bash tools/copi_wait.sh <N>`.
@@ -119,7 +123,7 @@ If Copi credits are exhausted, skip `copi_wait.sh` entirely. Post pr_dump and re
 ### Every Copi wait
 Always state clearly what Adam needs to do before running `copi_wait.sh`:
 - First invocation: "No action needed — waiting for Copi to complete."
-- Re-review: "Please click 'Re-request review' on Copilot in the GitHub UI for PR #<N>, then I will run `bash tools/copi_wait.sh <N>`."
+- Re-review (src PRs): "No action needed — Copi re-review is triggered automatically. Running `bash tools/copi_wait.sh <N>`."
 
 ### Changed file URLs in all PR reports
 Regardless of Copi status, every PR report to Adam must include the PR URL and a list of changed file URLs:
