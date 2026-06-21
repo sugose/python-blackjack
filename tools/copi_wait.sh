@@ -24,7 +24,7 @@ fi
 # Poll for new Copi review (count increase means new review started)
 echo "Polling for Copi review detection..."
 DETECTED=false
-for i in $(seq 1 6); do
+for i in $(seq 1 12); do
   sleep 10
   AFTER=$(gh pr view "$PR" --json reviews \
     --jq '[.reviews[] | select(.author.login | test("copilot"; "i"))] | length')
@@ -37,13 +37,13 @@ for i in $(seq 1 6); do
 done
 
 if [ "$DETECTED" = false ]; then
-  echo "No Copi review detected after 60s — please re-request manually via GitHub UI."
+  echo "No Copi review detected after 120s — please re-request manually via GitHub UI."
   echo "Continuing to poll..."
 fi
 
 # Poll until no Copi review is PENDING (with timeout)
 WAIT_COUNT=0
-MAX_WAIT=18
+MAX_WAIT=36
 COMPLETED=false
 while [ "$WAIT_COUNT" -lt "$MAX_WAIT" ]; do
   sleep 10
