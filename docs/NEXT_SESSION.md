@@ -10,7 +10,6 @@
 - Goodwill credit: FM distributes on rejection
 
 ## Process notes
-- Copi review applies to code PRs (`src/`) only. Docs/tooling PRs skip Copi and go straight to Clead.
 - `request-copilot-review.yml` scoped to `src/**` — Copi will not auto-invoke on docs/tooling PRs.
 - GitHub ruleset "Copilot review for default branch" disabled on all three repos (python-blackjack, ai-project-template, fomo-f) — workflow is sole Copi trigger.
 - `pr_dump.sh` output is wrapped in a fenced code block — inline comment bodies render correctly when Clead fetches a PR.

@@ -18,7 +18,7 @@ from uuid import uuid4
 import pytest
 
 from src.cards import Deck
-from src.game import play_hand, play_hand_standalone, play_session
+from src.game import _emit_wallet, play_hand, play_hand_standalone, play_session
 from src.hand import Hand
 from src.player import Player
 
@@ -666,10 +666,6 @@ def test_wallet_empty_fires_when_wallet_just_below_zero(
 
     Regression guard for TD-1: _emit_wallet check must be <= 0.0, not == 0.0.
     """
-    from uuid import uuid4
-
-    from src.game import _emit_wallet
-
     p = Player(name="Alice", strategy=_stand_strategy)
     p.wallet = -0.000000001  # just below zero — simulates float rounding
     sid = str(uuid4())
