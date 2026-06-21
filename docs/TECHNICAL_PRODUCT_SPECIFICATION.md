@@ -783,7 +783,7 @@ The following table orients the six AI roles active across the python-blackjack 
 | 1 | Developer | Clead / Crog | Development | Architecture, implementation |
 | 2 | Player strategy | Player callable | Runtime — game execution | Bet, play, quit, tip, drink |
 | 3 | Analyst | Viewer AI (PBI-2.4) | Post-session | Interpretation, reporting |
-| 4 | Operator | FM verbal (ICE-9) | Runtime — pre-game | Table assignment, player flow |
+| 4 | Operator | FM (ICE-8) / FM UI (ICE-9) | Runtime — pre-game | Table assignment, player flow |
 | 5 | Infrastructure | `AIProvider` protocol | Dev → Runtime | LLM invocation, context management |
 | 6 | Code Reviewer | Copi | Development | Code quality, spec compliance |
 
