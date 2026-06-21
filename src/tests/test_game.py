@@ -673,3 +673,17 @@ def test_wallet_empty_fires_when_wallet_just_below_zero(
     with caplog.at_level(logging.INFO, logger="blackjack"):
         _emit_wallet(p, sid, "hand-id", sf)
     assert "[WalletEmpty]" in caplog.text
+
+
+def test_two_arg_strategy_works_in_play_hand(tmp_path: Path) -> None:
+    """Two-arg strategy (hand, upcard) works in play_hand() via adapt()."""
+    received_upcards: list = []
+
+    def two_arg_strategy(_hand: Hand, upcard) -> str:
+        received_upcards.append(upcard)
+        return "stand"
+
+    p = Player(name="Alice", strategy=two_arg_strategy)
+    sid, sf, deck = _ctx(tmp_path, seed=2)
+    play_hand(p, sid, sf, deck)
+    assert len(received_upcards) >= 1

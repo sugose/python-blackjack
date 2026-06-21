@@ -9,6 +9,7 @@ from src.deal import deal_initial
 from src.dealer import Dealer
 from src.logger import GameEvent, emit_event
 from src.player import Player
+from src.strategy import adapt
 
 
 def _emit_wallet(player: Player, session_id: str, hand_id: str, session_file: Path) -> None:
@@ -224,8 +225,9 @@ def play_hand(player: Player, session_id: str, session_file: Path, deck: Deck) -
         _emit_wallet(player, session_id, hand_id, session_file)
         return
 
+    adapted_strategy = adapt(player.strategy)
     while not player_hand.is_bust:
-        action = player.strategy(player_hand)
+        action = adapted_strategy(player_hand, dealer_hand.cards[0])
         if action not in ("hit", "stand"):
             raise ValueError(f"Unknown strategy action: {action!r}. Must be 'hit' or 'stand'.")
         if action == "stand":
