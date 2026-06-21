@@ -18,7 +18,7 @@
 | PBI-1.3 | Structured logger — `GameEvent` dataclass, `emit_event()` JSONL + HRF output, refactor `play_hand()` to carry session/hand context | ✅ Done (PR #12) |
 | PBI-1.4 | Game session loop — multi-hand session with shared deck, cut-card reshuffle policy, session open/close logging, wallet termination | ✅ Done (PR #12) |
 | PBI-1.5 | Event model refactor — PascalCase eventTypes, session-bound JSONL filename, HRF tag alignment | ✅ Done (PR #17) |
-| PBI-1.6 | Event schema versioning — add `schemaVersion: str` field to `GameEvent` dataclass; value sourced from a `SCHEMA_VERSION` constant (e.g. `"1.0"`); included in every JSONL event envelope; bumped independently of code version when the event envelope or any eventType's `data` payload changes. `schemaVersion` added as a filterable field in the JSONL viewer (ICE-2 follow-up). | Not started |
+| PBI-1.6 | Event schema versioning — add `schemaVersion: str` field to `GameEvent` dataclass; value sourced from a `SCHEMA_VERSION` constant (e.g. `"1.0"`); included in every JSONL event envelope; bumped independently of code version when the event envelope or any eventType's `data` payload changes. `schemaVersion` added as a filterable field in the JSONL viewer (ICE-2 follow-up). | ✅ Done (PR #79) |
 
 ---
 
@@ -66,7 +66,7 @@ The Arena transforms python-blackjack from a single-player simulator into a comp
 
 | ID | Description |
 |---|---|
-| TD-1 | `play_hand()` in `src/game.py` uses `player.wallet == 0.0` for the `WalletEmpty` check (in `_emit_wallet()`). This should be `<= 0.0` to handle float rounding edge cases where the wallet lands just below zero. Out of scope for ICE-3 — fix when touching `game.py` next. |
+| TD-1 | `play_hand()` in `src/game.py` uses `player.wallet == 0.0` for the `WalletEmpty` check (in `_emit_wallet()`). This should be `<= 0.0` to handle float rounding edge cases where the wallet lands just below zero. Out of scope for ICE-3 — fix when touching `game.py` next. — ✅ Fixed (PR #77) |
 
 ## Tooling
 
