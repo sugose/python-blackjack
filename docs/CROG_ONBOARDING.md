@@ -121,12 +121,8 @@ Always state clearly what Adam needs to do before running `copi_wait.sh`:
 - First invocation: "No action needed — waiting for Copi to complete."
 - Re-review: "Please click 'Re-request review' on Copilot in the GitHub UI for PR #<N>, then I will run `bash tools/copi_wait.sh <N>`."
 
-### Copi suspended mode
-When Adam announces "Copi suspended", the following rules apply for all PRs until Adam announces resumption:
-
-- Do NOT run `bash tools/copi_wait.sh` at any point.
-- Do NOT request Copi review.
-- After opening a PR and posting pr_dump as a PR comment, report back to Adam with:
+### Changed file URLs in all PR reports
+Regardless of Copi status, every PR report to Adam must include the PR URL and a list of changed file URLs:
 
 ```
 PR URL: https://github.com/<owner>/<repo>/pull/<N>?i=1
@@ -136,8 +132,13 @@ https://github.com/<owner>/<repo>/blob/main/<file1>?pr=<N>&i=1
 https://github.com/<owner>/<repo>/blob/main/<file2>?pr=<N>&i=1
 ```
 
-- Increment `i` on each re-report of the same PR (same as normal flow).
-- Append `?pr=<N>&i=<iteration>` to every changed file URL to prevent caching.
+Append `?pr=<N>&i=<iteration>` to every changed file URL to prevent caching. Increment `i` on each re-report of the same PR.
+
+### Copi suspended mode
+When Adam announces "Copi suspended", the following rules apply for all PRs until Adam announces resumption:
+
+- Do NOT run `bash tools/copi_wait.sh` at any point.
+- Do NOT request Copi review.
 - Clead reviews with full file context in place of Copi. The Clead/Crog fix loop continues as normal until Clead approves.
 - On resumption, revert to the standard Copi flow immediately.
 

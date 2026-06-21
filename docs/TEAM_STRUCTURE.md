@@ -41,7 +41,7 @@ When Adam announces "Copi suspended", all PR reviews run without Copi until Adam
 
 **Crog behaviour:**
 - Skip `copi_wait.sh` and Copi review request entirely.
-- After opening PR and posting pr_dump, report PR URL (`?i=1`) plus each changed file URL (`?pr=<N>&i=1`) to Adam.
+- After opening PR and posting pr_dump, report PR URL and changed file URLs to Adam (file URL reporting applies to all PR reports — see `docs/CROG_ONBOARDING.md`).
 - Clead reviews with full file context as sole reviewer.
 - Fix loop continues as normal (Clead ↔ Crog) until Clead approves.
 
