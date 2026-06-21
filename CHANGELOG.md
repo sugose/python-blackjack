@@ -4,6 +4,9 @@ All notable changes to python-blackjack are documented here.
 
 ## [Unreleased]
 
+### Changed — pr_dump.sh: output wrapped in fenced code block so inline comment bodies render correctly in GitHub PR comments
+
+
 ### Changed — request-copilot-review.yml: workflow now only triggers on PRs touching src/; docs/tooling PRs no longer invoke Copi automatically
 
 
