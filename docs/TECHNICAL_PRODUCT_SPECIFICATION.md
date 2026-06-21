@@ -787,7 +787,7 @@ The following table orients the six AI roles active across the python-blackjack 
 | 5 | Infrastructure | `AIProvider` protocol | Dev → Runtime | LLM invocation, context management |
 | 6 | Code Reviewer | Copi | Development | Code quality, spec compliance |
 
-Roles 2–4 are runtime roles visible in the event stream. Roles 1, 5, 6 are development-phase roles invisible to the game simulation.
+Roles 2 and 4 are runtime roles whose decisions are visible in the event stream. Role 3 (Analyst) is a post-session consumer of the event stream, not an emitter. Roles 1, 5, 6 are development-phase roles invisible to the game simulation.
 
 ---
 
