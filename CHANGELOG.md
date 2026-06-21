@@ -4,6 +4,9 @@ All notable changes to python-blackjack are documented here.
 
 ## [Unreleased]
 
+### Fixed — request-copilot-review.yml: added --repo flag to gh pr edit; runner has no git checkout so repo context must be explicit. Added || true to prevent failure when Copilot is already assigned
+
+
 ### Fixed — request-copilot-review.yml: reverted Copi review request from curl REST call back to gh CLI; curl approach broke first-invocation auto-review
 
 
