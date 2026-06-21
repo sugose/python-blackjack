@@ -57,8 +57,8 @@ def _collect_eventtype_literals(source_root: Path) -> list[tuple[str, int, str]]
             if not is_game_event:
                 continue
             for kw in node.keywords:
-                if kw.arg == "eventType" and isinstance(kw.value, ast.Constant):
-                    results.append((str(path), node.lineno, str(kw.value.value)))
+                if kw.arg == "eventType" and isinstance(kw.value.value, str):
+                    results.append((str(path), kw.value.lineno, kw.value.value))
     return results
 
 
