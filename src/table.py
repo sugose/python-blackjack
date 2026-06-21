@@ -16,6 +16,7 @@ class HouseRules:
 
     blackjackPayout: float
     dealerHitsOnSoft17: bool
+    multiSeatAllowed: bool = False
 
 
 @dataclass

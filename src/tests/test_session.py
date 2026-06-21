@@ -436,3 +436,33 @@ class TestHouseRulesBlackjackPayout:
         assert bj_event is not None
         payout_event = next(e for e in events if e["eventType"] == "PayoutMade")
         assert payout_event["data"]["amount"] == pytest.approx(2.2)
+
+
+class TestSoft17:
+    """Verify dealer soft-17 behaviour controlled by HouseRules.dealerHitsOnSoft17.
+
+    seed=24 is pinned: dealer draws 3♦+3♠ (hard 6), hits to Ace of Clubs (soft 17).
+    With flag=False the dealer stands; with flag=True the dealer hits again (4♠ → 21).
+    Alice holds 8+3=11 and always stands, so no player cards follow the initial deal.
+    """
+
+    def test_dealer_stands_on_soft_17_when_flag_false(self, tmp_path: Path, monkeypatch) -> None:
+        monkeypatch.chdir(tmp_path)
+        table = _make_table(dealer_hits_soft17=False)
+        play_table_session(table, seed=24, max_hands=1)
+        events = _read_events(next(tmp_path.glob("logs/*.jsonl")))
+        drawn = [e for e in events if e["eventType"] == "CardDrawn"]
+        # Dealer hits once (hard 6 → soft 17) then stands — exactly 1 CardDrawn
+        assert len(drawn) == 1
+        assert drawn[0]["data"]["handValue"] == 17
+
+    def test_dealer_hits_on_soft_17_when_flag_true(self, tmp_path: Path, monkeypatch) -> None:
+        monkeypatch.chdir(tmp_path)
+        table = _make_table(dealer_hits_soft17=True)
+        play_table_session(table, seed=24, max_hands=1)
+        events = _read_events(next(tmp_path.glob("logs/*.jsonl")))
+        drawn = [e for e in events if e["eventType"] == "CardDrawn"]
+        # Dealer hits twice: hard 6 → soft 17 → 21 — exactly 2 CardDrawn events
+        assert len(drawn) == 2
+        assert drawn[0]["data"]["handValue"] == 17
+        assert drawn[1]["data"]["handValue"] == 21
