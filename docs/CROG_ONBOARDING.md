@@ -121,6 +121,26 @@ Always state clearly what Adam needs to do before running `copi_wait.sh`:
 - First invocation: "No action needed — waiting for Copi to complete."
 - Re-review: "Please click 'Re-request review' on Copilot in the GitHub UI for PR #<N>, then I will run `bash tools/copi_wait.sh <N>`."
 
+### Copi suspended mode
+When Adam announces "Copi suspended", the following rules apply for all PRs until Adam announces resumption:
+
+- Do NOT run `bash tools/copi_wait.sh` at any point.
+- Do NOT request Copi review.
+- After opening a PR and posting pr_dump as a PR comment, report back to Adam with:
+
+```
+PR URL: https://github.com/<owner>/<repo>/pull/<N>?i=1
+
+Changed files:
+https://github.com/<owner>/<repo>/blob/main/<file1>?pr=<N>&i=1
+https://github.com/<owner>/<repo>/blob/main/<file2>?pr=<N>&i=1
+```
+
+- Increment `i` on each re-report of the same PR (same as normal flow).
+- Append `?pr=<N>&i=<iteration>` to every changed file URL to prevent caching.
+- Clead reviews with full file context in place of Copi. The Clead/Crog fix loop continues as normal until Clead approves.
+- On resumption, revert to the standard Copi flow immediately.
+
 ### PR Description Requirements
 
 Every PR that contains code changes (`src/`) must include a **test coverage narrative table** in the PR description:

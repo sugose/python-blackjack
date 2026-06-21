@@ -35,6 +35,25 @@
 
 ---
 
+## Copi suspended mode
+
+When Adam announces "Copi suspended", all PR reviews run without Copi until Adam announces resumption.
+
+**Crog behaviour:**
+- Skip `copi_wait.sh` and Copi review request entirely.
+- After opening PR and posting pr_dump, report PR URL (`?i=1`) plus each changed file URL (`?pr=<N>&i=1`) to Adam.
+- Clead reviews with full file context as sole reviewer.
+- Fix loop continues as normal (Clead ↔ Crog) until Clead approves.
+
+**Clead behaviour:**
+- Reviews full file content (not diff-only) for each changed file.
+- Flags if additional files outside the PR are needed for cross-module review.
+- Issues verdict and merge prompt as normal.
+
+On resumption, standard Copi flow resumes immediately.
+
+---
+
 ## Clead Review Standard
 
 Every PR reviewed by Clead must include all of the following, without being asked:
