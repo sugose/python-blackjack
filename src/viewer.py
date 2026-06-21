@@ -19,6 +19,7 @@ _FIELD_MAP: dict[str, str] = {
     "actor": "actor",
     "timestamp": "timestamp",
     "eventid": "eventId",
+    "schemaversion": "schemaVersion",
 }
 _UUID_FIELDS: frozenset[str] = frozenset({"sessionid", "handid", "eventid"})
 
@@ -184,6 +185,7 @@ Filterable fields:
               any other value = literal case-insensitive match
   timestamp   ISO-8601 UTC timestamp string
   eventId     Event UUID — implicit suffix match
+  schemaVersion Event schema version string (e.g. 1.0) — equality match only
 
 Operators: = (equality / UUID suffix match), != (not-equal), ~= (contains)
 Logical:   AND, OR (case-insensitive), parentheses for grouping

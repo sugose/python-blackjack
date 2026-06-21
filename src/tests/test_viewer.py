@@ -711,6 +711,40 @@ def test_duplicate_file_paths_not_printed_twice(
     assert len(lines) == 1
 
 
+# ---------------------------------------------------------------------------
+# PBI-1.6 — schemaVersion filter
+# ---------------------------------------------------------------------------
+
+
+def test_filter_schema_version_equality(tmp_path: Path, capsys: pytest.CaptureFixture) -> None:
+    """schemaVersion=1.0 filter matches events with that schemaVersion; mismatches are excluded."""
+    events = [
+        {
+            **_make_event("BetPlaced", event_id=EVENT_ID_1, hand_id=HAND_ID, actor="Alice"),
+            "schemaVersion": "1.0",
+        },
+        {
+            **_make_event("CardDealt", event_id=EVENT_ID_2, hand_id=HAND_ID, actor="Dealer"),
+            "schemaVersion": "2.0",
+        },
+    ]
+    f = tmp_path / "s.jsonl"
+    _write_jsonl(f, events)
+    main([str(f), "--filter", "schemaVersion=1.0"])
+    out = capsys.readouterr().out
+    lines = [ln for ln in out.splitlines() if ln.strip()]
+    assert len(lines) == 1
+    assert "[BetPlaced]" in lines[0]
+
+
+def test_schema_version_reserved_field_note_in_help(capsys: pytest.CaptureFixture) -> None:
+    """--help output mentions schemaVersion as a filterable field."""
+    with pytest.raises(SystemExit):
+        main(["--help"])
+    out = capsys.readouterr().out
+    assert "schemaversion" in out.lower()
+
+
 def test_filter_not_equals_passes_when_field_absent(
     tmp_path: Path, capsys: pytest.CaptureFixture
 ) -> None:
