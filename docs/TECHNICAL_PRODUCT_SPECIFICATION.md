@@ -695,12 +695,12 @@ The Arena transforms python-blackjack into a competitive platform where any comb
 
 | Type | Description | Interface |
 |---|---|---|
-| Deterministic bot | Fixed policy, same hand always produces same action (e.g. dealer mirror, always-hit) | `Callable[[Hand], str]` |
-| Stochastic bot | Fixed policy with randomised execution (e.g. hit on 15 with p=0.5) | `Callable[[Hand], str]` |
-| AI player | Policy emerges from model inference via a pluggable `AIProvider` | `Callable[[Hand], str]` |
-| Human player | Interactive CLI — decision deferred to stdin per hand | `Callable[[Hand], str]` |
+| Deterministic bot | Fixed policy, same hand always produces same action (e.g. dealer mirror, always-hit) | `Callable[[Hand, Card], str]` |
+| Stochastic bot | Fixed policy with randomised execution (e.g. hit on 15 with p=0.5) | `Callable[[Hand, Card], str]` |
+| AI player | Policy emerges from model inference via a pluggable `AIProvider` | `Callable[[Hand, Card], str]` |
+| Human player | Interactive CLI — decision deferred to stdin per hand | `human_strategy` in `src/strategy.py` |
 
-All four types implement the same `Callable[[Hand], str]` strategy interface. The game engine has no knowledge of which type is at the table.
+The canonical strategy signature is `Callable[[Hand, Card], str]` — second argument is the dealer upcard (visible card). Backward compatibility: `adapt()` in `src/strategy.py` wraps one-argument `Callable[[Hand], str]` strategies transparently; the session engine calls `adapt()` on every strategy before invoking it. `human_strategy` in `src/strategy.py` is the interactive CLI implementation — displays hand value and dealer upcard, prompts for hit/stand, loops until valid input.
 
 ### PBI-2.1 — Pluggable AI Provider Infrastructure
 
@@ -729,7 +729,7 @@ Provider selected via `--provider` CLI flag or `AI_PROVIDER` env var — used as
 
 ### PBI-2.2 — AI Player Strategy
 
-`AIStrategyProvider` wraps any `AIProvider` and implements `Callable[[Hand], str]`. Describes hand state to the model, parses "hit" or "stand" from response. Note: dealer upcard not available at call time under current `Callable[[Hand], str]` interface — signature extension deferred to PBI-2.2 implementation; align with ICE-6 if upcard context is needed. Pluggable at `Player` construction.
+`AIStrategyProvider` wraps any `AIProvider` and implements `Callable[[Hand, Card], str]`. Describes hand state and dealer upcard to the model, parses "hit" or "stand" from response. Pluggable at `Player` construction. (Dealer upcard is now available via ICE-6 interface extension — `adapt()` in `src/strategy.py` handles backward compat.)
 
 ### PBI-2.3 — Stochastic Strategy Support
 

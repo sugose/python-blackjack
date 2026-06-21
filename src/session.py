@@ -11,6 +11,7 @@ from src.cards import Card, Deck
 from src.hand import Hand
 from src.logger import GameEvent, emit_event
 from src.player import Player
+from src.strategy import adapt
 from src.table import Table
 
 
@@ -95,13 +96,15 @@ def _play_player_turn(
     player: Player,
     player_hand: Hand,
     shoe: Deck,
+    dealer_upcard: Card,
     session_id: str,
     hand_id: str,
     session_file: Path,
 ) -> None:
     """Run the hit/stand loop for a single player."""
+    adapted = adapt(player.strategy)
     while not player_hand.is_bust:
-        action = player.strategy(player_hand)
+        action = adapted(player_hand, dealer_upcard)
         if action not in ("hit", "stand"):
             raise ValueError(f"Unknown strategy action: {action!r}. Must be 'hit' or 'stand'.")
         if action == "stand":
@@ -582,7 +585,9 @@ def play_table_session(
             for player in active_players:
                 ph = player_hands[player.name]
                 if not ph.is_blackjack:
-                    _play_player_turn(player, ph, shoe, session_id, hand_id, session_file)
+                    _play_player_turn(
+                        player, ph, shoe, dealer_hand.cards[0], session_id, hand_id, session_file
+                    )
 
         # Dealer turn — only if at least one player hasn't busted
         any_needs_dealer = any(

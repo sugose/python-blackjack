@@ -3,15 +3,13 @@
 from dataclasses import dataclass, field
 from typing import Callable
 
-from src.hand import Hand
-
 
 @dataclass
 class Player:
     """A blackjack player with a wallet and a pluggable strategy."""
 
     name: str
-    strategy: Callable[[Hand], str]
+    strategy: Callable
     wallet: float = field(default=100.0)
     vip: bool = field(default=False)
     bet: float = field(default=1.0, init=False)
