@@ -3,6 +3,8 @@ name: Request Copilot Review
 on:
   pull_request:
     types: [opened, ready_for_review, synchronize]
+    paths:
+      - 'src/**'
 
 jobs:
   request-review:
