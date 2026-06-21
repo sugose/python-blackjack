@@ -4,6 +4,12 @@ All notable changes to python-blackjack are documented here.
 
 ## [Unreleased]
 
+### Changed — PR process: Copi review scoped to code PRs only; docs/tooling PRs skip Copi and go straight to Clead
+
+- `docs/CROG_ONBOARDING.md`: docs/tooling PR flow simplified — Copi steps removed; post pr_dump immediately after opening PR, report to Adam, stop and wait for Clead
+- `docs/TEAM_STRUCTURE.md`: Workflow B updated to match; hard stop rule clarified to apply to both PR types
+- Preamble added to PR Review Rules section: "Copi review applies to code PRs only (`src/`). Docs/tooling PRs skip Copi entirely."
+
 ### Changed — CROG_ONBOARDING: console summary rule
 
 - Crog must post a brief console summary as a PR comment when scripts were executed, non-zero exits occurred, or the task was diagnostic

@@ -1,8 +1,5 @@
 # Next Session
 
-## Priority — do first
-- [ ] Open process PR: formalise Copi gate rule — Copi mandatory for `src/` PRs only; docs/tooling PRs go straight to Clead. Update `CROG_ONBOARDING.md` and `TEAM_STRUCTURE.md`.
-
 ## Active pins (re-pin at session start)
 
 **Pin A — Table queue & intoxication model (ICE-3 design)**
