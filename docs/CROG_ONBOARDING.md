@@ -31,6 +31,8 @@ python-blackjack is a blackjack simulator. It is a Python-based project that sim
 
 ### PR Review Rules
 
+Copi review applies to code PRs only (`src/`). Docs/tooling PRs skip Copi entirely.
+
 **Code PRs** (any PR touching files under `src/`):
 1. Open the PR
 2. Copi review is requested automatically by the workflow on PR open (request manually via GitHub UI if the review does not start).
@@ -57,31 +59,23 @@ python-blackjack is a blackjack simulator. It is a Python-based project that sim
 
 **Docs/tooling PRs** (only touching `docs/`, `tools/`, config files, `.github/`, root files):
 1. Open the PR
-2. Copi review is requested automatically by the workflow on PR open (request manually via GitHub UI if the review does not start).
-   Wait for Copi to complete its review before running `pr_dump.sh`.
-   If Copi has open comments requiring resolution, flag them to Clead —
-   do not merge until Copi has no open comments requiring resolution
-   and Clead has issued a merge instruction.
-3. Poll until Copi review is complete — `gh pr view <PR-number> --json reviews` until Copi's status is not `PENDING`.
-4. After Copi completes, wait 10 seconds for comments to settle, then post the full pr_dump output as a PR comment:
+2. Post the full pr_dump output as a PR comment:
    `gh pr comment <PR-number> --body "$(bash tools/pr_dump.sh <PR-number> --no-src)"`
-5. Report back to Adam with the PR URL appended with `?i=1` (increment `i` by 1 on each subsequent re-report of the same PR, e.g. `?i=2`, `?i=3`).
+3. Report back to Adam with the PR URL appended with `?i=1` (increment `i` by 1 on each subsequent re-report of the same PR, e.g. `?i=2`, `?i=3`).
 
    - [ ] Post pr_dump as PR comment
    - [ ] Report PR URL to Adam with `?i=1` (increment `i` by 1 on each re-report of the same PR)
-   - [ ] STOP. Do not read or act on Copi's comments.
-   - [ ] Wait for Adam to paste Clead's instruction. Do nothing until then.
+   - [ ] STOP. Wait for Adam to paste Clead's instruction. Do nothing until then.
 
-6. Adam drops the URL into Clead's chat. Clead fetches and reviews. Clead produces either a fix prompt or a verdict.
-7. **If Clead produces a fix prompt:** implement only and exactly what the prompt specifies. Nothing more.
+4. Adam drops the URL into Clead's chat. Clead fetches and reviews. Clead produces either a fix prompt or a verdict.
+5. **If Clead produces a fix prompt:** implement only and exactly what the prompt specifies. Nothing more.
    a. Push the fix to the same branch.
-   b. Run `bash tools/copi_wait.sh <PR-number>`.
-   c. Go back to step 4.
-8. **If Clead approves:** Clead produces a verdict comment + merge prompt. Adam pastes it. Post the verdict as a PR comment and merge.
+   b. Go back to step 2.
+6. **If Clead approves:** Clead produces a verdict comment + merge prompt. Adam pastes it. Post the verdict as a PR comment and merge.
 
 ### Copi Finding Scope — Hard Stop Rule
 
-After posting the pr_dump and reporting back to Adam, Crog must stop completely. This means:
+After posting the pr_dump and reporting back to Adam, Crog must stop completely. This applies to all PR types; for code PRs, Copi is involved — for docs/tooling PRs, Copi is not. In both cases the rule is the same:
 
 - **Do not read Copi's inline comments** with intent to act on them.
 - **Do not push any fix** based on Copi's findings.
@@ -203,8 +197,8 @@ You are not a passive code generator. The standard is a thoughtful senior develo
 3. Implement until tests pass (green).
 4. Lint and format before committing.
 5. Open a PR with a clear description including the test coverage narrative table.
-6. Follow the PR Review Rules above — Copi review is requested via `.github/workflows/request-copilot-review.yml` (request manually via GitHub UI if the review does not start).
-7. Wait for Copi to complete its review, then run `bash tools/pr_dump.sh <PR-number>` (or `--no-src` for docs/tooling PRs) and post the output as a PR comment. Report back to Adam with the PR URL appended with `?i=1` (increment `i` by 1 on each subsequent re-report of the same PR).
+6. Follow the PR Review Rules above — for code PRs, Copi review is requested via `.github/workflows/request-copilot-review.yml` (request manually via GitHub UI if the review does not start); for docs/tooling PRs, skip Copi entirely.
+7. For code PRs: wait for Copi to complete, then run `bash tools/pr_dump.sh <PR-number>` and post as a PR comment. For docs/tooling PRs: run `bash tools/pr_dump.sh <PR-number> --no-src` immediately and post as a PR comment. Report back to Adam with the PR URL appended with `?i=1` (increment `i` by 1 on each subsequent re-report of the same PR).
 8. Never merge your own PRs.
 9. Never commit to `main`.
 
