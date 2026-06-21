@@ -733,7 +733,7 @@ Provider selected via `--provider` CLI flag or `AI_PROVIDER` env var — used as
 
 ### PBI-2.3 — Stochastic Strategy Support
 
-Adds stochastic strategy implementations — no change to the `Callable[[Hand], str]` interface. A stochastic strategy is defined by a fixed policy with randomised execution. Seeded for reproducibility in tests.
+Adds stochastic strategy implementations — implements the canonical `Callable[[Hand, Card], str]` interface. Use `adapt()` from `src/strategy.py` for any legacy one-argument stochastic strategies. A stochastic strategy is defined by a fixed policy with randomised execution. Seeded for reproducibility in tests.
 
 Built-in stochastic strategies:
 
