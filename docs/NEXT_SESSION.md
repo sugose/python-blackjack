@@ -1,21 +1,45 @@
-# Next Session — Pending Items
+# Next Session
 
-Items to action at the start of the next session. Clear this file once actioned.
+## Priority — do first
+- [ ] Open process PR: formalise Copi gate rule — Copi mandatory for `src/` PRs only; docs/tooling PRs go straight to Clead. Update `CROG_ONBOARDING.md` and `TEAM_STRUCTURE.md`.
 
-## Pending actions
+## Active pins (re-pin at session start)
 
-| # | Item |
-|---|---|
-| 1 | **ICE-2 viewer test gaps** — follow-up PR to close 4 missing test paths identified in Crog's post-merge review: (a) `eventId` UUID suffix match, (b) `~=` on absent field returns False, (c) `actor!=player` and `actor!=dealer` abstract semantics, (d) non-dict JSON line warning path (e.g. `[1,2,3]`) |
-| 2 | **CHANGELOG** — update with: ICE-2 post-merge Copi findings fix (PR #53), copi_wait.sh fixes (PR #55) |
-| 3 | **`copi_wait.sh` sync to ai-project-template** — PR #55 fixed the completion loop logic in python-blackjack; same fix needs porting to `sugose/ai-project-template` (currently still has `TOTAL > 0` condition) |
-| 4 | **Document post-merge review process** — established this session: when a PR is merged without sufficient Copi iterations, correct remedy is VS Code Copilot full-file review of all changed files, findings fed back to Clead, fix PR opened for any material findings. Add to `docs/TEAM_STRUCTURE.md` under Clead Review Standard. |
-| 5 | **Epic 2 backlog sync to ai-project-template** — Epic 2 items added to python-blackjack backlog and TPS; same additions need porting to `sugose/ai-project-template` for cross-repo consistency. |
+**Pin A — Table queue & intoxication model (ICE-3 design)**
+- Players arriving mid-hand go into table queue (FIFO)
+- Before each hand: seating procedure processes queue; full table → PlayerRejected
+- Rejected players pushed back to FM hall queue (VIP queue if player.vip = True)
+- New events: PlayerQueued, PlayerRejected
+- Goodwill credit: FM distributes on rejection; amount/threshold lowers as FM intoxication rises
+- Three-axis intoxication model per actor:
+  - Player: erratic decisions (DecisionPoint.PLAY error rate), tips more/larger/biased toward drinks
+  - FM: mutates HouseRules/ChaosRules, goodwill credit threshold/amount lowers
+  - Dealer: mutates HouseRules/ChaosRules
+- Feedback loop: FM drinks → more goodwill drinks to players → players tip FM drinks → FM more intoxicated → rules change + more generous → repeat
+- `player.levelOfIntoxication` → strategy error rate
+- `fm.levelOfIntoxication` / `dealer.levelOfIntoxication` → HouseRules/ChaosRules mutation + generosity axis
 
-## Pending investigations
+**Pin B — ICE-21: Chaos Mode (icebox — low priority)**
+- `ChaosRules` dataclass on `Table`
+- `bustThreshold: int = 26` — FM raises bust limit
+- `dual_value_cards: dict[str, tuple[int, int]]` — FM-designated arbitrary dual values (e.g. `{"5": (5, -5)}`, `{"7H": (7, 17)}`). Values are arbitrary per FM proclamation, NOT derived from ace formula. Negative values allowed.
+- New events: `FMDeclaredRule`, `DealerImprovisedRule`, `FMTookOverTable`, `RulesViolation`, `CasinoShutdown`
+- Implementation: two primitives — card value override lookup + bust threshold check
+- ICE-21 v1: table-level `ChaosRules` only
+- ICE-21 v2: player-level override with inheritance from table (same pattern as HouseRules)
+- FM/player intoxication cascade feeds into Chaos Mode
 
-| # | Item |
-|---|---|
-| 1 | **Copi re-review on push not firing reliably** — `review_on_push: true` confirmed enabled. Despite correct config, Copi does not automatically re-review on subsequent pushes. `copi_wait.sh` is the workaround. Investigate via Chrome DevTools: capture the exact request made when manually clicking "Re-request review". |
-| 2 | **Fetch caching on multi-iteration PRs** — `web_fetch` returns cached content on repeated fetches of the same URL; workaround is `?i=N` query string cache-busting. |
-| 3 | **`~=` on absent field semantics** — currently returns False (field absent = no match). Not documented in TPS Section 11. Clarify and document before PBI-1.6. |
+**Pin C — Cross-repo sync (ai-project-template + fomo-f)**
+- Port to `ai-project-template`: PR flow hard stop rule, copi_wait.sh known limitation, console summary rule, Epic 2 backlog structure
+- Check `fomo-f` for consistency
+- Depends on main being clean ✅
+
+## Process notes
+- Copi re-review known limitation: no public API can re-trigger Copi after first review. After pushing a fix, run `bash tools/copi_wait.sh <PR-number>`. If timeout: click "Re-request review" in GitHub UI, then run again.
+- Console summary rule: Crog posts 3–5 line summary as separate PR comment when scripts run, non-zero exit, or diagnostic task.
+- Hard stop rule: after posting pr_dump, Crog stops. Wait for Adam to paste Clead's instruction before acting on any Copi finding.
+- `python -m tools.<script>` is the correct invocation for scripts in `tools/` (direct `python tools/...` fails without PYTHONPATH).
+- `HouseRules.multiSeatAllowed` is docs-only (PR #58) — add to `src/table.py` when ICE-3 is next touched.
+
+## PRs merged this session
+#58–#69 (process fixes, Copi investigation, TPS Section 12, multiplayer log analysis)
