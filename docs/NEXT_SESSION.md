@@ -16,16 +16,18 @@
 - `pr_dump.sh` output is wrapped in a fenced code block.
 - Hard stop rule: after posting pr_dump, Crog stops. Wait for Adam to paste Clead's instruction.
 - `python -m tools.<script>` is the correct invocation for scripts in `tools/`.
-- `HouseRules.multiSeatAllowed` is docs-only — add to `src/table.py` when ICE-3 is next touched.
 - No Copi credits: skip `copi_wait.sh`, post pr_dump, state "Copi credits exhausted" in report.
+- Changed file URLs: use `blob/<branch>/` (not `blob/main/`) with `?pr=<N>&i=<iteration>` on every re-report. See `docs/CROG_ONBOARDING.md` for format.
+- Copi suspended mode: documented in `docs/CROG_ONBOARDING.md` — skip `copi_wait.sh`, report PR URL + changed file URLs, Clead reviews full file context as sole reviewer.
 
 ## Backlog (next up)
-- ICE-3 — Multiplayer (fully specced TPS Section 10, `src/session.py` and `src/table.py` exist, ready to implement) ← **next**
-- T-2 — CI validator for eventType consistency
+- No active python-blackjack PBI next — icebox review or new PBI to be decided next session
+- ICE-3 multiplayer housekeeping complete (`multiSeatAllowed` added, soft-17 tests added) — full ICE-3 implementation still in icebox
 
-## PRs merged last session
-#77 — TD-1: `_emit_wallet` wallet check `== 0.0` → `<= 0.0`
-#78 — tooling: revert Copi review workflow to gh CLI
-#79 — PBI-1.6: schemaVersion field on GameEvent
-#80 — tooling: add --repo flag and || true to Copi review workflow
-#81 — docs: CROG_ONBOARDING Copi flow update
+## PRs merged this session
+#82 — docs: housekeeping — backlog and NEXT_SESSION refresh
+#83 — ICE-3 housekeeping: add multiSeatAllowed to HouseRules and soft-17 tests
+#84 — docs: add Copi suspended mode to CROG_ONBOARDING and TEAM_STRUCTURE
+#85 — docs: fix changed file URLs to use head branch instead of main
+#86 — T-2: add eventType CI validator test
+#87 — docs: add HOW_WE_WORK.md — collaboration model documentation

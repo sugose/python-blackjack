@@ -73,4 +73,4 @@ The Arena transforms python-blackjack from a single-player simulator into a comp
 | ID | Description |
 |---|---|
 | T-1 | GitHub Actions Node.js version bump — bump `actions/checkout` and `actions/setup-python` to latest versions targeting Node.js 24; fixes deprecation warning in CI. |
-| T-2 | CI validator for eventType consistency — spec out and implement a CI check that validates all `eventType` literals in `src/` against the reserved table in TPS Section 9. Note: Copi review automation (the other opportunity identified) is complete — auto-request workflow merged in PR #32–#34. |
+| T-2 | CI validator for eventType consistency — spec out and implement a CI check that validates all `eventType` literals in `src/` against the reserved table in TPS Section 9. Note: Copi review automation (the other opportunity identified) is complete — auto-request workflow merged in PR #32–#34. ✅ Done (PR #86) |
