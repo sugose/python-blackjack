@@ -41,6 +41,14 @@ class TestHouseRules:
         assert rules.blackjackPayout == 1.2
         assert rules.dealerHitsOnSoft17 is True
 
+    def test_house_rules_multi_seat_allowed_default_false(self) -> None:
+        rules = HouseRules(blackjackPayout=1.5, dealerHitsOnSoft17=False)
+        assert rules.multiSeatAllowed is False
+
+    def test_house_rules_multi_seat_allowed_can_be_set_true(self) -> None:
+        rules = HouseRules(blackjackPayout=1.5, dealerHitsOnSoft17=False, multiSeatAllowed=True)
+        assert rules.multiSeatAllowed is True
+
 
 class TestTable:
     def test_construction(self) -> None:
