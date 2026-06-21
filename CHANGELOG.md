@@ -4,6 +4,9 @@ All notable changes to python-blackjack are documented here.
 
 ## [Unreleased]
 
+### Changed — request-copilot-review.yml: workflow now only triggers on PRs touching src/; docs/tooling PRs no longer invoke Copi automatically
+
+
 ### Changed — PR process: Copi review scoped to code PRs only; docs/tooling PRs skip Copi and go straight to Clead
 
 - `docs/CROG_ONBOARDING.md`: docs/tooling PR flow simplified — Copi steps removed; post pr_dump immediately after opening PR, report to Adam, stop and wait for Clead
