@@ -12,7 +12,7 @@ All notable changes to python-blackjack are documented here.
 ### Added — TPS Section 12: AI role taxonomy and player behaviour interface
 
 - AI role taxonomy table: six roles across development and runtime phases (Clead/Crog, Player strategy, Analyst, Operator, AIProvider, Copi)
-- Unified player behaviour interface: `Callable[[GameState, DecisionPoint], Action]`
+- Unified player behaviour interface: `Callable[[GameState, DecisionPoint], float | str | bool]`
 - `DecisionPoint` enum: BET, PLAY, QUIT, TIP, DRINK
 - PLAY action set open-ended, extended by ICE-7; GameState spec deferred to ICE-3
 

@@ -822,7 +822,7 @@ Return type is discriminated by `DecisionPoint`:
 | `TIP` | `float` | Tip amount (0.0 = no tip) |
 | `DRINK` | `bool` | `True` = accept drink, `False` = decline |
 
-**Design rationale:** A single interface covers all decision points. Simple bots implement `BET` and `PLAY` and return safe defaults for the rest. AI players (PBI-2.2) implement all points with context-aware logic. The FM has its own callable governed by the same interface for `DRINK` and `TIP` decisions (ICE-8 / ICE-21).
+**Design rationale:** A single interface covers all decision points. Simple bots implement `BET` and `PLAY` and return safe defaults for the rest. AI players (PBI-2.2) implement all points with context-aware logic. The FM has its own callable governed by the same interface for `DRINK` and `TIP` decisions (ICE-8; Chaos Mode is icebox, not yet specced).
 
 **Table selection** is not a `DecisionPoint`. It is FM responsibility (ICE-8) — the FM matches players to tables based on player preferences (min/max bet tolerance, house rules, stakes relative to wallet). Player preferences are player attributes, not callable decision points.
 
