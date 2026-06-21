@@ -128,11 +128,11 @@ Regardless of Copi status, every PR report to Adam must include the PR URL and a
 PR URL: https://github.com/<owner>/<repo>/pull/<N>?i=1
 
 Changed files:
-https://github.com/<owner>/<repo>/blob/main/<file1>?pr=<N>&i=1
-https://github.com/<owner>/<repo>/blob/main/<file2>?pr=<N>&i=1
+https://github.com/<owner>/<repo>/blob/<branch>/<file1>?pr=<N>&i=1
+https://github.com/<owner>/<repo>/blob/<branch>/<file2>?pr=<N>&i=1
 ```
 
-Append `?pr=<N>&i=<iteration>` to every changed file URL to prevent caching. Increment `i` on each re-report of the same PR.
+`<branch>` is the head branch of the PR. Append `?pr=<N>&i=<iteration>` to every changed file URL to prevent caching. Increment `i` on each re-report of the same PR.
 
 ### Copi suspended mode
 When Adam announces "Copi suspended", the following rules apply for all PRs until Adam announces resumption:
