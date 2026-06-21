@@ -26,7 +26,7 @@ def _emit_wallet(player: Player, session_id: str, hand_id: str, session_file: Pa
         ),
         session_file,
     )
-    if player.wallet == 0.0:
+    if player.wallet <= 0.0:
         emit_event(
             GameEvent(
                 eventType="WalletEmpty",
