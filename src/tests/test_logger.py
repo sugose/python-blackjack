@@ -8,7 +8,7 @@ from unittest.mock import patch
 
 import pytest
 
-from src.logger import GameEvent, emit_event
+from src.logger import SCHEMA_VERSION, GameEvent, emit_event
 
 SESSION_ID = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
 HAND_ID = "11111111-2222-3333-4444-555555555555"
@@ -143,6 +143,44 @@ def test_hrf_non_serializable_data_does_not_raise(
     with caplog.at_level(logging.INFO, logger="blackjack"):
         emit_event(event, session_file)
     assert "[DEBUG]" in caplog.text
+
+
+# ---------------------------------------------------------------------------
+# PBI-1.6 — schemaVersion
+# ---------------------------------------------------------------------------
+
+
+def test_game_event_has_schema_version_field() -> None:
+    """GameEvent has a schemaVersion attribute equal to SCHEMA_VERSION."""
+    event = GameEvent(
+        eventType="BetPlaced",
+        sessionId=SESSION_ID,
+        data={"message": "test"},
+    )
+    assert hasattr(event, "schemaVersion")
+    assert event.schemaVersion == SCHEMA_VERSION
+
+
+def test_game_event_schema_version_default_is_constant() -> None:
+    """GameEvent.schemaVersion default matches the SCHEMA_VERSION constant."""
+    event = GameEvent(
+        eventType="SessionOpened",
+        sessionId=SESSION_ID,
+        data={},
+    )
+    assert event.schemaVersion == SCHEMA_VERSION
+
+
+def test_emit_event_jsonl_includes_schema_version(tmp_path: Path) -> None:
+    """emitted JSONL record contains schemaVersion key with value from SCHEMA_VERSION."""
+    session_file = tmp_path / "test.jsonl"
+    emit_event(
+        GameEvent(eventType="BetPlaced", sessionId=SESSION_ID, data={"message": "test"}),
+        session_file,
+    )
+    record = json.loads(session_file.read_text(encoding="utf-8").strip())
+    assert "schemaVersion" in record
+    assert record["schemaVersion"] == SCHEMA_VERSION
 
 
 def test_hrf_session_level_event_with_actor_omits_actor_from_hrf(

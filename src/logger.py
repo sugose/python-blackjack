@@ -11,6 +11,8 @@ from uuid import uuid4
 
 _logger = logging.getLogger("blackjack")
 
+SCHEMA_VERSION = "1.0"
+
 
 @dataclass
 class GameEvent:
@@ -25,6 +27,7 @@ class GameEvent:
     timestamp: str = field(
         default_factory=lambda: datetime.now(timezone.utc).isoformat(timespec="seconds")
     )
+    schemaVersion: str = field(default_factory=lambda: SCHEMA_VERSION)
 
 
 def _hrf(event: GameEvent) -> str:
@@ -52,6 +55,7 @@ def emit_event(event: GameEvent, session_file: Path) -> None:
         session_file.parent.mkdir(parents=True, exist_ok=True)
         with session_file.open("a", encoding="utf-8") as f:
             payload = {
+                "schemaVersion": event.schemaVersion,
                 "eventId": event.eventId,
                 "eventType": event.eventType,
                 "timestamp": event.timestamp,
