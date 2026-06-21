@@ -184,7 +184,7 @@ Filterable fields:
   actor       'player' = any non-dealer; 'dealer' = Dealer only;
               any other value = literal case-insensitive match
   timestamp   ISO-8601 UTC timestamp string
-  eventId       Event UUID — implicit suffix match
+  eventId     Event UUID — implicit suffix match
   schemaVersion Event schema version string (e.g. 1.0) — equality match only
 
 Operators: = (equality / UUID suffix match), != (not-equal), ~= (contains)

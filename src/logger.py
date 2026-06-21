@@ -27,7 +27,7 @@ class GameEvent:
     timestamp: str = field(
         default_factory=lambda: datetime.now(timezone.utc).isoformat(timespec="seconds")
     )
-    schemaVersion: str = field(default_factory=lambda: SCHEMA_VERSION)
+    schemaVersion: str = field(default=SCHEMA_VERSION)
 
 
 def _hrf(event: GameEvent) -> str:

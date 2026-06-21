@@ -742,7 +742,7 @@ def test_schema_version_reserved_field_note_in_help(capsys: pytest.CaptureFixtur
     with pytest.raises(SystemExit):
         main(["--help"])
     out = capsys.readouterr().out
-    assert "schemaversion" in out.lower() or "schemaVersion" in out
+    assert "schemaversion" in out.lower()
 
 
 def test_filter_not_equals_passes_when_field_absent(
