@@ -4,6 +4,9 @@ All notable changes to python-blackjack are documented here.
 
 ## [Unreleased]
 
+### Fixed — request-copilot-review.yml: reverted Copi review request from curl REST call back to gh CLI; curl approach broke first-invocation auto-review
+
+
 ### Changed — pr_dump.sh: output wrapped in fenced code block so inline comment bodies render correctly in GitHub PR comments
 
 
