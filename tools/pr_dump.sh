@@ -15,6 +15,7 @@ for arg in "$@"; do
   fi
 done
 
+echo '```'
 echo "=== PR #${PR} — METADATA ==="
 gh pr view "$PR" --json title,author,headRefName,baseRefName,state --template \
   '{{.title}}{{"\n"}}Author: {{.author.login}}{{"\n"}}Branch: {{.headRefName}} -> {{.baseRefName}}{{"\n"}}State:  {{.state}}{{"\n"}}'
@@ -54,3 +55,5 @@ if [ "$NO_SRC" = false ]; then
       | base64 --decode 2>/dev/null || echo "(could not fetch file)"
   done < <(gh pr diff "$PR" --name-only)
 fi
+
+echo '```'
