@@ -99,17 +99,27 @@ Keep it brief — 3–5 lines max. Clead reads it via the PR URL fetch, so it mu
 
 For pure docs/code PRs where only file edits were made and nothing was executed, no console comment is needed.
 
-### Copi Re-review Known Limitation
+## Copi review flow
 
-GitHub provides no public API (REST or GraphQL) to re-trigger a Copi review after it has already submitted one on a PR. The GitHub UI "Re-request review" button uses an undocumented internal mechanism.
+### First invocation
+Copi is requested automatically via the GitHub ruleset ("Copilot review for default branch") on every PR open — src and non-src alike. No manual action needed. Run `bash tools/copi_wait.sh <PR-number>` and wait for completion before posting pr_dump.
 
-**Investigated and exhausted (PRs #60, #62, #64, #67):**
-- `PUT /reviews/{id}/dismissals` — 422: COMMENTED reviews are not dismissable
-- `DELETE /requested_reviewers` then `POST` — DELETE succeeds silently; Copi does not re-review
-- `POST` with `app_slugs[]` — 422: parameter not accepted by REST API
-- GraphQL `requestReviews` mutation — no `appIds` support; mutation is a no-op for GitHub Apps
+### Re-review (src PRs)
+After pushing a fix to a src PR, re-review is always expected. Tell Adam explicitly: "Please click 'Re-request review' on Copilot in the GitHub UI for PR #<N>, then I will run `bash tools/copi_wait.sh <N>`." Wait for Adam to confirm before running.
 
-**Current process:** After pushing a fix, run `bash tools/copi_wait.sh <PR-number>`. If it times out, click "Re-request review" in the GitHub UI on the PR, then run `bash tools/copi_wait.sh <PR-number>` again. Crog detects Copi completion reliably — only the invocation is unavailable via API.
+### Re-review (non-src PRs)
+Not expected by default. Only request re-review if Clead explicitly instructs it in the verdict prompt. If Clead does instruct it, tell Adam to manually invoke, then run `bash tools/copi_wait.sh <N>`.
+
+### Non-src PR review loop
+Copi steps out after initial review on non-src PRs (unless Clead instructs otherwise), but the Clead/Crog review loop continues until Clead approves. Copi stepping out does not end the loop.
+
+### No Copi credits
+If Copi credits are exhausted, skip `copi_wait.sh` entirely. Post pr_dump and report to Adam. State clearly in the PR report: "Copi credits exhausted — skipping Copi review, going straight to Clead." Resume normal Copi flow when credits are restored.
+
+### Every Copi wait
+Always state clearly what Adam needs to do before running `copi_wait.sh`:
+- First invocation: "No action needed — waiting for Copi to complete."
+- Re-review: "Please click 'Re-request review' on Copilot in the GitHub UI for PR #<N>, then I will run `bash tools/copi_wait.sh <N>`."
 
 ### PR Description Requirements
 
