@@ -702,6 +702,23 @@ The Arena transforms python-blackjack into a competitive platform where any comb
 
 The canonical strategy signature is `Callable[[Hand, Card], str]` — second argument is the dealer upcard (visible card). Backward compatibility: `adapt()` in `src/strategy.py` wraps one-argument `Callable[[Hand], str]` strategies transparently; the session engine calls `adapt()` on every strategy before invoking it. `human_strategy` in `src/strategy.py` is the interactive CLI implementation — displays hand value and dealer upcard, prompts for hit/stand, loops until valid input.
 
+### Human Session Launcher
+
+`src/play.py` — invocable as `python -m src.play`. Provides a CLI entry point for a single human player session at a multi-deck table.
+
+**Flags:**
+
+| Flag | Default | Description |
+|---|---|---|
+| `--name` | `Player` | Player name |
+| `--wallet` | `100.0` | Starting wallet in UoM |
+| `--bet` | `1.0` | Bet per hand in UoM |
+| `--decks` | `6` | Number of decks in shoe — must be one of {1, 2, 4, 6, 8} |
+| `--hands` | `10` | Maximum number of hands to play |
+| `--seed` | `None` | Optional random seed |
+
+Validation: invalid `--decks`, `--hands < 1`, or `--bet <= 0` exits with code 1 and an error message on stderr. Constructs a `Table` with `HouseRules(blackjackPayout=1.5, dealerHitsOnSoft17=True)` and calls `play_table_session()`. Seats one human player using `human_strategy` from `src/strategy.py`.
+
 ### PBI-2.1 — Pluggable AI Provider Infrastructure
 
 **Protocol:**

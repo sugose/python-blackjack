@@ -5,7 +5,6 @@
 1. Validate label-based Copi review flow when credits return on July 1 — confirm workflow fires on label add, confirm Copi runs once and only once, confirm no token drain from PR pushes.
    - Community discussion at https://github.com/orgs/community/discussions/186152 — update with findings when validated.
    - dummy.txt re-review experiment shelved — no longer relevant under label-based flow.
-2. TPS update — add `src/play.py` to Section 12 of TECHNICAL_PRODUCT_SPECIFICATION.md.
 
 ## Backlog reminders
 

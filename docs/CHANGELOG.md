@@ -10,6 +10,7 @@ All notable changes to python-blackjack are recorded here.
 - `docs/CLEAD_ONBOARDING.md` — Clead session startup checklist and dynamic review depth policy
 
 ### Changed
+- TPS Section 12: added Human Session Launcher subsection documenting `src/play.py` flags, validation, and behaviour
 - `docs/HOW_WE_WORK.md` — added Copi evolution note (always-on → label-based) and hard stop rule enforcement sentence
 - `.github/workflows/copilot-review.yml` — upgraded to v3: concurrency block, `if: always()` label cleanup, label auto-removed after every run
 - Copilot review trigger changed from ruleset-driven to label-driven (`ai-review` label)
