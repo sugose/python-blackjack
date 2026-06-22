@@ -845,4 +845,18 @@ Return type is discriminated by `DecisionPoint`:
 
 **ICE-7 extension:** The `PLAY` action string set is open-ended. ICE-7 (extended rules bundle) adds `"double"`, `"split"`, `"surrender"`, `"insurance"` to the valid return set. Existing strategies returning only `"hit"` / `"stand"` remain valid — the engine only requests actions available on the current hand.
 
+---
+
+## 13. Table Display Layer
+
+See `docs/TABLE_DISPLAY_SPEC.md` for the full specification.
+
+### Summary
+
+- `src/display.py` — `TableDisplay` class; stdlib HTTP server in a daemon thread
+- Auto-launches on `python -m src.play` unless `--no-display` flag set
+- Browser polls `/events` endpoint every second; renders table state from JSONL
+- Requires ICE-14 (bot decision delay) to be implemented alongside
+- No new external dependencies
+
 **`GameState`:** Full session context passed to the callable at each decision point — current hand, wallet, hand history, table rules, seat context. Spec deferred to ICE-3 implementation.
