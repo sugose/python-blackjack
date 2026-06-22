@@ -99,7 +99,7 @@ Every change goes through a PR. No exceptions. The PR flow is:
 6. If fixes needed: Crog implements exactly what the prompt says, nothing more, and the loop repeats
 7. Clead approves → Adam merges
 
-The hard stop rule is the most important process rule: after posting the PR dump, Crog stops completely. It does not read Copi's comments. It does not push fixes. It waits. Every iteration is gated by Clead. This rule exists because autonomous AI iteration without human oversight produces spec drift — we learned this the hard way.
+The hard stop rule is the most important process rule: after posting the PR dump, Crog stops completely. It does not read Copi's comments. It does not push fixes. It waits. Every iteration is gated by Clead. This rule exists because autonomous AI iteration without human oversight produces spec drift — we learned this the hard way. The product owner monitors PR activity after the dump is posted. Any commits pushed before Clead has issued a verdict are treated as a process violation and must be rolled back or explicitly re-reviewed.
 
 ---
 
@@ -109,6 +109,9 @@ Copi (GitHub Copilot) provides automated code review. It is fast and catches rea
 
 When Copi is available:
 - It reviews every PR automatically via a GitHub ruleset
+
+> **Note:** This describes the initial setup used in this project. In later iterations the team moved to a label-based, interrupt-driven Copi invocation model due to token consumption and control considerations. See `COPILOT_LIMITATIONS.md` for the current model.
+
 - Clead reads Copi's findings and decides which require action
 - Re-review after fixes requires a manual UI click (known limitation)
 
