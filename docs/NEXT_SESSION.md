@@ -2,7 +2,7 @@
 
 ## Priority
 
-1. Formalise dummy.txt pattern — create `docs/dummy.txt` (gitignored), document in CROG_ONBOARDING.md that Crog appends a line per iteration before posting pr_dump. Update ai-project-template to match.
+1. Formalise dummy.txt pattern — create `docs/dummy.txt` (version controlled, not gitignored), document in CROG_ONBOARDING.md that Crog resets the file when opening a new PR and appends a line per iteration before the src push. Update ai-project-template to match.
    - Posted findings on Copi re-review behaviour to https://github.com/orgs/community/discussions/186152 — check for responses and incorporate into investigation when Copi resumes.
    - Target flow when Copi resumes:
      - i=1: src push → Copi auto-invokes → Crog detects and hands back
