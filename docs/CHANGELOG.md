@@ -5,6 +5,20 @@ All notable changes to python-blackjack are recorded here.
 ## [Unreleased]
 
 ### Added
+- `docs/COPILOT_LIMITATIONS.md` — operational guide to GitHub Copilot code review limitations, mitigations, and label-based review control model (v3)
+- `docs/COPILOT_REVIEW_MS_VARIANT.md` — Microsoft-only stack variant of the review model (human tech lead + Copilot Chat replacing AI tech lead)
+- `docs/CLEAD_ONBOARDING.md` — Clead session startup checklist and dynamic review depth policy
+
+### Changed
+- `docs/HOW_WE_WORK.md` — added Copi evolution note (always-on → label-based) and hard stop rule enforcement sentence
+- `.github/workflows/copilot-review.yml` — upgraded to v3: concurrency block, `if: always()` label cleanup, label auto-removed after every run
+- Copilot review trigger changed from ruleset-driven to label-driven (`ai-review` label)
+- `tools/copi_wait.sh` removed — no longer needed under label-based flow
+- `src/play.py` — human session launcher added (see PR #91)
+
+---
+
+### Added
 - ICE-6: Human player strategy — `src/strategy.py` with `Strategy` type alias, `adapt()` compat shim, and `human_strategy` CLI implementation
 - Human session launcher — `src/play.py` invocable as `python -m src.play` with `--name`, `--wallet`, `--bet`, `--decks`, `--hands`, `--seed` flags
 - T-2: CI eventType validator — AST-based validator ensuring all eventTypes in src are in the known set
