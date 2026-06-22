@@ -201,7 +201,7 @@ Failure handling:
 
 | Situation | Action |
 |---|---|
-| Tech lead requests Copi review | Add `ai-review` (only if absent) |
+| Tech lead requests Copilot review | Add `ai-review` (only if absent) |
 | Run complete (review visible in UI) | Label already removed by workflow |
 | Re-review needed after logic change | Remove label if present, re-add once |
 | Re-review fails | Do not retry — inform tech lead |
