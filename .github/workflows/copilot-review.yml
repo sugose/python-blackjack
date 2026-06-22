@@ -8,11 +8,10 @@ jobs:
   copilot-review:
     if: ${{ github.event.label.name == 'ai-review' }}
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Run Copilot review
-        uses: github/copilot-review-action@v1
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Request Copilot review
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh pr edit ${{ github.event.pull_request.number }} --add-reviewer @copilot --repo ${{ github.repository }}
