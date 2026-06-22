@@ -155,7 +155,7 @@ The human tech lead is the primary reviewer. For cross-file consistency and inte
    > "Explain what `[function/class]` does and what would break if its signature changed."
 
 **What Copilot Chat can do in this role:**
-- Answer questions about the codebase using full repo context (via GitHub Copilot's workspace indexing)
+- Answer questions about the codebase using available repository context (via Copilot indexing) — but may not have full or complete coverage of all files
 - Identify files that may be affected by a change but aren't in the diff
 - Explain unfamiliar code paths to accelerate human review
 - Suggest what to look for in a cross-file consistency check
