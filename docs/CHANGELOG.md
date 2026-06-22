@@ -9,6 +9,16 @@ All notable changes to python-blackjack are recorded here.
 - `docs/COPILOT_REVIEW_MS_VARIANT.md` — Microsoft-only stack variant of the review model (human tech lead + Copilot Chat replacing AI tech lead)
 - `docs/CLEAD_ONBOARDING.md` — Clead session startup checklist and dynamic review depth policy
 
+### Added — PBI-2.1: Pluggable AI provider infrastructure (PR #107 — open, pending Copi review on July 1)
+
+- `src/providers/base.py` — `AIProvider` protocol (`@runtime_checkable`)
+- `src/providers/mock.py` — `MockProvider` — deterministic responses, no external deps
+- `src/providers/anthropic.py` — `AnthropicProvider` — wraps Anthropic SDK (optional dep)
+- `src/providers/ollama.py` — `OllamaProvider` — local Ollama via stdlib `urllib`, no SDK
+- `src/providers/registry.py` — `get_provider(name)` reads config from env vars
+- `src/tests/test_providers.py` — 16 tests, all providers and registry paths covered
+- Provider selection: `ANTHROPIC_MODEL`, `OLLAMA_MODEL`, `OLLAMA_BASE_URL` env vars
+
 ### Added — T-4: Mixed-player table launcher
 
 - `src/play.py` replaced with multi-player launcher — `--players name:strategy:wallet` flag accepts one or more player specs
