@@ -16,9 +16,8 @@ but not merged. Merge this first when Copi resumes and has reviewed it.
 
 ## Pending refinements (spec before July 1 if time allows)
 
-- Table display layer — live per-player view during session: chip stacks,
-  cards, hit/stand actions, hand outcome per player. Triggered by human
-  play session experience. Needs design before implementation.
+- Table display layer — spec complete in `docs/TABLE_DISPLAY_SPEC.md`;
+  ready for implementation July 1. Requires ICE-14 alongside.
 - `src/play.py` missing `logging.basicConfig` — HRF output not visible
   when entering via `python -m src.play`. One-liner fix, holds until July 1.
 - Bot player display names with strategy in parentheses — already possible
