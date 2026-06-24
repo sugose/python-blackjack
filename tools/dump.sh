@@ -1,10 +1,27 @@
 #!/bin/bash
-# Usage: bash tools/dump.sh
+# Usage: bash tools/dump.sh [start_dir] [--exclude path1,path2,...]
 # Dumps full project context for starting a new Clead session.
 # Output is written to tools/dumps/<timestamp>.txt
 # Aborts if the repo has uncommitted changes or untracked files.
 
-start_dir="${1:-.}"
+start_dir="."
+exclude_paths=()
+
+# Parse arguments — --exclude may appear anywhere
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --exclude)
+            shift
+            IFS=',' read -ra exclude_paths <<< "$1"
+            shift
+            ;;
+        *)
+            start_dir="$1"
+            shift
+            ;;
+    esac
+done
+
 output_dir="$(dirname "$0")/dumps"
 
 # Guard — repo must be clean
@@ -13,6 +30,13 @@ if ! git diff --quiet || ! git diff --cached --quiet || [ -n "$(git ls-files --o
     git status --short
     exit 1
 fi
+
+# Warn for any --exclude paths that don't match a tracked file
+for excl in "${exclude_paths[@]}"; do
+    if ! git ls-files --error-unmatch "$excl" > /dev/null 2>&1; then
+        echo "WARNING: --exclude path '$excl' does not match any tracked file" >&2
+    fi
+done
 
 mkdir -p "$output_dir"
 output_file="$output_dir/$(date +%s).txt"
@@ -31,10 +55,23 @@ You are Clead, Tech Owner on the python-blackjack project. Before doing anything
 EOF
 
 git ls-files "$start_dir" | while read file; do
-  git_version=$(git log -1 --format="%H" -- "$file")
-  echo "=== FILE: $file | GIT VERSION: $git_version ===" >> "$output_file"
-  cat "$file" >> "$output_file"
-  echo "" >> "$output_file"
+    git_version=$(git log -1 --format="%H" -- "$file")
+    echo "=== FILE: $file | GIT VERSION: $git_version ===" >> "$output_file"
+
+    excluded=false
+    for excl in "${exclude_paths[@]}"; do
+        if [[ "$file" == "$excl" ]]; then
+            excluded=true
+            break
+        fi
+    done
+
+    if $excluded; then
+        echo "[File excluded from dump — too large to include]" >> "$output_file"
+    else
+        cat "$file" >> "$output_file"
+    fi
+    echo "" >> "$output_file"
 done
 
 echo "Output written to $output_file"
