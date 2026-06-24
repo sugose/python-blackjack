@@ -36,3 +36,14 @@ but not merged. Merge this first when Copi resumes and has reviewed it.
       https://github.com/orgs/community/discussions/186152
 - [ ] Merge PR #107 once Copi review is clean
 - [ ] Resume PBI-2.2
+
+## Merged this session (June 24)
+
+- PR #110 — TEAM_STRUCTURE.md: Workflow A updated to label-based flow,
+  copi_wait.sh references removed
+- PR #111 — dump.sh: --exclude flag added (comma-separated, exact match,
+  placeholder header for excluded files)
+- PR #112 — python-blackjack: tools/dump-wrapper.sh added
+- fomo-f PR #56 — tools/dump-wrapper.sh added
+- ai-project-template PR #31 — tools/dump-wrapper.sh added
+- ai-project-template PR #32 — presentation.html excluded from dumps
