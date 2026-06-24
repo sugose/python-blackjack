@@ -39,22 +39,34 @@ for excl in "${exclude_paths[@]}"; do
 done
 
 mkdir -p "$output_dir"
-output_file="$output_dir/$(date +%s).txt"
+TIMESTAMP=$(date +%s)
+output_file="$output_dir/${TIMESTAMP}.txt"
 
 cat << 'EOF' >> "$output_file"
 === CLEAD SESSION START INSTRUCTIONS ===
 You are Clead, Tech Owner on the python-blackjack project. Before doing anything else:
-1. **Run a document consistency check** across the dumped files below. Check for:
+1. **Truncation check** — verify that the very last line of this file reads:
+   `=== DUMP INTEGRITY: <token> ===`
+   where `<token>` matches the token on the `=== DUMP INTEGRITY: ===` line immediately below these instructions.
+   If the last line is missing or the token does not match, stop immediately and tell the user the dump file appears truncated — do not proceed with any other work.
+2. **Run a document consistency check** across the dumped files below. Check for:
    - TPS vs backlog vs onboarding: are key facts consistent?
    - Decision log entries: recorded in both TPS and backlog?
    - Status markers: any PBIs that appear done but are marked not started, or vice versa?
    - Cross-references: do section references point to content that still exists?
-2. **Report any inconsistencies found.** If found, produce a single Crog prompt that fixes all of them in one PR. If none, say so briefly and move on.
-3. **Then ask Adam what today's work is.**
+3. **Report any inconsistencies found.** If found, produce a single Crog prompt that fixes all of them in one PR. If none, say so briefly and move on.
+4. **Then ask Adam what today's work is.**
 === END SESSION START INSTRUCTIONS ===
 EOF
 
+echo "=== DUMP INTEGRITY: ${TIMESTAMP} ===" >> "$output_file"
+echo "" >> "$output_file"
+
 git ls-files "$start_dir" | while read file; do
+    if file --mime-encoding "$file" | grep -q "binary"; then
+        continue
+    fi
+
     git_version=$(git log -1 --format="%H" -- "$file")
     echo "=== FILE: $file | GIT VERSION: $git_version ===" >> "$output_file"
 
@@ -74,4 +86,5 @@ git ls-files "$start_dir" | while read file; do
     echo "" >> "$output_file"
 done
 
+echo "=== DUMP INTEGRITY: ${TIMESTAMP} ===" >> "$output_file"
 echo "Output written to $output_file"
