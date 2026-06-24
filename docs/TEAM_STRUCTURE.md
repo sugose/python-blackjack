@@ -17,7 +17,7 @@
 1. Crog opens PR from `feature/<name>` or `fix/<name>` to `main`
 2. Crog posts pr_dump as PR comment: `gh pr comment <PR-number> --body "$(bash tools/pr_dump.sh <PR-number>)"` and reports PR URL to Adam with `?i=1` (increment `i` by 1 on each re-report of the same PR)
 3. Adam drops URL into Clead's chat
-4. Clead fetches PR directly, reads diff + Copi comments + pr_dump
+4. Clead fetches PR directly, reads diff + pr_dump (and Copi comments if Copi has reviewed)
 5. If changes needed: Clead produces fix prompt → Adam pastes → Crog implements only what the prompt specifies → pushes → posts pr_dump → reports `?i=1` to Adam (increment `i` by 1 on each re-report of the same PR) → **stops and waits**. Go back to step 3.
 6. If approved: Clead produces verdict + merge prompt → Adam pastes → Crog posts comment and merges
 
