@@ -16,6 +16,13 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 if [ ${#EXCLUDE_FILES[@]} -eq 0 ]; then
   bash "$SCRIPT_DIR/dump.sh"
 else
-  EXCLUDE_ARG=$(IFS=,; echo "${EXCLUDE_FILES[*]}")
+  EXCLUDE_ARG=""
+  for f in "${EXCLUDE_FILES[@]}"; do
+    if [ -z "$EXCLUDE_ARG" ]; then
+      EXCLUDE_ARG="$f"
+    else
+      EXCLUDE_ARG="$EXCLUDE_ARG,$f"
+    fi
+  done
   bash "$SCRIPT_DIR/dump.sh" --exclude "$EXCLUDE_ARG"
 fi
